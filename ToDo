@@ -1,0 +1,29 @@
+Pour la production :
+- cookie secure=true
+- Notez que pour des raisons de sécurité, en production,
+vous devriez spécifier uniquement les origines que vous faites confiance à l'aide
+de CORS_ALLOWED_ORIGINS plutôt que d'autoriser toutes les origines.
+
+Users :
+- affichage validation champs forms
+- intégration register au store vuex
+- redirection sur profil après connexion si fonction = Non définie
+- modification profil user
+
+Suppliers :
+- affichage validation champs forms
+- fonction menu card
+
+Problèmes :
+- Custom input se vide
+- récupération id fournisseur pour modif
+- Affichage données utilisateur dans profil
+
+Modifications :
+- Custom input pour register, login, password-reset
+
+Sécurité (modifications et prévision) :
+
+
+
+
