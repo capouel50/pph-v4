@@ -9,6 +9,8 @@ from .views import (
 )
 from django.conf import settings
 from django.conf.urls.static import static
+from django.urls import path, reverse_lazy
+from django.views.generic import RedirectView
 
 router = DefaultRouter()
 router.register(r'suppliers', SupplierViewSet)
@@ -33,6 +35,7 @@ urlpatterns = [
     path('users/<int:pk>/', CustomUserRetrieveUpdateDestroyView.as_view(), name='user-detail'),
     path('users/', CustomUserListCreateView.as_view(), name='custom-user-list'),
     path('user-functions/', UserFunctionListCreateView.as_view(), name='user-function-list'),
+    path('', RedirectView.as_view(url=reverse_lazy('login')), name='home'),
     path('', include(router.urls)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
