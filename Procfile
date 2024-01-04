@@ -1,1 +1,2 @@
-web: gunicorn Hospi.wsgi
+web: gunicorn Hospi.wsgi --log-file -
+
