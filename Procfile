@@ -1,4 +1,5 @@
-web: cd pphfront && npm run build && python manage.py runserver 0.0.0.0:30991
+web: cd pphfront && npm install && npm run build && python manage.py runserver 0.0.0.0:$PORT
+
 
 
 
