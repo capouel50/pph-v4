@@ -28,7 +28,6 @@ router.register(r'parametres-prep', ParametresPrepViewSet)
 router.register(r'parametres-formules', ParametresFormulesViewSet)
 
 urlpatterns = [
-    path('', admin.site.urls),
     path('composition/filter/<int:num_formule>/', CompositionFilterView.as_view(), name='composition-filter'),
     path('current_user/', CurrentUserView.as_view(), name='current-user'),
     path('contact/', ContactView.as_view(), name='contact-create'),
