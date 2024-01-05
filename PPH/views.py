@@ -116,6 +116,8 @@ class CustomRegisterView(RegisterView):
 
         return Response(response_data, status=status.HTTP_201_CREATED, headers=headers)
 
+def home(request):
+    return render(request, 'login_vue_component.html')
 
 @api_view(['GET'])
 def confirm_email(request, token):
