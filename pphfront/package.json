@@ -6,8 +6,10 @@
     "start": "vue-cli-service serve",
     "lint": "vue-cli-service lint",
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build"
+    "build": "vue-cli-service build",
+    "deploy": "vue-cli-service build"
   },
+  "homepage": "https://capouel50µ.github.io/PPH/"
   "engines": {
   "node": "18.17.0"
   },
