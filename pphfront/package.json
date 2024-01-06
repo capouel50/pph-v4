@@ -1,7 +1,7 @@
 {
   "name": "pphfront",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "scripts": {
     "start": "vue-cli-service serve",
     "lint": "vue-cli-service lint",
