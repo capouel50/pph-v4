@@ -14,6 +14,9 @@ from pathlib import Path
 from decouple import config
 import os
 from datetime import timedelta
+from decouple import config
+import dj_database_url
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -22,12 +25,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-$2(qfq-=p$w!^v=+$=lp!0u(c7bxdyimu$j*h0z4x=s(v=6eb5'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['https://famous-liger-b661eb.netlify.app/', 'localhost']
+ALLOWED_HOSTS = ['*']
 
 APP_NAME = 'PPH'
 # Application definition
@@ -68,7 +71,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'Hospi.urls'
 
-FRONTEND_DOMAIN = 'http://localhost:8080/'
+FRONTEND_DOMAIN = 'https://pph-67ad92a79bdd.herokuapp.com/'
 
 TEMPLATES = [
     {
@@ -92,12 +95,15 @@ WSGI_APPLICATION = 'Hospi.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': BASE_DIR / 'db.sqlite3',
+#    }
+#}
+
+DATABASE_URL = config('DATABASE_URL')
+
 
 
 # Password validation
@@ -232,13 +238,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'PPH.CustomUser'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.office365.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = 'devpyth@outlook.fr'
-DEFAULT_TO_EMAIL = 'devpyth@outlook.fr'
-EMAIL_HOST_USER = 'devpyth@outlook.fr'
+EMAIL_BACKEND = config('EMAIL_BACKEND')
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
+DEFAULT_TO_EMAIL = config('DEFAULT_TO_EMAIL')
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 MEDIA_URL = '/media/'

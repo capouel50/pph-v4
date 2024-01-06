@@ -1,11 +1,2 @@
-web: cd pphfront && npm install && npm run build && python manage.py runserver 0.0.0.0:$PORT
-
-
-
-
-
-
-
-
-
-
+web: gunicorn Hospi.Hospi.wsgi:application
+frontend: npm run serve --prefix Hospi/pphfront
