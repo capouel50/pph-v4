@@ -9,7 +9,7 @@
     "build": "vue-cli-service build",
     "deploy": "vue-cli-service build"
   },
-  "homepage": "index.html"
+  "homepage": "https://capouel50.github.io/PPH/"
   "engines": {
   "node": "18.17.0"
   },
