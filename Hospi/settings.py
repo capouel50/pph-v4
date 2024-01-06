@@ -256,5 +256,5 @@ CORS_ORIGIN_WHITELIST = [
     "http://localhost:8080",
 ]
 CORS_ALLOWED_ORIGINS = [
-    'https://pph-67ad92a79bdd.herokuapp.com/',
+    'https://capouel50.github.io/PPH/',
 ]
