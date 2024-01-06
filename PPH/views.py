@@ -96,7 +96,7 @@ class CustomRegisterView(RegisterView):
         domain = get_current_site(request).domain
         domain = domain.replace('http://', '').replace('https://', '')
         protocol = 'https' if request.is_secure() else 'http'
-        activate_url = f'{protocol}://{domain}{reverse("validate_account", args=[uid, email_token])}'
+        activate_url = f'{protocol}://{domain}{reverse("pph:validate_account", args=[uid, email_token])}'
 
         # Créer le contenu du mail de confirmation
         mail_subject = 'Confirmation de votre inscription.'
