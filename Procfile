@@ -1,2 +1,2 @@
-web: gunicorn Hospi.wsgi:application
+web: gunicorn Hospi.wsgi --chdir Hospi
 frontend: npm run serve --prefix Hospi/pphfront

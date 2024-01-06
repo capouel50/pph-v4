@@ -8,12 +8,10 @@ from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenRefreshView
 from PPH.views import CustomTokenObtainPairView
 
-app_name = 'pph'
-
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('PPH.urls', namespace='pph')),
-    path('PPH/', include('PPH.urls', namespace='pph')),
+    path('', include('PPH.urls')),
+    path('PPH/', include('PPH.urls')),
     path('api-auth/', include('rest_framework.urls')),
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
