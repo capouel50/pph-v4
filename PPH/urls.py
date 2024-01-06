@@ -1,7 +1,5 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-
-from . import admin
 from .views import (
     CurrentUserView, ContactView, SupplierViewSet, UserFunctionListCreateView, CustomUserListCreateView,
     CustomUserRetrieveUpdateDestroyView, TypeMatiereViewSet, UniteMesureViewSet, FormeViewSet,
