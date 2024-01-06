@@ -10,6 +10,7 @@ from PPH.views import CustomTokenObtainPairView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('/', include('PPH.urls')),
     path('PPH/', include('PPH.urls')),
     path('api-auth/', include('rest_framework.urls')),
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
