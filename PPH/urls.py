@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from . import admin
 from .views import (
-    home, CurrentUserView, ContactView, SupplierViewSet, UserFunctionListCreateView, CustomUserListCreateView,
+    CurrentUserView, ContactView, SupplierViewSet, UserFunctionListCreateView, CustomUserListCreateView,
     CustomUserRetrieveUpdateDestroyView, TypeMatiereViewSet, UniteMesureViewSet, FormeViewSet,
     CompositionViewSet, FormuleViewSet, MatierePremiereViewSet, CatalogueViewSet, ListeViewSet,
     VoieViewSet, TypePrepViewSet, ParametresPrepViewSet, ParametresFormulesViewSet, CompositionFilterView
