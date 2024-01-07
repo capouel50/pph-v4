@@ -6,6 +6,10 @@
   "devDependencies": {
     "@vue/cli-plugin-router": "~5.0.0",
     "babel-eslint": "^10.1.0"
+  },
+  "engines": {
+    "node": "18.17.0",
+    "npm": "9.8.1"
   }
 }
 

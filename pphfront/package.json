@@ -9,7 +9,8 @@
     "build": "vue-cli-service build"
   },
   "engines": {
-    "node": "18.17.0"
+    "node": "18.17.0",
+    "npm": "9.8.1"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.4.2",
