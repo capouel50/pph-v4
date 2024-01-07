@@ -2,5 +2,5 @@
 web: gunicorn Hospi.wsgi --chdir Hospi
 
 # Pour le frontend Vue.js
-frontend: npm run serve --prefix Hospi/pphfront
+frontend: node server.js
 
