@@ -1,1 +1,16 @@
 name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - Back4app
+
+jobs:
+  deploy:
+    run-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    
+    
