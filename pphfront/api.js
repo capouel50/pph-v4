@@ -3,7 +3,7 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 
 const api = axios.create({
-  baseURL: 'https://pph-67ad92a79bdd.herokuapp.com/',
+  baseURL: 'https://pph-backend-4f4fd8d99c88.herokuapp.com/',
   withCredentials: true,
 })
 
