@@ -1,0 +1,13 @@
+# Configurations Nginx spécifiques à votre application Vue.js
+server {
+    listen <%= ENV['PORT'] || 3000 %>;
+    server_name localhost;
+
+    location / {
+        root /app/<%= ENV['PPH'] %>/dist;
+        try_files $uri $uri/ /index.html;
+        index index.html;
+    }
+
+    # Ajoutez d'autres configurations selon vos besoins
+}
