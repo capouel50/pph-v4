@@ -1,9 +1,11 @@
 {
-  "name": "frontend",
+  "name": "PPH",
   "version": "0.1.0",
   "private": false,
   "scripts": {
-    "start": "vue-cli-service serve",
+    "heroku-postbuild": "npm install --only=dev --no-shrinkwrap && npm run build",
+    "prev" : "serve -s dist",
+    "start": "node server.js",
     "lint": "vue-cli-service lint",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build"
@@ -21,7 +23,9 @@
     "@vuelidate/core": "^2.0.3",
     "@vuelidate/validators": "^2.0.3",
     "core-js": "^3.8.3",
+    "express": "^4.18.2",
     "jwt-decode": "^3.1.2",
+    "mime-types": "^2.1.35",
     "nprogress": "^0.2.0",
     "particles.js": "^2.0.0",
     "quasar": "^2.0.0",
