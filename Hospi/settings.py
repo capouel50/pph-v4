@@ -71,7 +71,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'Hospi.urls'
 
-FRONTEND_DOMAIN = 'https://pph-67ad92a79bdd.herokuapp.com/'
+FRONTEND_DOMAIN = 'https://pph-mgfa.vercel.app/'
 
 TEMPLATES = [
     {
@@ -250,11 +250,11 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = [
     "http://localhost:8080",
 ]
 CORS_ALLOWED_ORIGINS = [
-    'https://pph-67ad92a79bdd.herokuapp.com/',
+    'https://pph-front.vercel.app/', "http://localhost:8080",
 ]
