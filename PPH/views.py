@@ -53,9 +53,9 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             if settings.DEBUG:
                 # En mode développement
                 new_response.set_cookie('access_token', access_token, max_age=max_age_access, httponly=True,
-                                        samesite='Lax')
+                                        samesite='None', secure=True)
                 new_response.set_cookie('refresh_token', refresh_token, max_age=max_age_refresh, httponly=True,
-                                        samesite='Lax')
+                                        samesite='None', secure=True)
             else:
                 # En production
                 new_response.set_cookie('access_token', access_token, max_age=max_age_access, httponly=True,

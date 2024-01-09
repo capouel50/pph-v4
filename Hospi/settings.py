@@ -71,7 +71,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'Hospi.urls'
 
-FRONTEND_DOMAIN = 'https://pph-mgfa.vercel.app/'
+FRONTEND_DOMAIN = 'https://pph-frontend.vercel.app/'
 
 TEMPLATES = [
     {
@@ -253,7 +253,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = [
-    "http://localhost:8080", 'https://pph-front.vercel.app',
+    "http://localhost:8080", 'https://pph-frontend.vercel.app',
 ]
 CORS_ALLOWED_ORIGINS = [
     'https://pph-frontend.vercel.app', "http://localhost:8080",
