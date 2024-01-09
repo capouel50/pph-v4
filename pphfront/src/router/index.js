@@ -13,6 +13,7 @@ import CdtGalUtl from "@/components/FooterLinks/CdtGalUtl.vue";
 import HomePage from "@/components/HomePage.vue";
 import MatieresCards from "@/components/MatieresPremiere/MatieresCards.vue";
 import CreateFormula from "@/components/Formules/CreateFormula.vue";
+import CreateMatiere from "@/components/MatieresPremiere/CreateMatiere.vue";
 
 const routes = [
   {
@@ -124,6 +125,11 @@ const routes = [
     path: '/nouvelle-formule',
     name: 'CreateFormula',
     component: CreateFormula
+  },
+  {
+    path: '/creation-matiere-premiere',
+    name: 'CreateMatiere',
+    component: CreateMatiere
   },
 ]
 
