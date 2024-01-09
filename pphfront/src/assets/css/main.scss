@@ -257,11 +257,20 @@
   border-radius: 10px;
 }
 
+.card-home{
+  border: #4dd0e1 solid 2px;
+  border-radius: 10px;
+}
+
 .card-mini:hover{
   border-color: #ffb74d;
 }
 
 .card-maxi:hover{
+  border-color: #ffb74d;
+}
+
+.card-home:hover{
   border-color: #ffb74d;
 }
 
