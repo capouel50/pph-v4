@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="93413d6e-0aa9-457d-a155-0e798f194dfd" name="git" url="http://localhost">
+        <fileTransfer mountedRoot="D:\PycharmProjects\djangoProject\pph-local\Hospi" accessType="MOUNT" port="0" />
+      </webServer>
+    </option>
+  </component>
+</project>
