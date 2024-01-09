@@ -35,10 +35,10 @@
                     <q-img class="logo-card-mini" :src="matiere.type.logo" :alt="matiere.type.nom">
                       <div class="absolute-top hover-effect q-my-none" :class="{ 'text-cyan-1': matiere.stockee, 'text-red-4': !matiere.stockee }">
                         <div>{{ matiere.nom }}</div>
-                        <div>{{ matiere.forme.nom }} {{ matiere.qté_cdt }}{{ matiere.forme.unite_mesure.nom }}</div>
+                        <div>{{ matiere.forme.nom }} {{ matiere.qté_cdt }} {{ matiere.forme.unite_mesure.nom }}</div>
                         <div>
                           <q-icon v-if="matiere.qté_stock < matiere.stock_mini" name="warning" color="red-4"/>
-                          Stock : {{ matiere.qté_stock }}{{ matiere.forme.unite_stock }}
+                          Stock : {{ matiere.qté_stock }} {{ matiere.forme.unite_stock }}
                         </div>
                       </div>
                     </q-img>
