@@ -27,7 +27,7 @@
           </div>
         </div>
         <div class="row q-mt-sm">
-          <div class="col col-12 justify-center">
+          <div class="col-9 justify-center">
             <div class="row justify-start">
               <div class="col-2 q-pa-sm" v-for="matiere in filteredMatieres" :key="matiere.id" @click="redirectToLink(matiere.id)">
                 <q-card bordered class="card-maxi justify-center items-center text-center relative" :class="{ 'bd-red-4': !matiere.stockee}">
