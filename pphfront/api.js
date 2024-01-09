@@ -2,10 +2,21 @@ import axios from 'axios'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 
+let baseURL;
+
+if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+  // Environnement local
+  baseURL = 'http://localhost:8000'; // Remplacez cela par l'URL de votre serveur local
+} else {
+  // Environnement en ligne
+  baseURL = 'https://pph-backend-4f4fd8d99c88.herokuapp.com/'; // Remplacez cela par l'URL de votre serveur en ligne
+}
+
 const api = axios.create({
-  baseURL: 'https://pph-backend-4f4fd8d99c88.herokuapp.com/',
+  baseURL,
   withCredentials: true,
-})
+});
+
 
 export const getRefreshTokenFromCookie = () => {
   const refreshTokenRow = document.cookie.split('; ').find(row => row.startsWith('refresh_token'));

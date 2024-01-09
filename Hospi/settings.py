@@ -95,14 +95,14 @@ WSGI_APPLICATION = 'Hospi.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': BASE_DIR / 'db.sqlite3',
-#    }
-#}
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
-DATABASES = {'default': dj_database_url.config(default=config('DATABASE_URL'))}
+# DATABASES = {'default': dj_database_url.config(default=config('DATABASE_URL'))}
 
 
 
@@ -253,8 +253,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = [
-    "http://localhost:8080",
+    "http://localhost:8080", 'https://pph-front.vercel.app',
 ]
 CORS_ALLOWED_ORIGINS = [
-    'https://pph-front.vercel.app/', "http://localhost:8080",
+    'https://pph-frontend.vercel.app', "http://localhost:8080",
 ]
