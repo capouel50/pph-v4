@@ -33,6 +33,7 @@
     opacity:1;
     animation-name: fondu;
     animation-duration: 5s;
+    object-fit: contain;
 }
 
 @media (min-width: 768px) {
@@ -127,12 +128,15 @@
   color: #9bd1d1 !important;
   border-color: #9bd1d1 !important;
   background-color: dimgrey;
+  cursor: pointer;
+  transition: background-color 0.3s ease-out, box-shadow 0.3s ease-out;
 }
 
 .btn-grey-primary-pph:hover {
   color: white !important;
   background-color: #9bd1d1;
   border-color: #9bd1d1 !important;
+  box-shadow: 0 0 20px #9bd1d1;
 }
 
 .btn-grey-warning-pph {
