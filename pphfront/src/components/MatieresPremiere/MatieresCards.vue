@@ -4,7 +4,7 @@
       <div class="col-md-12">
         <div class="row">
           <div class="col-1 q-ml-sm q-mt-sm">
-            <router-link to="/supplier/">
+            <router-link to="/creation-matiere-premiere/">
               <q-btn round class="glossy btn-grey-primary-pph" icon="add"/>
             </router-link>
           </div>
