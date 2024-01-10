@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 from django.urls import reverse
-
+from datetime import date
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, first_name, last_name, password=None):
@@ -220,8 +220,9 @@ class Catalogue(models.Model):
 class Demandes(models.Model):
     prep = models.ForeignKey(Formule, on_delete=models.CASCADE, null=True)
     qté = models.CharField(max_length=200, null=True)
+    date_prevu = models.DateField(default=date.today, blank=True)
     def __str__(self):
-        return str(self.prep)
+        return f"{self.prep} - {self.date_prevu}"
 
 class Fiches(models.Model):
     prep = models.ForeignKey(Formule, on_delete=models.CASCADE, null=True)

@@ -52,7 +52,7 @@ class ParametresFormulesAdmin(admin.ModelAdmin):
 
 @admin.register(Demandes)
 class DemandesAdmin(admin.ModelAdmin):
-    list_display = ['prep', 'qté']
+    list_display = ['prep', 'qté', 'date_prevu']
 
 @admin.register(Fiches)
 class FichesAdmin(admin.ModelAdmin):
