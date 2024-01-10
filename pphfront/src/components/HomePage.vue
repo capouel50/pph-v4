@@ -9,11 +9,11 @@
               <q-img src="../assets/img/commande.jpg">
                 <div class="absolute-top text-subtitle2 text-center hover-effect">
                   En attente commande
+                  <div class="text-h4 text-center text-cyan-4">
+                  {{ matieresCdeCount }}
+                  </div>
                 </div>
               </q-img>
-              <div class="text-h4 text-center text-cyan-4">
-                {{ matieresCdeCount }}
-              </div>
             </q-card>
           </div>
 
@@ -22,11 +22,11 @@
               <q-img src="../assets/img/livrer.jpg">
                 <div class="absolute-top text-subtitle2 text-center hover-effect">
                   En attente livraison
+                  <div class="text-h4 text-center text-cyan-4">
+                    {{ matieresLivraisonCount }}
+                  </div>
                 </div>
               </q-img>
-              <div class="text-h4 text-center text-cyan-4">
-                {{ matieresLivraisonCount }}
-              </div>
             </q-card>
           </div>
 
@@ -35,11 +35,11 @@
               <q-img src="../assets/img/demande3.jpg">
                 <div class="absolute-top text-subtitle2 text-center hover-effect">
                   En attente préparation
+                  <div class="text-h4 text-center text-cyan-4">
+                    {{ nombreDemandes }}
+                  </div>
                 </div>
               </q-img>
-              <div class="text-h4 text-center text-cyan-4">
-                {{ nombreDemandes }}
-              </div>
             </q-card>
           </div>
 
@@ -47,12 +47,12 @@
             <q-card bordered>
               <q-img src="../assets/img/controle2.jpg">
                 <div class="absolute-top text-subtitle2 text-center hover-effect">
-                  En attente controle
+                  En attente contrôle
+                  <div class="text-h4 text-center text-cyan-4">
+                    {{ fichesControlCount }}
+                  </div>
                 </div>
               </q-img>
-              <div class="text-h4 text-center text-cyan-4">
-                {{ fichesControlCount }}
-              </div>
             </q-card>
           </div>
 
