@@ -11,10 +11,13 @@ import forms from './modules/forms';
 import matieresPremieres from './modules/matieresPremieres';
 import formules from './modules/formules';
 import voiesAdministration from './modules/voiesAdministration';
-
+import demandes from './modules/demandes';
+import fiches from './modules/fiches';
 
 const store = createStore({
   modules: {
+    fiches,
+    demandes,
     voiesAdministration,
     formules,
     matieresPremieres,

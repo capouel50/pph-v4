@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate
 from rest_framework import serializers
 from .models import CustomUser, Supplier, UserFunction, Contact, \
     TypeMatiere, UniteMesure, Forme, MatierePremiere, TypePrep, Formule, \
-    Composition, Catalogue, Voie, Liste, ParametresPrep, ParametresFormules
+    Composition, Catalogue, Voie, Liste, ParametresPrep, ParametresFormules, Demandes, Fiches
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -193,4 +193,14 @@ class CatalogueSerializer(serializers.ModelSerializer):
         model = Catalogue
         fields = '__all__'
 
+class DemandesSerializer(serializers.ModelSerializer):
+    prep = FormuleSerializer()
+    class Meta:
+        model = Demandes
+        fields = '__all__'
 
+class FichesSerializer(serializers.ModelSerializer):
+    prep = FormuleSerializer()
+    class Meta:
+        model = Fiches
+        fields = '__all__'

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import CustomUser, UserFunction, Supplier, TypeMatiere, \
     UniteMesure, Forme, MatierePremiere, Liste, TypePrep, Formule, Composition, \
-    Catalogue, Voie, ParametresPrep, ParametresFormules
+    Catalogue, Voie, ParametresPrep, ParametresFormules, Demandes, Fiches
 
 
 class CustomUserAdmin(admin.ModelAdmin):
@@ -50,9 +50,18 @@ class ParametresPrepAdmin(admin.ModelAdmin):
 class ParametresFormulesAdmin(admin.ModelAdmin):
     list_display = ['num_formule', 'parametre']
 
+@admin.register(Demandes)
+class DemandesAdmin(admin.ModelAdmin):
+    list_display = ['prep', 'qté']
+
+@admin.register(Fiches)
+class FichesAdmin(admin.ModelAdmin):
+    list_display = ['prep']
+
 @admin.register(MatierePremiere)
 class MatierePremiereAdmin(admin.ModelAdmin):
-    list_display = ['nom', 'type', 'forme', 'qté_cdt', 'fournisseur', 'prix', 'prix_unit', 'qté_stock', 'stock_mini', 'stockee', 'cde']
+    list_display = ['nom', 'type', 'forme', 'qté_cdt', 'fournisseur', 'prix', 'prix_unit',
+                    'qté_stock', 'stock_mini', 'stockee', 'cde', 'cde_auto', 'attente_livraison',]
 
 @admin.register(Formule)
 class TypePrepAdmin(admin.ModelAdmin):

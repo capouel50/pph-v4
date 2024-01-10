@@ -11,6 +11,9 @@
                   En attente commande
                 </div>
               </q-img>
+              <div class="text-h4 text-center text-cyan-4">
+                {{ matieresCdeCount }}
+              </div>
             </q-card>
           </div>
 
@@ -21,6 +24,9 @@
                   En attente livraison
                 </div>
               </q-img>
+              <div class="text-h4 text-center text-cyan-4">
+                {{ matieresLivraisonCount }}
+              </div>
             </q-card>
           </div>
 
@@ -31,6 +37,9 @@
                   En attente préparation
                 </div>
               </q-img>
+              <div class="text-h4 text-center text-cyan-4">
+                {{ nombreDemandes }}
+              </div>
             </q-card>
           </div>
 
@@ -41,6 +50,9 @@
                   En attente controle
                 </div>
               </q-img>
+              <div class="text-h4 text-center text-cyan-4">
+                {{ fichesControlCount }}
+              </div>
             </q-card>
           </div>
 
@@ -51,12 +63,29 @@
 </template>
 
 <script>
-
+import {mapActions, mapGetters} from 'vuex';
 
 export default {
   name: "HomePage",
 
-}
+  computed: {
+    ...mapGetters('matieresPremieres', ['matieresCdeCount', 'matieresLivraisonCount']),
+    ...mapGetters('demandes', ['nombreDemandes']),
+    ...mapGetters('fiches', ['fichesControlCount']),
+  },
+
+  created() {
+    this.loadMatieresPremieres();
+    this.loadDemandes();
+    this.loadFiches();
+  },
+
+  methods: {
+    ...mapActions('matieresPremieres', ['loadMatieresPremieres']),
+    ...mapActions('demandes', ['loadDemandes']),
+    ...mapActions('fiches', ['loadFiches']),
+  },
+};
 </script>
 
 <style scoped>

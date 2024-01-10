@@ -4,12 +4,11 @@ from .views import (
     CurrentUserView, ContactView, SupplierViewSet, UserFunctionListCreateView, CustomUserListCreateView,
     CustomUserRetrieveUpdateDestroyView, TypeMatiereViewSet, UniteMesureViewSet, FormeViewSet,
     CompositionViewSet, FormuleViewSet, MatierePremiereViewSet, CatalogueViewSet, ListeViewSet,
-    VoieViewSet, TypePrepViewSet, ParametresPrepViewSet, ParametresFormulesViewSet, CompositionFilterView
+    VoieViewSet, TypePrepViewSet, ParametresPrepViewSet, ParametresFormulesViewSet, CompositionFilterView,
+    DemandesViewSet, FichesViewSet
 )
 from django.conf import settings
 from django.conf.urls.static import static
-from django.shortcuts import redirect
-
 
 router = DefaultRouter()
 router.register(r'suppliers', SupplierViewSet)
@@ -20,6 +19,8 @@ router.register(r'matieres-premieres', MatierePremiereViewSet)
 router.register(r'creation-matiere-premiere', MatierePremiereViewSet)
 router.register(r'nouvelle-formule', FormuleViewSet)
 router.register(r'composition', CompositionViewSet, basename='composition')
+router.register(r'demandes', DemandesViewSet)
+router.register(r'fiches', FichesViewSet)
 router.register(r'catalogue', CatalogueViewSet)
 router.register(r'voie', VoieViewSet)
 router.register(r'liste', ListeViewSet)

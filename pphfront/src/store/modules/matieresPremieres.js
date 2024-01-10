@@ -15,7 +15,14 @@ const getters = {
   expanded: (state) => state.expanded,
   currentMatiere: state => {
     return state.currentMatiere;
-  }
+  },
+  matieresCdeCount: (state) => {
+    const matieresWithCde = state.matieres.filter((matiere) => matiere.cde);
+    return matieresWithCde.length;
+  },
+  matieresLivraisonCount: (state) => {
+    return state.matieres.filter((matiere) => matiere.attente_livraison).length;
+  },
 };
 
 const actions = {

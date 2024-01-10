@@ -15,7 +15,8 @@ from PPH.serializers import (
     CustomRegisterSerializer, UserFunctionSerializer, SupplierSerializer, CustomUserSerializer,
     ContactSerializer, TypeMatiereSerializer, TypePrepSerializer, UniteMesureSerializer,
     FormeSerializer, MatierePremiereSerializer, FormuleSerializer, CompositionSerializer,
-    CatalogueSerializer, VoieSerializer, ListeSerializer, ParametresPrepSerializer, ParametresFormulesSerializer
+    CatalogueSerializer, VoieSerializer, ListeSerializer, ParametresPrepSerializer, ParametresFormulesSerializer,
+    DemandesSerializer, FichesSerializer,
 )
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.http import JsonResponse, HttpResponseRedirect
@@ -29,12 +30,11 @@ from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
 from rest_framework import viewsets
 from .models import CustomUser, Supplier, UserFunction, Contact,\
     TypeMatiere, UniteMesure, Forme, MatierePremiere, TypePrep, \
-    Formule, Composition, Catalogue, Liste, Voie, ParametresPrep, ParametresFormules
+    Formule, Composition, Catalogue, Liste, Voie, ParametresPrep, ParametresFormules, Demandes, Fiches
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 import logging
-from django.shortcuts import render
 
 logger = logging.getLogger(__name__)
 
@@ -258,6 +258,9 @@ class ContactView(generics.CreateAPIView):
 
         return Response({"success": "Message envoyé avec succès"}, status=status.HTTP_201_CREATED)
 
+class DemandesViewSet(viewsets.ModelViewSet):
+    queryset = Demandes.objects.all()
+    serializer_class = DemandesSerializer
 
 class TypeMatiereViewSet(viewsets.ModelViewSet):
     queryset = TypeMatiere.objects.all()
@@ -290,6 +293,10 @@ class VoieViewSet(viewsets.ModelViewSet):
 class FormeViewSet(viewsets.ModelViewSet):
     queryset = Forme.objects.all()
     serializer_class = FormeSerializer
+
+class FichesViewSet(viewsets.ModelViewSet):
+    queryset = Fiches.objects.all()
+    serializer_class = FichesSerializer
 
 class MatierePremiereViewSet(viewsets.ModelViewSet):
     queryset = MatierePremiere.objects.all()

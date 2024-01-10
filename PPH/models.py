@@ -164,7 +164,9 @@ class MatierePremiere(models.Model):
     stock_mini = models.PositiveIntegerField()
     liste = models.ForeignKey(Liste, on_delete=models.CASCADE)
     stockee = models.BooleanField(default=False)
+    cde_auto = models.BooleanField(default=False)
     cde = models.BooleanField(default=False)
+    attente_livraison = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['nom']
@@ -214,3 +216,15 @@ class Catalogue(models.Model):
 
     def __str__(self):
         return self.nom
+
+class Demandes(models.Model):
+    prep = models.ForeignKey(Formule, on_delete=models.CASCADE, null=True)
+    qté = models.CharField(max_length=200, null=True)
+    def __str__(self):
+        return str(self.prep)
+
+class Fiches(models.Model):
+    prep = models.ForeignKey(Formule, on_delete=models.CASCADE, null=True)
+    attente_controle = models.BooleanField(default=False)
+    def __str__(self):
+        return str(self.prep)
