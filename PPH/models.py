@@ -98,7 +98,10 @@ class Contact(models.Model):
     def __str__(self):
         return self.name
 
-
+class Service(models.Model):
+    nom = models.CharField(max_length=200, null=True)
+    def __str__(self):
+        return str(self.nom)
 class TypeMatiere(models.Model):
     nom = models.CharField(max_length=200)
     logo = models.ImageField(upload_to='matieres/', default='matieres/actif.jpg')
@@ -150,7 +153,7 @@ class ParametresFormules(models.Model):
     parametre = models.ForeignKey(ParametresPrep, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.nom
+        return f"{self.num_formule} - {self.parametre}"
 
 class MatierePremiere(models.Model):
     nom = models.CharField(max_length=200)
@@ -199,6 +202,7 @@ class Composition(models.Model):
     matiere = models.ForeignKey(MatierePremiere, on_delete=models.CASCADE, null=True)
     qté = models.CharField(max_length=200, null=True)
     unite = models.ForeignKey(UniteMesure, on_delete=models.CASCADE, null=True)
+    calcul = models.CharField(max_length=200, null=True)
 
     def __str__(self):
         return str(self.num_formule)
@@ -219,13 +223,20 @@ class Catalogue(models.Model):
 
 class Demandes(models.Model):
     prep = models.ForeignKey(Formule, on_delete=models.CASCADE, null=True)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, null=True)
     qté = models.CharField(max_length=200, null=True)
     date_prevu = models.DateField(default=date.today, blank=True)
+    commentaire = models.CharField(max_length=200, null=True)
     def __str__(self):
         return f"{self.prep} - {self.date_prevu}"
 
 class Fiches(models.Model):
     prep = models.ForeignKey(Formule, on_delete=models.CASCADE, null=True)
     attente_controle = models.BooleanField(default=False)
+    date_fab = models.DateField(default=date.today, blank=True)
+    service = models.CharField(max_length=200, null=True)
+    qté = models.CharField(max_length=200, null=True)
     def __str__(self):
         return str(self.prep)
+
+

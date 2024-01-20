@@ -5,12 +5,13 @@ from .views import (
     CustomUserRetrieveUpdateDestroyView, TypeMatiereViewSet, UniteMesureViewSet, FormeViewSet,
     CompositionViewSet, FormuleViewSet, MatierePremiereViewSet, CatalogueViewSet, ListeViewSet,
     VoieViewSet, TypePrepViewSet, ParametresPrepViewSet, ParametresFormulesViewSet, CompositionFilterView,
-    DemandesViewSet, FichesViewSet
+    DemandesViewSet, FichesViewSet, FichesSemaine, FichesMois
 )
 from django.conf import settings
 from django.conf.urls.static import static
 
 router = DefaultRouter()
+router.register(r'formules', SupplierViewSet)
 router.register(r'suppliers', SupplierViewSet)
 router.register(r'types-matiere', TypeMatiereViewSet)
 router.register(r'unites-mesure', UniteMesureViewSet)
@@ -29,6 +30,8 @@ router.register(r'parametres-prep', ParametresPrepViewSet)
 router.register(r'parametres-formules', ParametresFormulesViewSet)
 
 urlpatterns = [
+    path('fiches-mois/', FichesMois.as_view(), name='fiches-mois'),
+    path('fiches-semaine/', FichesSemaine.as_view(), name='fiches-semaine'),
     path('composition/filter/<int:num_formule>/', CompositionFilterView.as_view(), name='composition-filter'),
     path('current_user/', CurrentUserView.as_view(), name='current-user'),
     path('contact/', ContactView.as_view(), name='contact-create'),

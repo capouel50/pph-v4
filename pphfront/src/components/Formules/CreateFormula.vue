@@ -299,9 +299,17 @@ export default {
   data() {
     return {
       step: 1,
-      froid: false,
-      lumiere: false,
-      agiter: false,
+      name: '',                // Pour le Nom de la formule
+      typePrep: null,          // Pour le Type de préparation
+      liste: null,             // Pour la Liste
+      voie: null,              // Pour la Voie d'administration
+      duree: '',               // Pour la Durée
+      froid: false,            // Toggle pour Conservation au froid
+      lumiere: false,          // Toggle pour Abris de la lumiere
+      agiter: false,           // Toggle pour Agiter avant emploi
+      modeOperatoire: '',      // Pour le Mode opératoire
+      emploi: '',              // Pour les Contre-indications et précautions d'emploi
+      publications: ''
     };
   },
 

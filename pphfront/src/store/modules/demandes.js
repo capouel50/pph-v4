@@ -5,6 +5,11 @@ const state = {
 };
 
 const getters = {
+  demandesAll: state => state.demandes,
+  demandesDates: state => {
+    // Retourner un tableau contenant uniquement les dates des demandes
+    return state.demandes.map(demande => demande.date_prevu);
+  },
   nombreDemandes: (state) => state.demandes.length,
   demandeProche: (state) => {
     const demandesTriees = [...state.demandes].sort((a, b) => {
@@ -58,6 +63,7 @@ const actions = {
     try {
       const response = await api.get('/demandes');
       commit('setDemandes', response.data);
+
     } catch (error) {
       console.error('Erreur lors du chargement des demandes :', error);
     }

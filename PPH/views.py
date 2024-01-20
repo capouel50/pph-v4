@@ -4,6 +4,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.encoding import force_bytes, force_str
 from django.utils.html import strip_tags
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -16,7 +17,7 @@ from PPH.serializers import (
     ContactSerializer, TypeMatiereSerializer, TypePrepSerializer, UniteMesureSerializer,
     FormeSerializer, MatierePremiereSerializer, FormuleSerializer, CompositionSerializer,
     CatalogueSerializer, VoieSerializer, ListeSerializer, ParametresPrepSerializer, ParametresFormulesSerializer,
-    DemandesSerializer, FichesSerializer,
+    DemandesSerializer, FichesSerializer, ServiceSerializer, ParametresFormulesListSerializer
 )
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.http import JsonResponse, HttpResponseRedirect
@@ -30,11 +31,16 @@ from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
 from rest_framework import viewsets
 from .models import CustomUser, Supplier, UserFunction, Contact,\
     TypeMatiere, UniteMesure, Forme, MatierePremiere, TypePrep, \
-    Formule, Composition, Catalogue, Liste, Voie, ParametresPrep, ParametresFormules, Demandes, Fiches
+    Formule, Composition, Catalogue, Liste, Voie, ParametresPrep, ParametresFormules, Demandes, Fiches, Service
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 import logging
+from django.db.models.functions import ExtractWeek, ExtractYear, ExtractMonth
+from django.db.models import Count, Sum
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from datetime import date
 
 logger = logging.getLogger(__name__)
 
@@ -258,6 +264,9 @@ class ContactView(generics.CreateAPIView):
 
         return Response({"success": "Message envoyé avec succès"}, status=status.HTTP_201_CREATED)
 
+class ServiceViewSet(viewsets.ModelViewSet):
+    queryset = Service.objects.all()
+    serializer_class = ServiceSerializer
 class DemandesViewSet(viewsets.ModelViewSet):
     queryset = Demandes.objects.all()
     serializer_class = DemandesSerializer
@@ -276,7 +285,11 @@ class ParametresPrepViewSet(viewsets.ModelViewSet):
 
 class ParametresFormulesViewSet(viewsets.ModelViewSet):
     queryset = ParametresFormules.objects.all()
-    serializer_class = ParametresFormulesSerializer
+
+    def get_serializer_class(self):
+        if self.request.method in ['POST', 'PUT']:
+            return ParametresFormulesListSerializer
+        return ParametresFormulesSerializer
 
 class UniteMesureViewSet(viewsets.ModelViewSet):
     queryset = UniteMesure.objects.all()
@@ -297,6 +310,51 @@ class FormeViewSet(viewsets.ModelViewSet):
 class FichesViewSet(viewsets.ModelViewSet):
     queryset = Fiches.objects.all()
     serializer_class = FichesSerializer
+
+    @action(detail=False, methods=['get'])
+    def count_per_service(self, request):
+        # Regroupement des fiches par service et comptage
+        count = Fiches.objects.values('service').annotate(count=Count('id')).order_by('service')
+        return Response(count)
+
+    @action(detail=False, methods=['get'])
+    def top_fiches_annuelles(self, request):
+        current_year = timezone.now().year
+        previous_year = current_year - 1
+
+        # Récupération des 5 fiches les plus utilisées cette année
+        top_current_year = (Fiches.objects.filter(date_fab__year=current_year)
+                            .select_related('prep')  # Joindre la table Formule
+                            .values('prep', 'prep__nom')  # Inclure le champ 'nom' de Formule
+                            .annotate(count=Count('prep'))
+                            .order_by('-count')[:5])
+
+        # Récupération des données correspondantes pour l'année précédente
+        top_previous_year = (
+            Fiches.objects.filter(date_fab__year=previous_year, prep__in=[fiche['prep'] for fiche in top_current_year])
+            .select_related('prep')  # Joindre la table Formule
+            .values('prep', 'prep__nom')  # Inclure le champ 'nom' de Formule
+            .annotate(count=Count('prep')))
+
+        # Mise en forme des données pour la réponse
+        response_data = {
+            'current_year': list(top_current_year),
+            'previous_year': {fiche['prep__nom']: fiche for fiche in top_previous_year}
+        }
+
+        return Response(response_data)
+
+class FichesSemaine(APIView):
+    def get(self, request, format=None):
+        current_year = date.today().year
+        fiches = Fiches.objects.annotate(week=ExtractWeek('date_fab'), year=ExtractYear('date_fab')).filter(year=current_year).values('week').annotate(count=Count('id'), qte=Sum('qté')).order_by('week')
+        return Response(fiches)
+
+class FichesMois(APIView):
+    def get(self, request, format=None):
+        current_year = date.today().year
+        fiches = Fiches.objects.annotate(month=ExtractMonth('date_fab'), year=ExtractYear('date_fab')).filter(year=current_year).values('month').annotate(count=Count('id'), qte=Sum('qté')).order_by('month')
+        return Response(fiches)
 
 class MatierePremiereViewSet(viewsets.ModelViewSet):
     queryset = MatierePremiere.objects.all()

@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate
 from rest_framework import serializers
 from .models import CustomUser, Supplier, UserFunction, Contact, \
     TypeMatiere, UniteMesure, Forme, MatierePremiere, TypePrep, Formule, \
-    Composition, Catalogue, Voie, Liste, ParametresPrep, ParametresFormules, Demandes, Fiches
+    Composition, Catalogue, Voie, Liste, ParametresPrep, ParametresFormules, Demandes, Fiches, Service
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -112,7 +112,10 @@ class ContactCreateView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+class ServiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Service
+        fields = '__all__'
 class TypeMatiereSerializer(serializers.ModelSerializer):
     logo = serializers.SerializerMethodField('get_logo')
 
@@ -158,10 +161,18 @@ class ParametresPrepSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ParametresFormulesSerializer(serializers.ModelSerializer):
-    parametre = ParametresPrepSerializer()
+    parametre = serializers.PrimaryKeyRelatedField(queryset=ParametresPrep.objects.all())
+
     class Meta:
         model = ParametresFormules
         fields = '__all__'
+
+class ParametresFormulesListSerializer(serializers.ListSerializer):
+    child = ParametresFormulesSerializer()
+
+    def create(self, validated_data):
+        parametres_formules = [ParametresFormules(**item) for item in validated_data]
+        return ParametresFormules.objects.bulk_create(parametres_formules)
 
 class MatierePremiereSerializer(serializers.ModelSerializer):
     type = TypeMatiereSerializer()
@@ -195,6 +206,7 @@ class CatalogueSerializer(serializers.ModelSerializer):
 
 class DemandesSerializer(serializers.ModelSerializer):
     prep = FormuleSerializer()
+    service = ServiceSerializer()
     class Meta:
         model = Demandes
         fields = '__all__'

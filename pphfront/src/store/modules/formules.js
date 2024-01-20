@@ -3,6 +3,7 @@ import api from '../../../api';
 const state = () => ({
   types: [],
   parametres: [],
+  parametresFormules: [],
   listes: [],
   currentFormuleId: null,
 });
@@ -10,6 +11,7 @@ const state = () => ({
 const getters = {
   allTypes: (state) => state.types,
   allParametres: (state) => state.parametres,
+  allParametresFormules: (state) => state.parametresFormules,
   allListes: (state) => state.listes,
 };
 
@@ -17,20 +19,27 @@ const actions = {
 
   async addParametres({dispatch}, formData) {
     try {
-      await api.post('PPH/parametres-formules/', formData);
-      dispatch('notifications/showNotification', {
-        message: 'Paramètres ajoutés avec succès',
-        type: 'success'
-      }, {root: true});
-      return Promise.resolve();
+      console.log("Envoi de formData:", formData);
+        // Assurez-vous que 'formData' est directement le tableau d'objets
+        await api.post('PPH/parametres-formules/', formData, {
+          headers: {
+          'Content-Type': 'application/json'
+          }
+        })
+        dispatch('notifications/showNotification', {
+            message: 'Paramètres ajoutés avec succès',
+            type: 'success'
+        }, {root: true});
+        return Promise.resolve();
     } catch (error) {
-      dispatch('notifications/showNotification', {
-        message: 'Erreur lors de l\'ajout des paramètres',
-        type: 'error'
-      }, {root: true});
-      return Promise.reject(error);
+        dispatch('notifications/showNotification', {
+            message: 'Erreur lors de l\'ajout des paramètres',
+            type: 'error'
+        }, {root: true});
+        return Promise.reject(error);
     }
   },
+
 
   async addFormule({dispatch}, formData) {
     try {
@@ -79,23 +88,6 @@ const actions = {
     }
   },
 
-  async addParametre({dispatch}, formData) {
-    try {
-      await api.post('PPH/parametres-formules/', formData);
-      dispatch('notifications/showNotification', {
-        message: 'Paramètres ajoutés avec succès',
-        type: 'success'
-      }, {root: true});
-      return Promise.resolve();
-    } catch (error) {
-      dispatch('notifications/showNotification', {
-        message: 'Erreur lors de l\'ajout des paramètres',
-        type: 'error'
-      }, {root: true});
-      return Promise.reject(error);
-    }
-  },
-
   async loadListes({commit, dispatch}) {
     try {
       const response = await api.get('/PPH/liste');
@@ -118,6 +110,20 @@ const actions = {
     } catch (error) {
       dispatch('notifications/showNotification', {
         message: 'Erreur lors du chargement des types de préparations',
+        type: 'error'
+      }, {root: true});
+      console.error(error);
+    }
+  },
+
+  async loadParametresFormules({commit, dispatch}) {
+    try {
+      const response = await api.get('/PPH/parametres-formules');
+      commit('SET_PARAMETRE_FORMULES', response.data);
+      console.log(response.data);
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors du chargement des paramètres',
         type: 'error'
       }, {root: true});
       console.error(error);
@@ -161,6 +167,9 @@ const mutations = {
   },
   SET_PARAMETRE(state, parametres) {
     state.parametres = parametres;
+  },
+  SET_PARAMETRE_FORMULES(state, parametres) {
+    state.parametresFormules = parametres;
   },
 };
 

@@ -1,5 +1,5 @@
 <template>
-  <q-toolbar class="bg-blue-grey-13 q-pa-md row">
+  <q-toolbar class="q-pa-md row" style="background-color:#1a2946 !important; opacity: 0.8 !important;">
   <a href="home/">
     <font-awesome-icon icon="fa-solid fa-mortar-pestle" beat-fade size="xl" :color="tokenColor" />
   </a>

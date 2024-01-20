@@ -23,8 +23,8 @@
         option-value="id"
       />
       <q-btn-group flat class="q-ml-lg">
-        <q-btn flat size="sm" @click="addRow" icon="check_circle" color="cyan-4" class="hover-effect-success"/>
-        <q-btn flat size="sm" @click="removeRow" icon="delete_forever" color="cyan-4" class="hover-effect-warning"/>
+        <q-btn flat size="sm" @click="addRow" icon="check_circle" color="green-4"/>
+        <q-btn flat size="sm" @click="removeRow" icon="delete_forever" color="red-4"/>
       </q-btn-group>
     </div>
 
@@ -74,7 +74,7 @@ export default {
     },
 
   methods: {
-    ...mapActions('formules', ['loadParametres', 'addParametre']),
+    ...mapActions('formules', ['loadParametres', 'addParametres']),
 
     async loadLastId() {
       try {
@@ -118,16 +118,17 @@ export default {
     },
 
     async submitForm() {
-      // Récupérez les données de toutes les lignes
-      const formData = {
-        parametres: this.formRows.map(row => ({
+      // Préparez un tableau d'objets pour l'envoi
+      const formData = this.formRows.map(row => ({
           num_formule: row.num_formule,
-          parametre: row.parametre,
-        })),
-      };
+          parametre: row.parametre.id
+
+
+      }));
+      console.log("Envoi de formData:", formData);
 
       // Appelez votre action Vuex pour ajouter les compositions
-      this.addParametre(formData);
+      this.addParametres(formData);
     },
   },
 };

@@ -306,5 +306,17 @@
 }
 
 .bg-op-8 {
-  opacity: 0.8;
+  opacity: 0.8 !important;
+}
+
+.bg-op-0 {
+  opacity: 0 !important;
+}
+
+.bd-radius-10 {
+  border-radius: 10px;
+}
+
+bg-navytheme{
+  background-color:#1a2946 !important;
 }

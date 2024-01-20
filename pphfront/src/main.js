@@ -11,13 +11,17 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { faMortarPestle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import './registerServiceWorker'
+import 'chart.js';
+import 'vue-chartjs';
+
 
 library.add(faMortarPestle);
 
 const app = createApp(App)
   .use(Quasar, quasarUserOptions)
   .use(router)
-  .use(store);
+  .use(store)
+
 
 app.component('font-awesome-icon', FontAwesomeIcon);
 
