@@ -1,16 +1,24 @@
 import api from '../../../api';
 
 const state = () => ({
+  cdts: [],
+  formes: [],
+  types: [],
   unites: [],
   matieres: [],
+  matieresCatalogue: [],
   showMenu: {},
   expanded: {},
   currentMatiere: null,
 });
 
 const getters = {
+  allCdts: (state) => state.cdts,
+  allFormes: (state) => state.formes,
   allUnites: (state) => state.unites,
+  allTypes: (state) => state.types,
   allMatieres: (state) => state.matieres,
+  allMatieresCatalogue: (state) => state.matieresCatalogue,
   showMenu: (state) => state.showMenu,
   expanded: (state) => state.expanded,
   currentMatiere: state => {
@@ -28,21 +36,72 @@ const getters = {
 const actions = {
 
     async addMatiere({ dispatch }, formData) {
-  try {
-    await api.post('PPH/matieres-premieres/', formData);
-    dispatch('notifications/showNotification', {
-      message: 'Matière première ajoutée avec succès',
-      type: 'success'
-    }, { root: true });
-    return Promise.resolve();
-  } catch (error) {
-    dispatch('notifications/showNotification', {
-      message: 'Erreur lors de l\'ajout de la matière première',
-      type: 'error'
-    }, { root: true });
-    return Promise.reject(error);
-  }
-},
+      try {
+        await api.post('PPH/matieres-premieres/', formData);
+        dispatch('notifications/showNotification', {
+          message: 'Matière première ajoutée avec succès',
+          type: 'success'
+        }, { root: true });
+        return Promise.resolve();
+      } catch (error) {
+        dispatch('notifications/showNotification', {
+          message: 'Erreur lors de l\'ajout de la matière première',
+          type: 'error'
+        }, { root: true });
+        return Promise.reject(error);
+      }
+    },
+
+  async addType({ dispatch }, formData) {
+      try {
+        await api.post('PPH/types-matieres/', formData);
+        dispatch('notifications/showNotification', {
+          message: 'Type ajouté avec succès',
+          type: 'success'
+        }, { root: true });
+        return Promise.resolve();
+      } catch (error) {
+        dispatch('notifications/showNotification', {
+          message: 'Erreur lors de l\'ajout du type de matière première',
+          type: 'error'
+        }, { root: true });
+        return Promise.reject(error);
+      }
+    },
+
+  async addCdt({ dispatch }, formData) {
+      try {
+        await api.post('PPH/conditionnement/', formData);
+        dispatch('notifications/showNotification', {
+          message: 'Conditionnement ajouté avec succès',
+          type: 'success'
+        }, { root: true });
+        return Promise.resolve();
+      } catch (error) {
+        dispatch('notifications/showNotification', {
+          message: 'Erreur lors de l\'ajout du conditionnement',
+          type: 'error'
+        }, { root: true });
+        return Promise.reject(error);
+      }
+    },
+
+  async addForme({ dispatch }, formData) {
+      try {
+        await api.post('PPH/formes/', formData);
+        dispatch('notifications/showNotification', {
+          message: 'Forme ajoutée avec succès',
+          type: 'success'
+        }, { root: true });
+        return Promise.resolve();
+      } catch (error) {
+        dispatch('notifications/showNotification', {
+          message: 'Erreur lors de l\'ajout de la forme de matière première',
+          type: 'error'
+        }, { root: true });
+        return Promise.reject(error);
+      }
+    },
 
   async fetchMatierePremiereById(id) {
     try {
@@ -69,14 +128,71 @@ const actions = {
     }
   },
 
+  async loadMatieresPremieresCatalogue({ commit, dispatch }) {
+    try {
+      console.log("Chargement des matières premières");
+      const response = await api.get('/PPH/catalogue');
+      commit('SET_MATIERES_CATALOGUE', response.data);
+      console.log(response.data);
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors du chargement des matières premières',
+        type: 'error'
+      }, { root: true });
+      console.error(error);
+    }
+  },
+
   async loadUnites({ commit, dispatch }) {
     try {
       const response = await api.get('/PPH/unites-mesure');
       commit('SET_UNITES', response.data);
-      console.log(response.data);
+      console.log('unites', response.data);
     } catch (error) {
       dispatch('notifications/showNotification', {
         message: 'Erreur lors du chargement des unités',
+        type: 'error'
+      }, { root: true });
+      console.error(error);
+    }
+  },
+
+  async loadFormes({ commit, dispatch }) {
+    try {
+      const response = await api.get('/PPH/formes');
+      commit('SET_FORMES', response.data);
+      console.log('formes', response.data);
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors du chargement des unités',
+        type: 'error'
+      }, { root: true });
+      console.error(error);
+    }
+  },
+
+  async loadTypes({ commit, dispatch }) {
+    try {
+      const response = await api.get('/PPH/types-matieres');
+      commit('SET_TYPES', response.data);
+      console.log('types', response.data);
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors du chargement des unités',
+        type: 'error'
+      }, { root: true });
+      console.error(error);
+    }
+  },
+
+  async loadCdt({ commit, dispatch }) {
+    try {
+      const response = await api.get('/PPH/conditionnement');
+      commit('SET_CDT', response.data);
+      console.log('cdt', response.data);
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors du chargement des conditionnements',
         type: 'error'
       }, { root: true });
       console.error(error);
@@ -146,14 +262,35 @@ const actions = {
 
 
 const mutations = {
+  ADD_CDT(state, cdt) {
+    state.cdts.push(cdt);
+  },
   ADD_MATIERE(state, matiere) {
     state.matieres.push(matiere);
+  },
+  ADD_TYPE(state, type) {
+    state.type.push(type);
+  },
+  ADD_FORME(state, forme) {
+    state.forme.push(forme);
   },
   SET_MATIERES(state, matieres) {
     state.matieres = matieres;
   },
+  SET_MATIERES_CATALOGUE(state, matieresCatalogue) {
+    state.matieresCatalogue = matieresCatalogue;
+  },
   SET_UNITES(state, unites) {
     state.unites = unites;
+  },
+  SET_TYPES(state, types) {
+    state.types = types;
+  },
+  SET_CDT(state, cdts) {
+    state.cdts = cdts;
+  },
+  SET_FORMES(state, formes) {
+    state.formes = formes;
   },
   TOGGLE_MENU(state, id) {
     state.showMenu[id] = !state.showMenu[id];

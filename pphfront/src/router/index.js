@@ -12,6 +12,7 @@ import MentionsLegales from "@/components/FooterLinks/MentionsLegales.vue";
 import CdtGalUtl from "@/components/FooterLinks/CdtGalUtl.vue";
 import HomePage from "@/components/HomePage.vue";
 import MatieresCards from "@/components/MatieresPremiere/MatieresCards.vue";
+import MatieresCatalogueCards from "@/components/MatieresPremiere/MatieresCatalogueCards.vue";
 import CreateFormula from "@/components/Formules/CreateFormula.vue";
 import CreateMatiere from "@/components/MatieresPremiere/CreateMatiere.vue";
 
@@ -120,6 +121,11 @@ const routes = [
     path: '/matieres-premieres',
     name: 'MatieresCards',
     component: MatieresCards
+  },
+  {
+    path: '/catalogue',
+    name: 'MatieresCatalogueCards',
+    component: MatieresCatalogueCards
   },
   {
     path: '/nouvelle-formule',

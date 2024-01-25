@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.db import models
 from django.urls import reverse
 from datetime import date
+from decimal import Decimal
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, first_name, last_name, password=None):
@@ -102,6 +103,7 @@ class Service(models.Model):
     nom = models.CharField(max_length=200, null=True)
     def __str__(self):
         return str(self.nom)
+
 class TypeMatiere(models.Model):
     nom = models.CharField(max_length=200)
     logo = models.ImageField(upload_to='matieres/', default='matieres/actif.jpg')
@@ -115,10 +117,13 @@ class UniteMesure(models.Model):
     def __str__(self):
         return self.nom
 
+class Conditionnement(models.Model):
+    nom = models.CharField(max_length=100)
+
 class Forme(models.Model):
     nom = models.CharField(max_length=200)
-    unite_stock = models.CharField(max_length=200)
-    unite_mesure = models.ForeignKey(UniteMesure, on_delete=models.CASCADE)
+    unite_mesure = models.ForeignKey(UniteMesure, on_delete=models.CASCADE, related_name='formes_mesure')
+    unite_stock = models.ForeignKey(UniteMesure, on_delete=models.CASCADE, related_name='formes_stock')
 
     def __str__(self):
         return self.nom
@@ -159,11 +164,12 @@ class MatierePremiere(models.Model):
     nom = models.CharField(max_length=200)
     type = models.ForeignKey(TypeMatiere, on_delete=models.CASCADE, default=1, null=False)
     forme = models.ForeignKey(Forme, on_delete=models.CASCADE)
-    qté_cdt = models.CharField(max_length=200)
+    cdt = models.ForeignKey(Conditionnement, on_delete=models.CASCADE)
+    qté_cdt = models.DecimalField(max_digits=10, decimal_places=2)
     fournisseur = models.ForeignKey(Supplier, on_delete=models.CASCADE)
     prix = models.DecimalField(max_digits=10, decimal_places=2)
     prix_unit = models.DecimalField(max_digits=10, decimal_places=2)
-    qté_stock = models.PositiveIntegerField()
+    qté_stock = models.PositiveIntegerField(null=True, blank=True)
     stock_mini = models.PositiveIntegerField()
     liste = models.ForeignKey(Liste, on_delete=models.CASCADE)
     stockee = models.BooleanField(default=False)
@@ -214,12 +220,29 @@ class Catalogue(models.Model):
     fournisseur = models.ForeignKey(Supplier, on_delete=models.CASCADE)
     qté = models.DecimalField(max_digits=10, decimal_places=2)
     unite = models.CharField(max_length=200)
+    cdt = models.CharField(max_length=200, null=True)
+    prix = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    prix_unit = models.DecimalField(max_digits=10, decimal_places=2, editable=False, null=True)
+
+    def save(self, *args, **kwargs):
+        # S'assurer que prix et qté sont des Decimal
+        prix_decimal = Decimal(self.prix)
+        qté_decimal = Decimal(self.qté)
+
+        # Calculer le prix unitaire seulement si qté est supérieure à zéro pour éviter la division par zéro
+        if qté_decimal > 0:
+            self.prix_unit = prix_decimal / qté_decimal
+        else:
+            self.prix_unit = Decimal('0.00')  # Ou une autre valeur par défaut si qté est zéro
+
+        super(Catalogue, self).save(*args, **kwargs)
+
 
     class Meta:
         ordering = ['designation']
 
     def __str__(self):
-        return self.nom
+        return self.designation
 
 class Demandes(models.Model):
     prep = models.ForeignKey(Formule, on_delete=models.CASCADE, null=True)

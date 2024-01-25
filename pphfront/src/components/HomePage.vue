@@ -168,8 +168,8 @@
          <div class="col-12 text-center">
            <div class="text-h6 text-cyan-4">Tableau de bord</div>
          </div>
-        <div class="row justify-evenly">
-        <q-card class="q-col-3 q-mx-sm items-center text-subtitle2 text-center text-cyan-1"
+        <div class="row justify-center">
+        <q-card class="q-col-3 items-center text-subtitle2 text-center text-cyan-1"
                 style="background-image: linear-gradient(to right, #263238, #3F6B79);">
             <q-card-section v-if="loadedBar">
                 <q-toggle
@@ -208,7 +208,7 @@
         </q-card-section>
         </q-card-section>
         </q-card>
-        <q-card class="q-col-3 q-mx-sm items-center" style="background-image: linear-gradient(to right, #263238, #3F6B79);">
+        <q-card class="q-col-md-3 items-center" style="background-image: linear-gradient(to right, #263238, #3F6B79);">
           <q-card-section class="text-subtitle2 text-center text-cyan-1">
             <q-card-section v-if="loadedDonut">
               <div>Répartition des fiches</div>
@@ -216,7 +216,7 @@
             </q-card-section>
           </q-card-section>
         </q-card>
-        <q-card class="q-col-3 q-mr-sm items-center" style="background-image: linear-gradient(to left, #263238, #3F6B79);">
+        <q-card class="q-col-md-3 items-center" style="background-image: linear-gradient(to left, #263238, #3F6B79);">
           <q-card-section class="text-subtitle2 text-center text-cyan-1" v-if="loadedDonut">
             Coût annuel
             <Doughnut :data="donutData" style="height: 200px"/>
@@ -423,27 +423,15 @@ export default {
 
   async mounted() {
     try {
-      await this.loadMatieresPremieres();
-      await this.loadDemandes();
-      await this.loadFiches();
-      await this.loadData();
-      await this.loadbarData();
-      await this.loadTopFichesData();
-      try {
-        const response = await api.get('/PPH/fiches/count_per_service'); // URL de votre API
-        this.donutData = this.DonutData(response.data);
-        this.loadedDonut = true;
-      } catch (e) {
-        console.error('Erreur lors du chargement des données du donut :', e);
-        this.loadedDonut = true;
-      }
+      await this.loadAllData();
     } catch (e) {
-      console.error('Erreur lors du chargement des données des cartes :', e);
+      console.error('Erreur lors du chargement des données :', e);
     } finally {
-          this.$nextTick(() => {
-
-      this.loadedPage = true;
-    });
+        setTimeout(() => {
+        this.$nextTick(() => {
+          this.loadedPage = true;
+        });
+      }, 1000);
     }
   },
 
@@ -462,6 +450,27 @@ export default {
     ...mapActions('matieresPremieres', ['loadMatieresPremieres']),
     ...mapActions('demandes', ['loadDemandes']),
     ...mapActions('fiches', ['loadFiches']),
+
+    async loadAllData() {
+    await this.loadMatieresPremieres();
+    await this.loadDemandes();
+    await this.loadFiches();
+    await this.loadData();
+    await this.loadbarData();
+    await this.loadTopFichesData();
+    await this.loadDonutData();
+  },
+
+  async loadDonutData() {
+    try {
+      const response = await api.get('/PPH/fiches/count_per_service');
+      this.donutData = this.DonutData(response.data);
+      this.loadedDonut = true;
+    } catch (e) {
+      console.error('Erreur lors du chargement des données du donut :', e);
+      this.loadedDonut = true;
+    }
+  },
 
     openCalendar() {
       this.calendarDialog = true;
@@ -631,6 +640,21 @@ export default {
     max-height: 300px; /* ou toute autre valeur selon vos besoins */
     overflow-y: auto;
 }
+/* Définir l'animation keyframes */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Appliquer l'animation au spinner */
+.atom-spinner {
+    animation: spin 10s linear infinite;
+}
+
 </style>
 
 

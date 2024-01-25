@@ -264,14 +264,17 @@
 
 .card-mini:hover{
   border-color: #ffb74d;
+  box-shadow: 0 0 20px #ffb74d;
 }
 
 .card-maxi:hover{
   border-color: #ffb74d;
+  box-shadow: 0 0 20px #ffb74d;
 }
 
 .card-home:hover{
   border-color: #ffb74d;
+  box-shadow: 0 0 20px #ffb74d;
 }
 
 .bd-hover-effect:hover{
@@ -319,4 +322,28 @@
 
 bg-navytheme{
   background-color:#1a2946 !important;
+}
+
+.icon-background {
+  position: absolute;
+  top: 50%; /* Centrer verticalement */
+  left: 50%; /* Centrer horizontalement */
+  transform: translate(-50%, -50%); /* Ajustement pour un centrage parfait */
+  opacity: 0.8; /* Rendre l'icône plus subtile, ajustez au besoin */
+  color: #4dd0e1;
+  font-size: 80px;
+}
+
+.icon-background:hover {
+  color: #ffb74d;
+}
+
+.background-icon {
+  position: relative;
+  background-color: #f5f5f5; /* Couleur de fond gris */
+  width: 100%; /* Ajuster en fonction de la taille nécessaire */
+  height: 200px; /* Hauteur de l'arrière-plan, ajuster au besoin */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

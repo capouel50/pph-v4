@@ -7,12 +7,6 @@
       :key="index"
       class="row"
     >
-      <q-input
-        square outlined
-        v-model="row.num_formule"
-        color="cyan-4"
-        class="col-1"
-      />
       <q-select
         square outlined
         v-model="row.parametre"
@@ -23,7 +17,7 @@
         option-value="id"
       />
       <q-btn-group flat class="q-ml-lg">
-        <q-btn flat size="sm" @click="addRow" icon="check_circle" color="green-4"/>
+        <q-btn flat size="sm" @click="addRow" icon="add_box" color="green-4"/>
         <q-btn flat size="sm" @click="removeRow" icon="delete_forever" color="red-4"/>
       </q-btn-group>
     </div>

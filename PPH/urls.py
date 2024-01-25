@@ -5,7 +5,7 @@ from .views import (
     CustomUserRetrieveUpdateDestroyView, TypeMatiereViewSet, UniteMesureViewSet, FormeViewSet,
     CompositionViewSet, FormuleViewSet, MatierePremiereViewSet, CatalogueViewSet, ListeViewSet,
     VoieViewSet, TypePrepViewSet, ParametresPrepViewSet, ParametresFormulesViewSet, CompositionFilterView,
-    DemandesViewSet, FichesViewSet, FichesSemaine, FichesMois
+    DemandesViewSet, FichesViewSet, FichesSemaine, FichesMois, ConditionnementViewSet
 )
 from django.conf import settings
 from django.conf.urls.static import static
@@ -13,9 +13,10 @@ from django.conf.urls.static import static
 router = DefaultRouter()
 router.register(r'formules', SupplierViewSet)
 router.register(r'suppliers', SupplierViewSet)
-router.register(r'types-matiere', TypeMatiereViewSet)
+router.register(r'types-matieres', TypeMatiereViewSet)
 router.register(r'unites-mesure', UniteMesureViewSet)
 router.register(r'formes', FormeViewSet)
+router.register(r'conditionnement', ConditionnementViewSet)
 router.register(r'matieres-premieres', MatierePremiereViewSet)
 router.register(r'creation-matiere-premiere', MatierePremiereViewSet)
 router.register(r'nouvelle-formule', FormuleViewSet)

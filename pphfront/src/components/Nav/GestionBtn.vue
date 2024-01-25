@@ -14,6 +14,11 @@
           <q-item-section class="text-cyan-1 hover-effect">Mat.premières</q-item-section>
         </router-link>
       </q-item>
+      <q-item clickable class="hover-effect" v-close-popup>
+        <router-link to="/catalogue/" class="pph-link">
+          <q-item-section class="text-cyan-1 hover-effect">Catalogue</q-item-section>
+        </router-link>
+      </q-item>
 
       <q-item clickable class="hover-effect">
         <q-item-section :class="{ 'text-cyan-1': !submenuOpen2, 'text-cyan-4': submenuOpen2, 'hover-effect': true }">Formules</q-item-section>
@@ -26,11 +31,6 @@
             <q-item clickable class="hover-effect" v-close-popup>
               <router-link to="/nouvelle-formule/" class="pph-link">
                 <q-item-section class="text-cyan-1 hover-effect">Nouvelle formule</q-item-section>
-              </router-link>
-            </q-item>
-            <q-item clickable class="hover-effect" v-close-popup>
-              <router-link to="/compositions/" class="pph-link">
-                <q-item-section class="text-cyan-1 hover-effect">Compositions</q-item-section>
               </router-link>
             </q-item>
             <q-item clickable class="hover-effect" v-close-popup>

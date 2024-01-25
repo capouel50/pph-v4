@@ -1,7 +1,9 @@
 from django.contrib import admin
 from .models import CustomUser, UserFunction, Supplier, TypeMatiere, \
     UniteMesure, Forme, MatierePremiere, Liste, TypePrep, Formule, Composition, \
-    Catalogue, Voie, ParametresPrep, ParametresFormules, Demandes, Fiches, Service
+    Catalogue, Voie, ParametresPrep, ParametresFormules, Demandes, Fiches, Service, \
+    Conditionnement
+
 
 
 class CustomUserAdmin(admin.ModelAdmin):
@@ -34,6 +36,9 @@ class FormeAdmin(admin.ModelAdmin):
 class ListeAdmin(admin.ModelAdmin):
     list_display = ['nom']
 
+@admin.register(Conditionnement)
+class ConditionnementAdmin(admin.ModelAdmin):
+    list_display = ['nom']
 @admin.register(Voie)
 class VoieAdmin(admin.ModelAdmin):
     list_display = ['nom']

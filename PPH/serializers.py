@@ -4,7 +4,8 @@ from django.contrib.auth import authenticate
 from rest_framework import serializers
 from .models import CustomUser, Supplier, UserFunction, Contact, \
     TypeMatiere, UniteMesure, Forme, MatierePremiere, TypePrep, Formule, \
-    Composition, Catalogue, Voie, Liste, ParametresPrep, ParametresFormules, Demandes, Fiches, Service
+    Composition, Catalogue, Voie, Liste, ParametresPrep, ParametresFormules, \
+    Demandes, Fiches, Service, Conditionnement
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -134,8 +135,21 @@ class UniteMesureSerializer(serializers.ModelSerializer):
         model = UniteMesure
         fields = '__all__'
 
-class FormeSerializer(serializers.ModelSerializer):
+class ConditionnementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Conditionnement
+        fields = '__all__'
+
+class FormeReadSerializer(serializers.ModelSerializer):
     unite_mesure = UniteMesureSerializer()
+    unite_stock = UniteMesureSerializer()
+    class Meta:
+        model = Forme
+        fields = '__all__'
+
+class FormeWriteSerializer(serializers.ModelSerializer):
+    unite_mesure = UniteMesureSerializer
+    unite_stock = UniteMesureSerializer
     class Meta:
         model = Forme
         fields = '__all__'
@@ -174,10 +188,21 @@ class ParametresFormulesListSerializer(serializers.ListSerializer):
         parametres_formules = [ParametresFormules(**item) for item in validated_data]
         return ParametresFormules.objects.bulk_create(parametres_formules)
 
-class MatierePremiereSerializer(serializers.ModelSerializer):
+class MatierePremiereReadSerializer(serializers.ModelSerializer):
     type = TypeMatiereSerializer()
-    forme = FormeSerializer()
+    forme = FormeReadSerializer()
     fournisseur = SupplierSerializer()
+    cdt = ConditionnementSerializer()
+
+    class Meta:
+        model = MatierePremiere
+        fields = '__all__'
+
+class MatierePremiereWriteSerializer(serializers.ModelSerializer):
+    type = TypeMatiereSerializer
+    forme = FormeReadSerializer
+    fournisseur = SupplierSerializer
+    cdt = ConditionnementSerializer
 
     class Meta:
         model = MatierePremiere
@@ -192,7 +217,7 @@ class FormuleSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class CompositionSerializer(serializers.ModelSerializer):
-    matiere = MatierePremiereSerializer
+    matiere = MatierePremiereWriteSerializer
     unite = UniteMesureSerializer
 
     class Meta:
@@ -200,6 +225,7 @@ class CompositionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class CatalogueSerializer(serializers.ModelSerializer):
+    fournisseur = SupplierSerializer()
     class Meta:
         model = Catalogue
         fields = '__all__'

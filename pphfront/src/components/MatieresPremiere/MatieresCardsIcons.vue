@@ -2,16 +2,13 @@
   <q-page v-if="loadMatieresPremieres">
     <div class="row justify-center">
       <div class="col-md-12">
-        <div class="row q-mx-sm q-mt-sm">
-          <div class="col-1">
+        <div class="row">
+          <div class="col-1 q-ml-sm q-mt-sm">
             <router-link to="/creation-matiere-premiere/">
               <q-btn round class="glossy btn-grey-primary-pph" icon="add"/>
             </router-link>
           </div>
-          <div class="col-2">
-            <!-- <MatieresImport/> -->
-          </div>
-          <div class="col-2 offset-7">
+          <div class="col-2 q-ml-xl-md offset-8">
             <q-input
                 ref="searchInput"
                 v-model="searchQuery"
@@ -23,7 +20,7 @@
                 @focus="onFocus('searchQuery', '#4dd0e1')"
                 @blur="onBlur('searchQuery')"
             >
-              <template v-slot:append>
+              <template v-slot:before>
                 <q-icon name="search" color="cyan-4"/>
               </template>
             </q-input>
@@ -35,26 +32,15 @@
               <div class="col-2 q-pa-sm" v-for="matiere in filteredMatieres" :key="matiere.id" @click="redirectToLink(matiere.id)">
                 <q-card bordered class="card-maxi justify-center items-center text-center relative" :class="{ 'bd-red-4': !matiere.stockee}">
                   <div @click="redirectToLink(matiere.id)" class="card-content">
-                    <q-img class="logo-card-mini" :src="matiere.type.logo" :alt="matiere.type.nom">
-                      <font-awesome-icon
-                          v-if="matiere.type.nom === 'Conditionnement'"
-                          icon="fa-solid fa-prescription-bottle"
-                          size="3x"
-                          class="icon-background"
-                      />
-                      <font-awesome-icon
-                          v-if="matiere.type.nom === 'Principe actif'"
-                          icon="fa-solid fa-pills"
-                          size="3x"
-                          class="icon-background hover-effect"
-                      />
-                      <font-awesome-icon
-                          v-if="matiere.type.nom === 'Excipient'"
-                          icon="fa-solid fa-flask"
-                          size="3x"
-                          class="icon-background"
-                      />
-                      <div class="absolute-top hover-effect q-my-none" :class="{ 'text-cyan-1': matiere.stockee, 'text-red-4': !matiere.stockee }">
+
+                    <q-icon
+                      class="icon-background"
+                      name="euro"
+                      color="cyan-4"
+                      size="xl"
+                    />
+
+                      <div class="absolute-top hover-effect q-my-none background-icon" :class="{ 'text-cyan-1': matiere.stockee, 'text-red-4': !matiere.stockee }">
                         <div>{{ matiere.nom }}</div>
                         <div>{{ matiere.forme.nom }} {{ matiere.qté_cdt }}{{ matiere.forme.unite_mesure.nom }}</div>
                         <div>
@@ -62,7 +48,7 @@
                           Stock : {{ matiere.qté_stock }}{{ matiere.forme.unite_stock.nom }}
                         </div>
                       </div>
-                    </q-img>
+
                     <q-btn flat color="white" class="absolute-top-right hover-effect q-pa-none q-ma-none"
                            icon="more_vert" @click.stop="toggleMenu(matiere.id)"
                     />
@@ -161,15 +147,13 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
-// import MatieresImport from './MatieresImport.vue'
 import {AtomSpinner} from 'epic-spinners'
 
 
 export default {
   name: "MatieresCards",
   components: {
-    AtomSpinner,
-    // MatieresImport
+    AtomSpinner
   },
 
   data() {

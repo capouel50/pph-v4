@@ -36,19 +36,20 @@
         option-value="id"
       />
       <q-input
+          readonly
           v-model="row.calculInput"
           square outlined
           color="cyan-4"
           class="col-5 bd-hover-effect text-center"
       >
-        <template v-slot:append>
+        <template v-slot:prepend>
           <q-avatar>
             <q-btn flat size="md" @click="openCalculDialog(index)" icon="calculate" color="cyan-4" class="hover-effect"/>
           </q-avatar>
         </template>
       </q-input>
       <q-btn-group flat class="q-ml-lg">
-        <q-btn flat size="sm" @click="addRow" icon="check_circle" color="green-4" class="hover-effect-success"/>
+        <q-btn flat size="sm" @click="addRow" icon="add_box" color="green-4" class="hover-effect-success"/>
         <q-btn flat size="sm" @click="removeRow" icon="delete_forever" color="red-4" class="hover-effect-warning"/>
       </q-btn-group>
       <q-dialog v-model="calculDialog">
@@ -76,9 +77,10 @@
                 flat
                 color="cyan-4"
                 class="hover-effect"
-                label="Quantité"
-                @Click="inputParametre(parametreFormule.label)"
-              />
+                :label="'Quantité - ' + (formRows[selectedRowIndex]?.unite?.nom || 'Unité inconnue')"
+                @click="inputParametre('Quantité - ' + (formRows[selectedRowIndex]?.unite?.nom || ''))"
+              >
+              </q-btn>
             </div>
           </q-card-actions>
         </q-card-section>
@@ -120,7 +122,7 @@
 
     <div class="row">
       <div class="col-4">
-        <q-btn flat @click="submitForm" color="green-4" class="q-mt-xs">
+        <q-btn flat @click="submitForm" color="green-4" class="q-mt-xs btn-flat-success-pph">
           Valider
         </q-btn>
       </div>
@@ -159,7 +161,7 @@ export default {
       if (this.selectedRowIndex !== null) {
         const numFormule = this.formRows[this.selectedRowIndex].num_formule;
         const allParametresDetails = this.allParametres; // Assurez-vous que ceci contient les détails complets des paramètres
-
+        console.log('allparametres', this.allParametres);
         return this.allParametresFormules
           .filter(pf => pf.num_formule.toString() === numFormule.toString())
           .map(pf => {
@@ -194,6 +196,7 @@ export default {
   async created() {
       await this.loadMatieresPremieres();
       await this.loadUnites();
+      await this.loadParametres();
       await this.loadParametresFormules();
       await this.createNewNumCompo();
     },
@@ -201,27 +204,37 @@ export default {
   methods: {
     ...mapActions('matieresPremieres', ['loadMatieresPremieres', 'loadUnites']),
     ...mapActions('formules', ['addComposition']),
-    ...mapActions('formules', ['loadParametresFormules']),
+    ...mapActions('formules', ['loadParametres', 'loadParametresFormules']),
 
     validerCalcul() {
       if (this.selectedRowIndex !== null) {
         this.formRows[this.selectedRowIndex].calculInput = this.formRows[this.selectedRowIndex].calcul;
         let calculTransforme = this.formRows[this.selectedRowIndex].calcul;
 
-        // Remplacer chaque label par son ID correspondant
+        // Remplacer chaque label par son ID correspondant, sauf pour les cas spéciaux
         this.calculDetails.forEach(detail => {
-          const regex = new RegExp(detail.label, 'g');
-          calculTransforme = calculTransforme.replace(regex, detail.id);
+          if (detail.id !== null) {
+            const regex = new RegExp(detail.label, 'g');
+            calculTransforme = calculTransforme.replace(regex, detail.id);
+          } else {
+            // Pour les cas spéciaux comme "Quantité - Unité", vous pouvez choisir de les laisser tels quels,
+            // les remplacer par une valeur spécifique, ou effectuer une autre transformation.
+            // Exemple : Remplacer par une chaîne spéciale ou laisser tel quel
+            //const specialValue = "Qte"; // Définir une valeur spéciale si nécessaire
+            //calculTransforme = calculTransforme.replace(new RegExp(detail.label, 'g'), specialValue);
+          }
         });
 
         // Mettre à jour le calcul dans formRows
         this.formRows[this.selectedRowIndex].calcul = calculTransforme;
-      }
 
-      // Réinitialiser les détails du calcul et fermer le dialogue
-      this.calculDetails = [];
-      this.calculDialog = false;
+
+        // Réinitialiser les détails du calcul et fermer le dialogue
+        this.calculDetails = [];
+        this.calculDialog = false;
+      }
     },
+
 
     openCalculDialog(rowIndex) {
       this.selectedRowIndex = rowIndex;
@@ -235,16 +248,29 @@ export default {
       console.log("Paramètre reçu :", parametre);
 
       if (this.selectedRowIndex !== null && this.formRows[this.selectedRowIndex]) {
-        // Ajouter le label à l'input visible
-        this.formRows[this.selectedRowIndex].calcul += parametre.label;
+        let label, id;
 
-        // Ajouter les détails du paramètre pour le remplacement ultérieur
+        if (typeof parametre === 'string') {
+          // Cas où parametre est une chaîne de caractères (par exemple, "Quantité - Unité")
+          label = parametre;
+          id = null;  // Il n'y a pas d'ID spécifique pour "Quantité - Unité"
+        } else {
+          // Cas où parametre est un objet (paramètres habituels)
+          label = parametre.label;
+          id = parametre.id;
+        }
+
+        // Ajouter le label au calcul
+        this.formRows[this.selectedRowIndex].calcul += label;
+
+        // Ajouter les détails du paramètre ou de la chaîne pour le remplacement ultérieur
         this.calculDetails.push({
-          label: parametre.label,
-          id: parametre.id
+          label: label,
+          id: id
         });
       }
     },
+
 
     effacerCalcul() {
       this.formRows[this.selectedRowIndex].calcul = " ";
@@ -312,7 +338,9 @@ export default {
 
     async addRow() {
       try {
-        const newNumFormule = await this.createNewNumCompo();
+        const response = await api.get('/PPH/nouvelle-formule/dernier_id');
+        const dernierId = response.data.dernierId;
+        const newNumFormule = dernierId + 1;
 
         this.formRows.push({
           num_formule: newNumFormule,

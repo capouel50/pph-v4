@@ -2,20 +2,19 @@
   <q-page class="container">
     <div class="row justify-center">
       <div class="col-12">
-        <h5 class="text-cyan-4 q-mb-lg text-center">Fiche fournisseur</h5>
-        <CreateSupplierForm @submit="saveSupplier" />
+        <CreateSupplierStepper @submit="saveSupplier" />
       </div>
     </div>
   </q-page>
 </template>
 
 <script>
-import CreateSupplierForm from './CreateSupplierForm.vue';
+import CreateSupplierStepper from './CreateSupplierStepper.vue';
 import api from '../../../api';
 
 export default {
   components: {
-    CreateSupplierForm
+    CreateSupplierStepper
   },
   data() {
     return {

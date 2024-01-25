@@ -15,9 +15,9 @@ from rest_framework.decorators import api_view, action
 from PPH.serializers import (
     CustomRegisterSerializer, UserFunctionSerializer, SupplierSerializer, CustomUserSerializer,
     ContactSerializer, TypeMatiereSerializer, TypePrepSerializer, UniteMesureSerializer,
-    FormeSerializer, MatierePremiereSerializer, FormuleSerializer, CompositionSerializer,
+    FormeReadSerializer, FormeWriteSerializer, MatierePremiereReadSerializer, MatierePremiereWriteSerializer, FormuleSerializer, CompositionSerializer,
     CatalogueSerializer, VoieSerializer, ListeSerializer, ParametresPrepSerializer, ParametresFormulesSerializer,
-    DemandesSerializer, FichesSerializer, ServiceSerializer, ParametresFormulesListSerializer
+    DemandesSerializer, FichesSerializer, ServiceSerializer, ParametresFormulesListSerializer, ConditionnementSerializer
 )
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.http import JsonResponse, HttpResponseRedirect
@@ -31,7 +31,8 @@ from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
 from rest_framework import viewsets
 from .models import CustomUser, Supplier, UserFunction, Contact,\
     TypeMatiere, UniteMesure, Forme, MatierePremiere, TypePrep, \
-    Formule, Composition, Catalogue, Liste, Voie, ParametresPrep, ParametresFormules, Demandes, Fiches, Service
+    Formule, Composition, Catalogue, Liste, Voie, ParametresPrep, \
+    ParametresFormules, Demandes, Fiches, Service, Conditionnement
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
@@ -303,9 +304,16 @@ class VoieViewSet(viewsets.ModelViewSet):
     queryset = Voie.objects.all()
     serializer_class = VoieSerializer
 
+class ConditionnementViewSet(viewsets.ModelViewSet):
+    queryset = Conditionnement.objects.all()
+    serializer_class = ConditionnementSerializer
+
 class FormeViewSet(viewsets.ModelViewSet):
     queryset = Forme.objects.all()
-    serializer_class = FormeSerializer
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve']:
+            return FormeReadSerializer
+        return FormeWriteSerializer
 
 class FichesViewSet(viewsets.ModelViewSet):
     queryset = Fiches.objects.all()
@@ -358,7 +366,11 @@ class FichesMois(APIView):
 
 class MatierePremiereViewSet(viewsets.ModelViewSet):
     queryset = MatierePremiere.objects.all()
-    serializer_class = MatierePremiereSerializer
+
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve']:
+            return MatierePremiereReadSerializer
+        return MatierePremiereWriteSerializer
 
     def retrieve_details(self, request, pk=None):
         matiere = self.get_object()

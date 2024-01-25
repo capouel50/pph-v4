@@ -9,6 +9,7 @@
       header-nav
       animated
     >
+      <div class="text-h5 text-center text-cyan-4">Formule</div>
        <q-step
         :name="1"
         title="Identification"
@@ -207,7 +208,7 @@
         :done="step > 6"
       >
         <div class="row">
-          <div class="col-8">
+          <div class="col-12">
             <CompositionForm/>
           </div>
         </div>
@@ -253,6 +254,7 @@
         :name="8"
         title="Publications"
         icon="article"
+        :done="step > 8"
       >
       <div class="row">
         <q-input
@@ -274,12 +276,13 @@
       </div>
         <q-stepper-navigation>
           <q-btn flat @click="step = 7" color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
+          <q-btn flat @click="step = 9" color="cyan-4" label="Terminer" class="hover-effect q-ml-sm" />
         </q-stepper-navigation>
       </q-step>
       <div class="row justify-center">
         <q-btn-group>
-          <q-btn flat @click="submitForm" color="green-4" label="Enregistrer" />
-          <q-btn flat color="red-4" label="Supprimer" />
+          <q-btn flat @click="submitForm" color="green-4" label="Enregistrer" class="btn-flat-success-pph"/>
+          <q-btn flat color="red-4" label="Supprimer" class="btn-flat-danger-pph"/>
         </q-btn-group>
     </div>
     </q-stepper>
