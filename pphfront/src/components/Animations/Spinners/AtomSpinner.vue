@@ -1,12 +1,10 @@
 <template>
-<div class=" row justify-center">
       <atom-spinner
         class="bg-op-8"
         :animation-duration="1000"
-        :size="200"
+        :size="20"
         :color="'#ff1d5e'"
       />
-      </div>
 </template>
 
 <script>

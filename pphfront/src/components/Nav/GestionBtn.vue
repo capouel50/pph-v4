@@ -9,15 +9,31 @@
         </router-link>
       </q-item>
 
-      <q-item clickable v-close-popup class="hover-effect">
-        <router-link to="/matieres-premieres/" class="pph-link">
-          <q-item-section class="text-cyan-1 hover-effect">Mat.premières</q-item-section>
-        </router-link>
-      </q-item>
-      <q-item clickable class="hover-effect" v-close-popup>
-        <router-link to="/catalogue/" class="pph-link">
-          <q-item-section class="text-cyan-1 hover-effect">Catalogue</q-item-section>
-        </router-link>
+      <q-item clickable class="hover-effect">
+        <q-item-section :class="{ 'text-cyan-1': !submenuOpen, 'text-cyan-4': submenuOpen, 'hover-effect': true }">Mat.premières</q-item-section>
+        <q-item-section side>
+          <q-icon name="keyboard_arrow_right" />
+        </q-item-section>
+
+        <q-menu anchor="top end" self="top start" @show="submenuOpen = true" @hide="submenuOpen = false">
+          <q-list class="bg-blue-grey-3">
+            <q-item clickable v-close-popup class="hover-effect">
+              <router-link to="/creation-matiere-premiere/" class="pph-link">
+                <q-item-section class="text-cyan-1 hover-effect">Créer</q-item-section>
+              </router-link>
+            </q-item>
+            <q-item clickable v-close-popup class="hover-effect">
+              <router-link to="/matieres-premieres/" class="pph-link">
+                <q-item-section class="text-cyan-1 hover-effect">Préparatoire</q-item-section>
+              </router-link>
+            </q-item>
+            <q-item clickable class="hover-effect" v-close-popup>
+              <router-link to="/catalogue/" class="pph-link">
+                <q-item-section class="text-cyan-1 hover-effect">Catalogue</q-item-section>
+              </router-link>
+            </q-item>
+          </q-list>
+        </q-menu>
       </q-item>
 
       <q-item clickable class="hover-effect">

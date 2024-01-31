@@ -5,7 +5,7 @@ from rest_framework import serializers
 from .models import CustomUser, Supplier, UserFunction, Contact, \
     TypeMatiere, UniteMesure, Forme, MatierePremiere, TypePrep, Formule, \
     Composition, Catalogue, Voie, Liste, ParametresPrep, ParametresFormules, \
-    Demandes, Fiches, Service, Conditionnement
+    Demandes, Fiches, Service, Conditionnement, CategorieMatiere, CatalogueImport
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -118,17 +118,11 @@ class ServiceSerializer(serializers.ModelSerializer):
         model = Service
         fields = '__all__'
 class TypeMatiereSerializer(serializers.ModelSerializer):
-    logo = serializers.SerializerMethodField('get_logo')
 
     class Meta:
         model = TypeMatiere
         fields = '__all__'
 
-    def get_logo(self, obj):
-        if obj.logo:
-            return self.context['request'].build_absolute_uri(settings.MEDIA_URL + obj.logo.name)
-        else:
-            return None
 
 class UniteMesureSerializer(serializers.ModelSerializer):
     class Meta:
@@ -138,6 +132,12 @@ class UniteMesureSerializer(serializers.ModelSerializer):
 class ConditionnementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Conditionnement
+        fields = '__all__'
+
+class CategorieMatiereSerializer(serializers.ModelSerializer):
+    fournisseur = SupplierSerializer()
+    class Meta:
+        model = CategorieMatiere
         fields = '__all__'
 
 class FormeReadSerializer(serializers.ModelSerializer):
@@ -193,6 +193,8 @@ class MatierePremiereReadSerializer(serializers.ModelSerializer):
     forme = FormeReadSerializer()
     fournisseur = SupplierSerializer()
     cdt = ConditionnementSerializer()
+    liste = ListeSerializer()
+    unite_mesure = UniteMesureSerializer()
 
     class Meta:
         model = MatierePremiere
@@ -203,6 +205,8 @@ class MatierePremiereWriteSerializer(serializers.ModelSerializer):
     forme = FormeReadSerializer
     fournisseur = SupplierSerializer
     cdt = ConditionnementSerializer
+    liste = ListeSerializer
+    unite_mesure = UniteMesureSerializer
 
     class Meta:
         model = MatierePremiere
@@ -223,6 +227,19 @@ class CompositionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Composition
         fields = '__all__'
+
+class CatalogueImportSerializer(serializers.ModelSerializer):
+    fournisseur = SupplierSerializer
+    categorie = CategorieMatiereSerializer
+    class Meta:
+        model = CatalogueImport
+        fields = '__all__'
+
+    def get_pdf_url(self, obj):
+        if obj.pdf:
+            return self.context['request'].build_absolute_uri(settings.MEDIA_URL + obj.pdf.name)
+        else:
+            return None
 
 class CatalogueSerializer(serializers.ModelSerializer):
     fournisseur = SupplierSerializer()

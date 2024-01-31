@@ -1,7 +1,22 @@
+import logging
+import decimal
+import os
+import re
+import time
+from datetime import date
+
+import jwt
+import pandas as pd
+import pdfplumber
 from dj_rest_auth.registration.views import RegisterView
+from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
+from django.db.models import Count, Sum
+from django.db.models.functions import ExtractWeek, ExtractYear, ExtractMonth
+from django.http import HttpResponseRedirect
+from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
@@ -10,38 +25,31 @@ from django.utils.html import strip_tags
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadTimeSignature
 from rest_framework import generics
+from rest_framework import status
+from rest_framework import viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
+from rest_framework_simplejwt.tokens import UntypedToken
+from rest_framework_simplejwt.views import TokenObtainPairView
+
 from PPH.serializers import (
     CustomRegisterSerializer, UserFunctionSerializer, SupplierSerializer, CustomUserSerializer,
     ContactSerializer, TypeMatiereSerializer, TypePrepSerializer, UniteMesureSerializer,
-    FormeReadSerializer, FormeWriteSerializer, MatierePremiereReadSerializer, MatierePremiereWriteSerializer, FormuleSerializer, CompositionSerializer,
+    FormeReadSerializer, FormeWriteSerializer, MatierePremiereReadSerializer, MatierePremiereWriteSerializer,
+    FormuleSerializer, CompositionSerializer,
     CatalogueSerializer, VoieSerializer, ListeSerializer, ParametresPrepSerializer, ParametresFormulesSerializer,
-    DemandesSerializer, FichesSerializer, ServiceSerializer, ParametresFormulesListSerializer, ConditionnementSerializer
+    DemandesSerializer, FichesSerializer, ServiceSerializer, ParametresFormulesListSerializer,
+    ConditionnementSerializer, CategorieMatiereSerializer, CatalogueImportSerializer
 )
-from rest_framework_simplejwt.views import TokenObtainPairView
-from django.http import JsonResponse, HttpResponseRedirect
-from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import UntypedToken
-from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
-from django.conf import settings
-import jwt
-import time
-from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
-from rest_framework import viewsets
-from .models import CustomUser, Supplier, UserFunction, Contact,\
+from .models import CustomUser, Supplier, UserFunction, Contact, \
     TypeMatiere, UniteMesure, Forme, MatierePremiere, TypePrep, \
     Formule, Composition, Catalogue, Liste, Voie, ParametresPrep, \
-    ParametresFormules, Demandes, Fiches, Service, Conditionnement
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import status
-import logging
-from django.db.models.functions import ExtractWeek, ExtractYear, ExtractMonth
-from django.db.models import Count, Sum
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from datetime import date
+    ParametresFormules, Demandes, Fiches, Service, Conditionnement, CategorieMatiere, CatalogueImport
 
 logger = logging.getLogger(__name__)
 
@@ -308,6 +316,10 @@ class ConditionnementViewSet(viewsets.ModelViewSet):
     queryset = Conditionnement.objects.all()
     serializer_class = ConditionnementSerializer
 
+class CategorieMatiereViewSet(viewsets.ModelViewSet):
+    queryset = CategorieMatiere.objects.all()
+    serializer_class = CategorieMatiereSerializer
+
 class FormeViewSet(viewsets.ModelViewSet):
     queryset = Forme.objects.all()
     def get_serializer_class(self):
@@ -414,6 +426,272 @@ class CompositionFilterView(APIView):
         compositions = Composition.objects.filter(num_formule=num_formule)
         serializer = CompositionSerializer(compositions, many=True)
         return Response(serializer.data)
+
+class CatalogueImportViewSet(viewsets.ModelViewSet):
+    queryset = CatalogueImport.objects.all()
+    serializer_class = CatalogueImportSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        # Appelez extract_data_from_pdf pour traiter le nouvel enregistrement
+        self.extract_data_from_pdf(sender=None, instance=serializer.instance, created=True)
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        # Appelez extract_data_from_pdf pour traiter la mise à jour de l'enregistrement
+        self.extract_data_from_pdf(sender=None, instance=serializer.instance, created=False)
+
+        return Response(serializer.data)
+    def extract_data_from_pdf(self, sender, instance, created, **kwargs):
+        print("Appel de la fonction")
+        fournisseur = "Cooper"
+        categories_script = ["Alcools & Alcoolats", "Chimiques & Excipients"]
+        notifs = []
+        statut_mapping = {
+            "A": TypeMatiere.objects.get(id=5),  # Assurez-vous que l'ID correspond au bon TypeMatiere
+            "CA": TypeMatiere.objects.get(id=4),
+            "SA": TypeMatiere.objects.get(id=1),
+            "E": TypeMatiere.objects.get(id=2),
+            "T": TypeMatiere.objects.get(id=6),
+            "C": TypeMatiere.objects.get(id=7)
+        }
+
+        try:
+            # Vérifiez si les données du modèle correspondent aux critères du script
+            if (instance.fournisseur.name.lower() == fournisseur.lower() and
+                    instance.categorie.nom in categories_script and
+                    instance.pdf.path and
+                    instance.page_debut and
+                    instance.page_fin and
+                    instance.code_debut and
+                    instance.code_fin):
+
+                # Spécifiez le chemin vers le PDF en utilisant le chemin du fichier du modèle
+                pdf_path = instance.pdf.path
+
+                # Utilisez les données du modèle pour spécifier la plage de pages et les codes
+                start_page = instance.page_debut
+                end_page = instance.page_fin
+                start_code = instance.code_debut
+                end_code = instance.code_fin
+                print('Paramètres entrés')
+
+                # Obtenez le chemin absolu du répertoire de sauvegarde
+                save_dir = os.path.join(settings.MEDIA_ROOT, 'catalogues')
+
+                # Créez le chemin absolu du fichier CSV
+                csv_filename = os.path.join(save_dir, f"catalogue_{fournisseur.lower()}.csv")
+
+                # Assurez-vous que le répertoire existe, s'il n'existe pas, créez-le
+                os.makedirs(save_dir, exist_ok=True)
+
+                notifs.append({
+                    'message': "Initialisation du traitement",
+                    'type': 'info'
+                })
+
+                start_extraction = False
+
+                # Ouvrez le PDF avec pdfplumber
+                with pdfplumber.open(pdf_path) as pdf:
+                    # Parcourez les pages dans la plage spécifiée
+                    global_data = []
+
+                    for page_number in range(start_page - 1, min(end_page, len(pdf.pages))):
+
+                        print(f"Page en cours de traitement : {page_number + 1}")
+                        data = []  # Réinitialisez la liste data pour chaque page
+                        notifs.append({
+                            'message': f'Traitement de la page {page_number + 1}',
+                            'type': 'info'
+                        })
+
+                        page = pdf.pages[page_number]
+
+                        # Extrait le texte de la page
+                        page_text = page.extract_text()
+
+                        # Divisez le texte en lignes
+                        lines = page_text.split('\n')
+
+                        # Initialisez la variable de sauvegarde de la ligne précédente pour la colonne "DESIGNATION"
+                        prev_designation = ""
+
+                        # Parcourez chaque ligne et essayez d'extraire les données selon les règles spécifiées
+                        for line in lines:
+                            # Vérifiez si la ligne commence par le format du code CPF
+                            if re.match(r'^\d{1,3}(\s\d{3}){2}', line):
+                                # Utilisez des expressions régulières pour extraire les données
+                                match_cpf = re.search(r'(\d{1,3}(\s\d{3}){2})', line)
+                                match_ean = re.search(r'\b\d{13}\b', line)
+                                match_division = re.search(r'(\b\d{1,4}\s*[MLGK]+)\b', line)
+                                match_puht = re.search(r'(\d+,\d+)\s*€$', line)
+                                match_statut = re.search(r'\b(A|C|E|CA|SA|T)\b', line)
+                                match_cmr = re.search(r'IMAGE|HEXAGONE', line, re.IGNORECASE)
+
+                                # Examinez le texte pour détecter la présence du caractère "Â"
+                                has_special_character = "Â" in line
+
+                                # Examinez le texte pour détecter la présence du caractère "Â"
+                                if "Â" in line:
+                                    match_designation = re.search(r'Â(.*?)\b\d+\b', line)
+                                elif match_ean:
+                                    # Si "Â" n'est pas présent, commencez la désignation après le dernier chiffre du code EAN
+                                    match_designation = re.search(rf'{match_ean.group(0)}(.*?)\b\d+\b', line)
+                                else:
+                                    match_designation = None
+
+                                # Extrayez les données en fonction des correspondances
+                                code_cpf = match_cpf.group(0) if match_cpf else ""
+                                code_ean = match_ean.group(0) if match_ean else ""
+                                division = match_division.group(0) if match_division else ""
+                                puht = match_puht.group(1) if match_puht else ""
+                                statut = match_statut.group(0) if match_statut else ""
+
+                                # Marquez la colonne "CMR" comme "OUI" si le texte contient le caractère "Â"
+                                if has_special_character or (match_cmr and match_cmr.group(0).upper() == "HEXAGONE"):
+                                    cmr = True
+                                else:
+                                    cmr = False
+
+                                # Extrait la désignation entre le dernier "Â" ou le dernier chiffre de la colonne "CODE EAN"
+                                match_designation = match_designation.group(1).strip() if match_designation else ""
+
+                                # Si la colonne "DESIGNATION" est vide, utilisez la valeur de la ligne précédente
+                                if not match_designation:
+                                    match_designation = prev_designation
+
+                                # Mettez à jour la valeur de la ligne précédente pour la colonne "DESIGNATION"
+                                prev_designation = match_designation
+
+                                if "%" in line:
+                                    # Utilisez une expression régulière pour capturer le chiffre précédent le caractère "%"
+                                    match_percentage = re.search(r'(\d+)\s*%', line)
+                                    if match_percentage:
+                                        # Ajoutez le chiffre et le caractère '%' à la désignation
+                                        percentage_value = match_percentage.group(1)
+                                        match_designation += f" {percentage_value}%"
+
+                                # Séparez la quantité et l'unité de la colonne "DIVISION" en deux colonnes distinctes
+                                if match_division:
+                                    division_parts = re.findall(r'(\d+)\s*([MLGK]+)', match_division.group(0))
+                                    if division_parts:
+                                        quantity = "".join([part[0] for part in division_parts])
+                                        unit = "".join([part[1] for part in division_parts])
+                                        # Transformez l'unité "k" en "kg" en ignorant la casse
+                                        unit = "kg" if unit.lower() == "k" else unit
+                                    else:
+                                        quantity = ""
+                                        unit = ""
+                                else:
+                                    quantity = ""
+                                    unit = ""
+
+                                match_puht = re.search(r'(\d+(?:\s\d{3})*(?:,\d+)?)\s*€$', line)
+                                if match_puht:
+                                    # Obtenez la correspondance du groupe de capture
+                                    puht_match = match_puht.group(1)
+
+                                    # Supprimez les espaces de la correspondance du prix
+                                    puht_match = puht_match.replace(' ', '')
+
+                                    # Remplacez la virgule par un point pour le format décimal
+                                    puht_match = puht_match.replace(',', '.')
+
+                                    # Convertissez le résultat en décimal
+                                    puht_decimal = decimal.Decimal(puht_match)
+                                else:
+                                    puht_decimal = None
+
+                                statut = match_statut.group(0) if match_statut else ""
+
+                                # Transformez le statut en utilisant le dictionnaire de correspondance
+                                statut_formatted = statut_mapping.get(statut, None)
+
+                                # Vérifiez si nous avons atteint la ligne de début
+                                if code_cpf == start_code:
+                                    start_extraction = True  # Commencez à extraire les données à partir de ce point
+
+                                # Vérifiez si nous avons atteint la ligne de fin
+                                if code_cpf == end_code:
+                                    data.append(
+                                        [code_cpf, code_ean, cmr, match_designation, quantity, unit, statut_formatted,
+                                         puht_decimal])
+                                    start_extraction = False  # Arrêtez l'extraction des données
+
+                                # Si nous sommes dans la plage de codes et que nous devons extraire les données, ajoutez-les à la liste data
+                                if start_extraction:
+                                    data.append(
+                                        [code_cpf, code_ean, cmr, match_designation, quantity, unit, statut_formatted,
+                                         puht_decimal])
+
+
+                        # Une fois toutes les données extraites de la page, ajoutez-les à la liste globale data
+                        global_data.extend(data)
+
+                    # Créez un DataFrame pandas avec les données et les entêtes de colonnes appropriées
+                    columns = ["CODE CPF", "CODE EAN", "CMR", "DESIGNATION", "QUANTITE", "UNITE", "STATUT", "P.U.H.T."]
+                    df = pd.DataFrame(global_data, columns=columns)
+
+                    print('Ajout des données')
+                    notifs.append({
+                        'message': "Ajout des données au préparatoire",
+                        'type': 'info'
+                    })
+
+                    for row in global_data:
+                        code_cpf, code_ean, cmr, designation, quantity, unit, statut_formatted, puht_decimal = row
+                        designation = designation.capitalize()
+                        catalogue = Catalogue(
+                            designation=designation,
+                            code_fournisseur=code_cpf,
+                            cip=code_ean,
+                            fournisseur=instance.fournisseur,
+                            qté=quantity,
+                            unite=unit.lower(),
+                            type=statut_formatted,
+                            prix=puht_decimal if puht_decimal else None,  # Handle cases where puht is empty
+                            cmr=cmr,
+                            categorie=instance.categorie
+                            # You can set other fields accordingly
+                        )
+                        catalogue.save()
+
+                notifs.append({
+                    'message': "Catalogue importé",
+                    'type': 'success'
+                })
+
+                print("Notifications ajoutées à la liste :")
+                for notif in notifs:
+                    print(notif)
+
+        except Exception as e:
+            # Gérez l'erreur ici, par exemple, en enregistrant les détails de l'erreur dans un journal
+            print(f"Une erreur s'est produite lors de l'extraction des données depuis le PDF : {str(e)}")
+
+            notifs.append({
+                'message': f"Une erreur s'est produite lors de l'extraction des données depuis le PDF : {str(e)}",
+                'type': 'error'
+            })
+
+        response_data = {
+            'notifications': notifs,
+            # Autres données de réponse
+        }
+        return JsonResponse(response_data)
+
 
 class CatalogueViewSet(viewsets.ModelViewSet):
     queryset = Catalogue.objects.all()

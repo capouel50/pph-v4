@@ -316,6 +316,10 @@
   opacity: 0 !important;
 }
 
+.bg-op-5 {
+  opacity: 0.5 !important;
+}
+
 .bd-radius-10 {
   border-radius: 10px;
 }
@@ -332,6 +336,10 @@ bg-navytheme{
   opacity: 0.8; /* Rendre l'icône plus subtile, ajustez au besoin */
   color: #4dd0e1;
   font-size: 80px;
+}
+
+icon-cyan-4{
+  color: #4dd0e1 !important;
 }
 
 .icon-background:hover {

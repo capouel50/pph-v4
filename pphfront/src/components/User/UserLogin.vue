@@ -9,7 +9,7 @@
       </div>
       </q-page>
   <q-page v-else class="row  justify-center container-signup">
-    <q-card class="card-signup shadow-10 col-md-3">
+    <q-card class="card-signup shadow-10 col-md-3 col-xs-10">
 
       <q-card-section>
         <div class="row justify-center items-center">

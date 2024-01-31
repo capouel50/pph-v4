@@ -9,16 +9,23 @@ import quasarUserOptions from './quasar-user-options';
 import '@/assets/css/main.scss';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faMortarPestle, faPrescriptionBottle, faWeightScale, faFlask, faPills } from '@fortawesome/free-solid-svg-icons';
+import { faMortarPestle, faPrescriptionBottle, faWeightScale,
+    faFlask, faPills, faMagnifyingGlass, faMagnifyingGlassPlus,
+    faSkullCrossbones, faBottleDroplet, faGlassWaterDroplet, faHandDots,
+    faHandHoldingDroplet, faBookMedical, faSnowflake, faTriangleExclamation, faClone } from '@fortawesome/free-solid-svg-icons';
 import './registerServiceWorker'
 import 'chart.js';
 import 'vue-chartjs';
 
 
-library.add(faMortarPestle, faPrescriptionBottle, faWeightScale, faFlask, faPills);
+library.add(faMortarPestle, faPrescriptionBottle, faWeightScale, faFlask, faPills,
+    faMagnifyingGlass, faMagnifyingGlassPlus, faSkullCrossbones, faBottleDroplet,
+    faGlassWaterDroplet, faHandDots, faHandHoldingDroplet, faBookMedical, faSnowflake,
+    faTriangleExclamation, faClone);
 
 const app = createApp(App)
-  .use(Quasar, quasarUserOptions)
+  .use(Quasar,
+      quasarUserOptions)
   .use(router)
   .use(store)
 

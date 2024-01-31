@@ -3,6 +3,7 @@ from django.db import models
 from django.urls import reverse
 from datetime import date
 from decimal import Decimal
+from .utils import convert_quantity
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, first_name, last_name, password=None):
@@ -61,7 +62,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
-
 class Supplier(models.Model):
     """
     Cet objet représente un fournisseur.
@@ -79,6 +79,7 @@ class Supplier(models.Model):
     password = models.CharField(max_length=100, blank=True)
     logo = models.ImageField(upload_to='suppliers/', default='suppliers/usine.png')
     is_activate = models.BooleanField(default=True)
+    download_catalogue = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['name']
@@ -89,7 +90,14 @@ class Supplier(models.Model):
     def __str__(self):
         return self.name
 
+class CategorieMatiere(models.Model):
+    nom = models.CharField(max_length=200)
+    fournisseur = models.ForeignKey(Supplier, on_delete=models.CASCADE)
 
+    class Meta:
+        ordering = ['nom']
+    def __str__(self):
+        return self.nom
 class Contact(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField()
@@ -106,7 +114,6 @@ class Service(models.Model):
 
 class TypeMatiere(models.Model):
     nom = models.CharField(max_length=200)
-    logo = models.ImageField(upload_to='matieres/', default='matieres/actif.jpg')
 
     def __str__(self):
         return self.nom
@@ -161,27 +168,43 @@ class ParametresFormules(models.Model):
         return f"{self.num_formule} - {self.parametre}"
 
 class MatierePremiere(models.Model):
-    nom = models.CharField(max_length=200)
+    nom = models.CharField(max_length=200, null=True)
     type = models.ForeignKey(TypeMatiere, on_delete=models.CASCADE, default=1, null=False)
-    forme = models.ForeignKey(Forme, on_delete=models.CASCADE)
-    cdt = models.ForeignKey(Conditionnement, on_delete=models.CASCADE)
+    forme = models.ForeignKey(Forme, on_delete=models.CASCADE, null=True)
+    cdt = models.ForeignKey(Conditionnement, on_delete=models.CASCADE, null=True)
     qté_cdt = models.DecimalField(max_digits=10, decimal_places=2)
+    unite_cdt = models.CharField(max_length=200, null=True)
     fournisseur = models.ForeignKey(Supplier, on_delete=models.CASCADE)
+    code_fournisseur = models.CharField(max_length=200, null=True)
+    ean = models.CharField(max_length=200, null=True)
     prix = models.DecimalField(max_digits=10, decimal_places=2)
-    prix_unit = models.DecimalField(max_digits=10, decimal_places=2)
+    prix_unit = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     qté_stock = models.PositiveIntegerField(null=True, blank=True)
     stock_mini = models.PositiveIntegerField()
-    liste = models.ForeignKey(Liste, on_delete=models.CASCADE)
+    liste = models.ForeignKey(Liste, on_delete=models.CASCADE, null=True)
     stockee = models.BooleanField(default=False)
     cde_auto = models.BooleanField(default=False)
     cde = models.BooleanField(default=False)
     attente_livraison = models.BooleanField(default=False)
+    cmr = models.BooleanField(default=False)
+    froid = models.BooleanField(default=False)
+    unite_mesure = models.ForeignKey(UniteMesure, on_delete=models.CASCADE, null=True)
 
-    class Meta:
-        ordering = ['nom']
-
-    def __str__(self):
-        return self.nom
+    def save(self, *args, **kwargs):
+        if self.prix and self.qté_cdt and self.unite_cdt and self.unite_mesure:
+            try:
+                # Convertissez la quantité du conditionnement à l'unité de mesure
+                qté_unite_mesure = convert_quantity(
+                    self.qté_cdt, self.unite_cdt.lower(), self.unite_mesure.nom
+                )
+                # Calculez le prix unitaire
+                self.prix_unit = self.prix / qté_unite_mesure
+            except ValueError:
+                # Gérez le cas où la conversion n'est pas possible
+                self.prix_unit = None
+        else:
+            self.prix_unit = None
+        super(MatierePremiere, self).save(*args, **kwargs)
 
 
 class Formule(models.Model):
@@ -213,6 +236,19 @@ class Composition(models.Model):
     def __str__(self):
         return str(self.num_formule)
 
+class CatalogueImport(models.Model):
+    fournisseur = models.ForeignKey(Supplier, on_delete=models.CASCADE)
+    categorie = models.ForeignKey(CategorieMatiere, on_delete=models.CASCADE)
+    page_debut = models.IntegerField()
+    page_fin = models.IntegerField()
+    code_debut = models.CharField(max_length=200)
+    code_fin = models.CharField(max_length=200)
+    date_import = models.DateTimeField(auto_now_add=True)
+    pdf = models.FileField(upload_to='imports/')
+    class Meta:
+        ordering = ['date_import']
+    def __str__(self):
+        return str(self.date_import)
 class Catalogue(models.Model):
     designation = models.CharField(max_length=200)
     code_fournisseur = models.CharField(max_length=200)
@@ -220,9 +256,12 @@ class Catalogue(models.Model):
     fournisseur = models.ForeignKey(Supplier, on_delete=models.CASCADE)
     qté = models.DecimalField(max_digits=10, decimal_places=2)
     unite = models.CharField(max_length=200)
-    cdt = models.CharField(max_length=200, null=True)
     prix = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     prix_unit = models.DecimalField(max_digits=10, decimal_places=2, editable=False, null=True)
+    type = models.ForeignKey(TypeMatiere, on_delete=models.CASCADE, null=True)
+    cmr = models.BooleanField(default=False)
+    froid = models.BooleanField(default=False)
+    categorie = models.ForeignKey(CategorieMatiere, on_delete=models.CASCADE, null=True)
 
     def save(self, *args, **kwargs):
         # S'assurer que prix et qté sont des Decimal

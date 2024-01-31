@@ -6,6 +6,8 @@ const state = () => ({
   types: [],
   unites: [],
   matieres: [],
+  categoriesMatieres: [],
+  importsCatalogue: [],
   matieresCatalogue: [],
   showMenu: {},
   expanded: {},
@@ -18,12 +20,15 @@ const getters = {
   allUnites: (state) => state.unites,
   allTypes: (state) => state.types,
   allMatieres: (state) => state.matieres,
+  allCategories: (state) => state.categoriesMatieres,
+  allImports: (state) => state.importsCatalogue,
   allMatieresCatalogue: (state) => state.matieresCatalogue,
   showMenu: (state) => state.showMenu,
   expanded: (state) => state.expanded,
   currentMatiere: state => {
     return state.currentMatiere;
   },
+  showMenuMat: state => state.menuMat,
   matieresCdeCount: (state) => {
     const matieresWithCde = state.matieres.filter((matiere) => matiere.cde);
     return matieresWithCde.length;
@@ -35,13 +40,17 @@ const getters = {
 
 const actions = {
 
-    async addMatiere({ dispatch }, formData) {
+    async addMatiere({ dispatch, commit }, formData) {
       try {
-        await api.post('PPH/matieres-premieres/', formData);
+        const response = await api.post('PPH/matieres-premieres/', formData);
+        const nouvelleMatiere = response.data; // La nouvelle matière première créée
+        commit('ADD_MATIERE', nouvelleMatiere); // Commit pour ajouter la nouvelle matière première à l'état Vuex
+
         dispatch('notifications/showNotification', {
           message: 'Matière première ajoutée avec succès',
           type: 'success'
         }, { root: true });
+
         return Promise.resolve();
       } catch (error) {
         dispatch('notifications/showNotification', {
@@ -51,6 +60,7 @@ const actions = {
         return Promise.reject(error);
       }
     },
+
 
   async addType({ dispatch }, formData) {
       try {
@@ -103,6 +113,46 @@ const actions = {
       }
     },
 
+   async addImport({ dispatch, commit }, formData) {
+      let response; // Déclarer la variable en dehors du bloc try
+      try {
+        // Envoyez le formulaire au backend via votre API
+        response = await api.post('PPH/catalogue-import/', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          }
+        });
+        commit('RESET_MATIERES_CATALOGUE');
+        const responseData = response.data;
+        console.log(responseData);
+
+        // Affichez un message pour informer que le traitement est initialisé
+        dispatch('notifications/showNotification', {
+          message: 'Catalogue importé',
+          type: 'success'
+        }, { root: true });
+        if (responseData.notifs) {
+      // Parcourez les notifications renvoyées par le backend
+          responseData.notifs.forEach(notif => {
+            // Affichez chaque notification
+            dispatch('notifications/showNotification', {
+              message: notif.message,
+              type: notif.type
+            }, { root: true });
+          });
+        }        // Utilisez la réponse de la première requête pour afficher la notification de succès si elle est présente
+        return Promise.resolve();
+      } catch (error) {
+        // En cas d'erreur, affichez une notification d'erreur
+        dispatch('notifications/showNotification', {
+          message: 'Impossible d\'initialiser l\'import',
+          type: 'error'
+        }, { root: true });
+
+        return Promise.reject(error);
+      }
+    },
+
   async fetchMatierePremiereById(id) {
     try {
       const response = await api.get(`PPH/matieres-premieres/${id}`);
@@ -122,6 +172,21 @@ const actions = {
     } catch (error) {
       dispatch('notifications/showNotification', {
         message: 'Erreur lors du chargement des matières premières',
+        type: 'error'
+      }, { root: true });
+      console.error(error);
+    }
+  },
+
+  async loadCategoriesMatieres({ commit, dispatch }) {
+    try {
+      console.log("Chargement des catégories de matières premières");
+      const response = await api.get('/PPH/categories');
+      commit('SET_CATEGORIES', response.data);
+      console.log(response.data);
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors du chargement des catégories matières premières',
         type: 'error'
       }, { root: true });
       console.error(error);
@@ -251,6 +316,10 @@ const actions = {
     commit('TOGGLE_INFO', id);
   },
 
+  toggleMenuMat({ commit }) {
+    commit('SET_MENU_MAT', !this.state.menuMat); // Inverse la valeur actuelle de menuMat
+  },
+
   getMatiere({ commit }, id) {
     return api.get(`/PPH/matieres-premieres/${id}`)
     .then((response) => {
@@ -274,8 +343,20 @@ const mutations = {
   ADD_FORME(state, forme) {
     state.forme.push(forme);
   },
+  ADD_IMPORT(state, importCat) {
+    state.importsCatalogue.push(importCat);
+  },
+  RESET_MATIERES_CATALOGUE(state) {
+    state.matieresCatalogue = [];
+  },
+  SET_MENU_MAT(state, value) {
+    state.menuMat = value;
+  },
   SET_MATIERES(state, matieres) {
     state.matieres = matieres;
+  },
+  SET_CATEGORIES(state, categoriesMatieres) {
+    state.categoriesMatieres = categoriesMatieres;
   },
   SET_MATIERES_CATALOGUE(state, matieresCatalogue) {
     state.matieresCatalogue = matieresCatalogue;
