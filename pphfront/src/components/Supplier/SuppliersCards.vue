@@ -32,10 +32,24 @@
               <div class="col-1 q-pa-sm" v-for="supplier in filteredSuppliers" :key="supplier.id" @click="redirectToLink(supplier.id)">
                 <q-card bordered class="card-mini justify-center items-center text-center relative" :class="{ 'bd-red-4': !supplier.is_activate}">
                   <div @click="redirectToLink(supplier.id)" class="card-content">
-                    <q-img class="logo-card-mini" :src="supplier.logo" :alt="supplier.name">
+                    <q-img
+                        class="logo-card-mini"
+                        src="@/assets/img/blanc.jpg"
+                        loading="lazy"
+                        spinner-color="red-4"
+                        :alt="supplier.name">
+                      <q-icon
+                          name="factory"
+                          size="md"
+                          color="cyan-4"
+                          class="icon-background"
+                      />
                       <div class="absolute-top hover-effect q-my-none" :class="{ 'text-cyan-1': supplier.is_activate, 'text-red-4': !supplier.is_activate }">
                         {{ supplier.name }}
                       </div>
+                      <template v-slot:loading>
+                        <q-spinner-rings color="red-4" />
+                      </template>
                     </q-img>
                     <q-btn flat color="white" class="absolute-top-right hover-effect q-pa-none q-ma-none" icon="more_vert" @click.stop="toggleMenu(supplier.id)" />
                     <q-menu fit anchor="top right" self="bottom middle" v-model="showMenu[supplier.id]">

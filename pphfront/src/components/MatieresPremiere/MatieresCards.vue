@@ -191,7 +191,11 @@
               <div class="col-2 q-pa-sm" v-for="matiere in filteredMatieres" :key="matiere.id" @click="redirectToLink(matiere.id)">
                 <q-card bordered class="card-maxi justify-center items-center text-center relative" :class="{ 'bd-red-4': !matiere.stockee}">
                   <div @click="redirectToLink(matiere.id)" class="card-content">
-                    <q-img class="logo-card-mini" src="../../assets/img/blanc.jpg" :alt="matiere.type.nom">
+                    <q-img class="logo-card-mini"
+                           src="../../assets/img/blanc.jpg"
+                           loading="lazy"
+                           spinner-color="red-4"
+                           :alt="matiere.type.nom">
                       <font-awesome-icon
                           v-if="matiere.type.nom === 'Conditionnement'"
                           icon="fa-solid fa-prescription-bottle"
@@ -247,6 +251,9 @@
                           Stock : {{ matiere.qté_stock }}{{ matiere.unite_mesure.nom }}
                         </div>
                       </div>
+                      <template v-slot:loading>
+                        <q-spinner-rings color="red-4" />
+                      </template>
                     </q-img>
                     <q-btn flat color="white" class="absolute-top-right hover-effect q-pa-none q-ma-none"
                            icon="more_vert" @click.stop="toggleMenu(matiere.id)"

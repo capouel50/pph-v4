@@ -30,7 +30,6 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['*']
 
 APP_NAME = 'PPH'
 # Application definition
@@ -56,12 +55,18 @@ INSTALLED_APPS = [
     'knox',
     'PPH',
 ]
+# Utiliser Channels comme backend de communication en temps réel
+ASGI_APPLICATION = 'Hospi.asgi.application'
+
+
 
 CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("localhost", 6379)],
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            # Utilisez la variable d'environnement REDISCLOUD_URL si elle est définie,
+            # sinon, utilisez une URL locale pour le développement
+            'hosts': [os.environ.get('REDISCLOUD_URL', 'redis://localhost:6379')],
         },
     },
 }

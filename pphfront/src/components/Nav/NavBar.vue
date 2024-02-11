@@ -1,8 +1,8 @@
 <template>
   <q-toolbar class="q-pa-md row" style="background-color:#1a2946 !important; opacity: 0.8 !important;">
-  <a href="home/">
+  <router-link to="/home/">
     <font-awesome-icon icon="fa-solid fa-mortar-pestle" beat-fade size="xl" :color="tokenColor" />
-  </a>
+  </router-link>
   <q-toolbar-title class="text-cyan-4" style="max-width:100px;">PPH</q-toolbar-title>
 
   <q-btn-group flat>

@@ -245,10 +245,12 @@ class CatalogueImport(models.Model):
     code_fin = models.CharField(max_length=200)
     date_import = models.DateTimeField(auto_now_add=True)
     pdf = models.FileField(upload_to='imports/')
+    data_source = models.CharField(max_length=200, null=True)
     class Meta:
         ordering = ['date_import']
     def __str__(self):
         return str(self.date_import)
+
 class Catalogue(models.Model):
     designation = models.CharField(max_length=200)
     code_fournisseur = models.CharField(max_length=200)
@@ -257,25 +259,10 @@ class Catalogue(models.Model):
     qté = models.DecimalField(max_digits=10, decimal_places=2)
     unite = models.CharField(max_length=200)
     prix = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    prix_unit = models.DecimalField(max_digits=10, decimal_places=2, editable=False, null=True)
     type = models.ForeignKey(TypeMatiere, on_delete=models.CASCADE, null=True)
     cmr = models.BooleanField(default=False)
     froid = models.BooleanField(default=False)
     categorie = models.ForeignKey(CategorieMatiere, on_delete=models.CASCADE, null=True)
-
-    def save(self, *args, **kwargs):
-        # S'assurer que prix et qté sont des Decimal
-        prix_decimal = Decimal(self.prix)
-        qté_decimal = Decimal(self.qté)
-
-        # Calculer le prix unitaire seulement si qté est supérieure à zéro pour éviter la division par zéro
-        if qté_decimal > 0:
-            self.prix_unit = prix_decimal / qté_decimal
-        else:
-            self.prix_unit = Decimal('0.00')  # Ou une autre valeur par défaut si qté est zéro
-
-        super(Catalogue, self).save(*args, **kwargs)
-
 
     class Meta:
         ordering = ['designation']

@@ -1,5 +1,8 @@
 # Pour le backend Django avec Gunicorn
-web: gunicorn Hospi.wsgi --chdir Hospi
+# web: gunicorn Hospi.wsgi --chdir Hospi
+
+# Pour le back-end avec websocket
+web: uvicorn Hospi.asgi:application --host=0.0.0.0 --port=$PORT
 
 # Pour le frontend Vue.js
 #frontend: npm run build --prefix Hospi/pphfront

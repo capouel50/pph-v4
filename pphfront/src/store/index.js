@@ -13,9 +13,13 @@ import formules from './modules/formules';
 import voiesAdministration from './modules/voiesAdministration';
 import demandes from './modules/demandes';
 import fiches from './modules/fiches';
+import spinner from './modules/spinner';
+import websocket from './modules/websocket';
 
 const store = createStore({
   modules: {
+    websocket,
+    spinner,
     fiches,
     demandes,
     voiesAdministration,

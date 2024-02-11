@@ -1,5 +1,5 @@
 import api from '../../../api';
-
+import serverURL from '../../../server-config.js';
 const state = () => ({
   cdts: [],
   formes: [],
@@ -12,9 +12,13 @@ const state = () => ({
   showMenu: {},
   expanded: {},
   currentMatiere: null,
+  loadingMatieres: false,
 });
 
 const getters = {
+  loadingMatieres(state) {
+    return state.loadingMatieres;
+  },
   allCdts: (state) => state.cdts,
   allFormes: (state) => state.formes,
   allUnites: (state) => state.unites,
@@ -114,44 +118,52 @@ const actions = {
     },
 
    async addImport({ dispatch, commit }, formData) {
-      let response; // Déclarer la variable en dehors du bloc try
-      try {
-        // Envoyez le formulaire au backend via votre API
-        response = await api.post('PPH/catalogue-import/', formData, {
+    return new Promise((resolve, reject) => {
+      const socket = new WebSocket(serverURL);
+      dispatch('spinner/showSpinner', null, { root: true });
+
+      socket.onopen = () => {
+        // La connexion WebSocket est ouverte, maintenant envoyez la requête POST
+        api.post('PPH/catalogue-import/', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           }
+        }).then(() => {
+          commit('RESET_MATIERES_CATALOGUE');
+          dispatch('notifications/showNotification', {
+            message: 'Demande terminée',
+            type: 'success'
+          }, { root: true });
+          dispatch('spinner/hideSpinner', null, { root: true });
+          resolve();
+        }).catch(error => {
+          dispatch('spinner/hideSpinner', null, { root: true });
+          dispatch('notifications/showNotification', {
+            message: 'Impossible d\'initialiser l\'import',
+            type: 'error'
+          }, { root: true });
+          reject(error);
         });
-        commit('RESET_MATIERES_CATALOGUE');
-        const responseData = response.data;
-        console.log(responseData);
 
-        // Affichez un message pour informer que le traitement est initialisé
-        dispatch('notifications/showNotification', {
-          message: 'Catalogue importé',
-          type: 'success'
-        }, { root: true });
-        if (responseData.notifs) {
-      // Parcourez les notifications renvoyées par le backend
-          responseData.notifs.forEach(notif => {
-            // Affichez chaque notification
+        // Ajout de l'écouteur pour les messages WebSocket
+        socket.addEventListener('message', event => {
+          const data = JSON.parse(event.data);
+          if (data.notification && data.notification.message) {
             dispatch('notifications/showNotification', {
-              message: notif.message,
-              type: notif.type
+              message: data.notification.message,
+              type: data.notification.notification_type
             }, { root: true });
-          });
-        }        // Utilisez la réponse de la première requête pour afficher la notification de succès si elle est présente
-        return Promise.resolve();
-      } catch (error) {
-        // En cas d'erreur, affichez une notification d'erreur
-        dispatch('notifications/showNotification', {
-          message: 'Impossible d\'initialiser l\'import',
-          type: 'error'
-        }, { root: true });
+          } else {
+            dispatch('notifications/showNotification', {
+              message: 'Format de notification inattendu',
+              type: 'error'
+            }, { root: true });
+          }
+        });
+      };
+    });
+  },
 
-        return Promise.reject(error);
-      }
-    },
 
   async fetchMatierePremiereById(id) {
     try {
@@ -195,6 +207,7 @@ const actions = {
 
   async loadMatieresPremieresCatalogue({ commit, dispatch }) {
     try {
+      commit('SET_LOADING_MATIERES', true); // Démarre le chargement
       console.log("Chargement des matières premières");
       const response = await api.get('/PPH/catalogue');
       commit('SET_MATIERES_CATALOGUE', response.data);
@@ -205,6 +218,8 @@ const actions = {
         type: 'error'
       }, { root: true });
       console.error(error);
+    } finally {
+      commit('SET_LOADING_MATIERES', false); // Termine le chargement (qu'il réussisse ou échoue)
     }
   },
 
@@ -345,6 +360,9 @@ const mutations = {
   },
   ADD_IMPORT(state, importCat) {
     state.importsCatalogue.push(importCat);
+  },
+  SET_LOADING_MATIERES(state, loading) {
+    state.loadingMatieres = loading;
   },
   RESET_MATIERES_CATALOGUE(state) {
     state.matieresCatalogue = [];
