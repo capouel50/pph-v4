@@ -292,9 +292,16 @@
               </q-form>
               </q-fab>
           </div>
+
           <div class="col-6 offset-2 q-mt-md text-cyan-4 text-h6">
             <div class="row justify-center">
             {{ countMatieresCatalogue }} matières premières disponibles
+              <q-btn
+              flat
+              size="md"
+              @click="toggleCard = !toggleCard"
+              :icon="toggleCard ? 'list' : 'grid_view'"
+            />
             </div>
           </div>
 
@@ -318,9 +325,9 @@
         </div>
         <div class="row q-mt-sm">
           <div class="col-12 justify-center">
-            <div class="row justify-start">
-
-              <div class="col-2 q-pa-sm" v-for="matiere in filteredMatieres" :key="matiere.id" @click="redirectToLink(matiere.id)">
+            <div v-if="toggleCard" class="row justify-start">
+              <div class="col-2 q-pa-sm" v-for="matiere in filteredMatieres" :key="matiere.id"
+                   @click="redirectToLink(matiere.id)">
                 <q-card bordered
                         class="card-maxi justify-center items-center text-center relative">
 
@@ -362,7 +369,55 @@
                   </q-btn-group>
 
                 </q-card>
-              </div>
+                </div>
+                </div>
+                <div v-else class="row">
+                <q-list bordered class="col-12 bg-white bg-op-8">
+                  <div class="row">
+                    <div class="col-3 text-center">Désignation</div>
+                    <div class="col-1 text-center">Conditionnement</div>
+                    <div class="col-1 text-center">Prix HT</div>
+                    <div class="col-2 text-center">Ref fournisseur</div>
+                    <div class="col-2 text-center">EAN</div>
+                    <div class="col-1 text-center">Fournisseur</div>
+                  </div>
+                  <q-item class="row hover-effect" v-for="matiere in filteredMatieres" :key="matiere.id" clickable @click="redirectToLink(matiere.id)">
+
+                    <q-item-section class="col-3">
+                      <q-item-label>{{ matiere.designation }}</q-item-label>
+                    </q-item-section>
+
+                    <q-item-section class="col-1 text-center">
+                      <q-item-label caption>{{ matiere.qté }}{{ matiere.unite }}</q-item-label>
+                    </q-item-section>
+
+                    <q-item-section class="col-1 text-center">
+                      <q-item-label caption>{{ matiere.prix }}€</q-item-label>
+                    </q-item-section>
+
+                    <q-item-section class="col-2 text-center">
+                      <q-item-label caption>{{ matiere.code_fournisseur }}</q-item-label>
+                    </q-item-section>
+
+                    <q-item-section class="col-2 text-center">
+                      <q-item-label caption>{{ matiere.cip }}</q-item-label>
+                    </q-item-section>
+
+                    <q-item-section class="col-1 text-center">
+                      <q-item-label caption>{{ matiere.fournisseur.name }}</q-item-label>
+                    </q-item-section>
+
+                    <q-item-section class="col-1 text-center">
+                      <font-awesome-icon v-if="matiere.cmr" fade size="fa-lg" icon="fa-solid fa-skull-crossbones" style="color: #e57373;" class="q-ml-md"/>
+                    </q-item-section>
+
+                    <q-item-section class="col-1">
+                      <q-btn flat icon="add_box" color="cyan-4" @click.stop="openDialog(matiere)" />
+                    </q-item-section>
+
+                  </q-item>
+                </q-list>
+
                <q-form>
             <q-dialog v-model="addMatiereCat">
                     <q-card>
@@ -481,6 +536,7 @@ export default {
 
   data() {
     return {
+      toggleCard: true,
       showing: true,
       items: ['Item 1', 'Item 2','Item 3', 'Item 4', 'Item 5'],
       labels: ['Nom', 'Code fournisseur', 'CIP/EAN', 'Prix'],

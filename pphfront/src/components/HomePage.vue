@@ -199,16 +199,16 @@
          <div class="col-md-5">
           <q-carousel
             animated
-            v-model="carousel2"
+            v-model="carousel1"
             arrows
             infinite
-            :autoplay="autoplay"
-            @mouseenter="autoplay = false"
-            @mouseleave="autoplay = true"
+            :autoplay="autoplay1"
+            @mouseenter="autoplay1 = false"
+            @mouseleave="autoplay1 = true"
             class="rounded-borders q-pb-sm"
             style="background-image: linear-gradient(to left, #263238, #3F6B79);"
           >
-            <q-carousel-slide name="slide2-1">
+            <q-carousel-slide name="slide1">
               <q-card class="items-center q-px-none" style="background-image: linear-gradient(to left, #263238, #3F6B79);">
                 <q-card-section class="text-subtitle2 text-center text-cyan-1">
                   <q-card-section v-if="loadedDonut">
@@ -218,23 +218,50 @@
                 </q-card-section>
               </q-card>
             </q-carousel-slide>
+
+            <q-carousel-slide name="slide2">
+              <q-card class="items-center" style="background-image: linear-gradient(to left, #263238, #3F6B79);">
+                <q-card-section>
+                  <q-card-section>
+                    <div class="text-center text-cyan-1">Produits en attente de commande</div>
+                  <q-list class="text-cyan-1">
+                    <q-item v-for="(matiere, index) in filteredMatieresCde" :key="index" clickable v-ripple>
+                      <q-item-section class="hover-effect">
+                        <q-item-label class="text-subtitle-1">{{ matiere.nom }} {{ matiere.qté_cdt }}{{ matiere.unite_cdt }}</q-item-label>
+                        <q-item-label class="text-cyan-1 text-subtitle2" caption>{{ matiere.fournisseur.name }} {{ matiere.code_fournisseur }}</q-item-label>
+                      </q-item-section>
+                      <q-item-section>
+                        <font-awesome-icon v-if="matiere.cmr" fade icon="fa-solid fa-skull-crossbones" class="fa-xl" style="color: #e57373;"/>
+                      </q-item-section>
+                      <q-item-section side top>
+                        <q-badge :color="matiere.qté_stock < matiere.stock_mini ? 'red' : 'green'"
+                                 text-color="white">
+                          {{ matiere.qté_stock }}{{ matiere.unite_mesure.nom }}
+                        </q-badge>
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
+              </q-card-section>
+              </q-card-section>
+              </q-card>
+            </q-carousel-slide>
           </q-carousel>
         </div>
           <div class="col-md-5 offset-1">
           <q-carousel
             animated
-            v-model="carousel1"
+            v-model="carousel2"
             arrows
             infinite
             :padding="padding"
-            :autoplay="autoplay"
+            :autoplay="autoplay2"
             class="rounded-borders"
-            @mouseenter="autoplay = false"
-            @mouseleave="autoplay = true"
+            @mouseenter="autoplay2 = false"
+            @mouseleave="autoplay2 = true"
             style="background-image: linear-gradient(to right, #263238, #3F6B79);"
           >
             <!-- Carousel Slide 1 -->
-            <q-carousel-slide name="slide1">
+            <q-carousel-slide name="slide2-1">
                <q-card class="text-subtitle2 text-center text-cyan-1" style="background-image: linear-gradient(to right, #263238, #3F6B79);">
                 <q-card-section v-if="loadedBar">
                     <q-toggle
@@ -264,7 +291,7 @@
             </q-card>
             </q-carousel-slide>
             <!-- Carousel Slide 2 -->
-            <q-carousel-slide name="slide2">
+            <q-carousel-slide name="slide2-2">
               <q-card class="items-center" style="background-image: linear-gradient(to right, #263238, #3F6B79);">
                 <q-card-section>
                   <q-card-section>
@@ -289,7 +316,7 @@
             </q-carousel-slide>
 
             <!-- Carousel Slide 3 -->
-            <q-carousel-slide name="slide3">
+            <q-carousel-slide name="slide2-3">
               <q-card class="items-center" style="background-image: linear-gradient(to right, #263238, #3F6B79);">
                 <q-card-section class="text-subtitle2 text-center text-cyan-1">
                   <q-card-section v-if="loadedDonut">
@@ -333,7 +360,8 @@ export default {
     return {
       carousel1: 'slide1',
       carousel2: 'slide2-1',
-      autoplay: true,
+      autoplay1: true,
+      autoplay2: true,
       padding: false,
       loadedPage: false,
       calendarDialog: false,
@@ -359,9 +387,13 @@ export default {
   },
 
   computed: {
-    ...mapGetters('matieresPremieres', ['matieresCdeCount', 'matieresLivraisonCount']),
+    ...mapGetters('matieresPremieres', ['allMatieres', 'matieresCdeCount', 'matieresLivraisonCount']),
     ...mapGetters('demandes', ['nombreDemandes', 'demandeProche', 'nombreDemandesProche', 'demandesDates', 'demandesAll']),
     ...mapGetters('fiches', ['fichesControlCount', 'fichesSemaine']),
+
+    filteredMatieresCde() {
+      return this.allMatieres.filter(matiere => matiere.cde === true);
+    },
 
     demandesDates() {
       const data = this.$store.getters['demandes/demandesDates'];
@@ -403,10 +435,6 @@ export default {
 
     totalFiches() {
       return this.donutSeries.reduce((acc, value) => acc + value, 0);
-    },
-
-    periodOptions() {
-      return this.toggleMonth ? [2, 4, 6] : [4, 8, 12];
     },
 
   },

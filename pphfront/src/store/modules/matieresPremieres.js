@@ -305,6 +305,32 @@ const actions = {
     }
   },
 
+  async toggleCde({ dispatch }, payload) {
+    const { matiereId, isCde } = payload;
+    try {
+      if (isCde) {
+        await api.patch(`/PPH/matieres-premieres/${matiereId}/`, { cde: false });
+        dispatch('notifications/showNotification', {
+          message: 'Matière première retirée de la liste de commande',
+          type: 'success'
+        }, { root: true });
+      } else {
+        await api.patch(`/PPH/matieres-premieres/${matiereId}/`, { cde: true });
+        dispatch('notifications/showNotification', {
+          message: 'Matière première ajoutée à la liste de commande',
+          type: 'success'
+        }, { root: true });
+      }
+      dispatch('loadMatieresPremieres');
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors du changement d\'état',
+        type: 'error'
+      }, { root: true });
+      console.error(error);
+    }
+  },
+
   async deleteMatiere({ dispatch }, matiereId) {
       console.log("deleteMatiere appelée avec l'ID :", matiereId);
     try {

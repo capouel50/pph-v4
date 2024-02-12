@@ -248,6 +248,7 @@
                                              size="fa-xs"
                                              style="color: #e57373;"
                           />
+                          <q-icon name="fact_check" color="green-4" size="xs" v-if="matiere.cde"/>
                           Stock : {{ matiere.qté_stock }}{{ matiere.unite_mesure.nom }}
                         </div>
                       </div>
@@ -290,8 +291,9 @@
                     <q-btn
                        class="q-pa-none hover-effect"
                        flat
-                       color="cyan-4"
-                       icon="playlist_add"
+                       :color="matiere.cde ? 'red-4' : 'green-4'"
+                       :icon="matiere.cde ? 'playlist_remove' : 'playlist_add'"
+                       @click.stop="toggleCde({ matiereId: matiere.id, isCde: matiere.cde })"
                     />
                     <q-btn
                       class="hover-effect"
@@ -461,7 +463,7 @@ export default {
     ...mapActions('matieresPremieres', ['loadMatieresPremieres', 'loadCategoriesMatieres',
                                         'loadMatieresPremieresCatalogue', 'deleteMatiere',
                                         'loadUnites','loadFormes', 'addMatiere',
-                                        'toggleActivation', 'toggleMenuMat', 'toggleMenu', 'toggleInfo']),
+                                        'toggleActivation', 'toggleMenuMat', 'toggleCde', 'toggleMenu', 'toggleInfo']),
     ...mapActions('formules', ['loadListes']),
 
     selectMatiere(matiere) {
