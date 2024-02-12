@@ -220,6 +220,11 @@
             </q-carousel-slide>
 
             <q-carousel-slide name="slide2">
+              <q-scroll-area
+                  :thumb-style="thumbStyle"
+                  :bar-style="barStyle"
+                  style="height: 350px;"
+              >
               <q-card class="items-center" style="background-image: linear-gradient(to left, #263238, #3F6B79);">
                 <q-card-section>
                   <q-card-section>
@@ -244,7 +249,9 @@
               </q-card-section>
               </q-card-section>
               </q-card>
+              </q-scroll-area>
             </q-carousel-slide>
+
           </q-carousel>
         </div>
           <div class="col-md-5 offset-1">
@@ -358,6 +365,21 @@ export default {
 
   data() {
     return {
+      thumbStyle: {
+        right: '4px',
+        borderRadius: '5px',
+        backgroundColor: '#027be3',
+        width: '5px',
+        opacity: 0.75
+      },
+
+      barStyle: {
+        right: '2px',
+        borderRadius: '9px',
+        backgroundColor: '#027be3',
+        width: '9px',
+        opacity: 0.2
+      },
       carousel1: 'slide1',
       carousel2: 'slide2-1',
       autoplay1: true,
