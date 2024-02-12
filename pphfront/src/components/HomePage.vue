@@ -252,6 +252,39 @@
               </q-scroll-area>
             </q-carousel-slide>
 
+            <q-carousel-slide name="slide3">
+              <q-scroll-area
+                  :thumb-style="thumbStyle"
+                  :bar-style="barStyle"
+                  style="height: 350px;"
+              >
+              <q-card class="items-center" style="background-image: linear-gradient(to left, #263238, #3F6B79);">
+                <q-card-section>
+                  <q-card-section>
+                    <div class="text-center text-cyan-1">Produits en attente de livraison</div>
+                  <q-list class="text-cyan-1">
+                    <q-item v-for="(matiere, index) in filteredMatieresLivraison" :key="index" clickable v-ripple>
+                      <q-item-section class="hover-effect">
+                        <q-item-label class="text-subtitle-1">{{ matiere.nom }} {{ matiere.qté_cdt }}{{ matiere.unite_cdt }}</q-item-label>
+                        <q-item-label class="text-cyan-1 text-subtitle2" caption>{{ matiere.fournisseur.name }} {{ matiere.code_fournisseur }}</q-item-label>
+                      </q-item-section>
+                      <q-item-section>
+                        <font-awesome-icon v-if="matiere.cmr" fade icon="fa-solid fa-skull-crossbones" class="fa-xl" style="color: #e57373;"/>
+                      </q-item-section>
+                      <q-item-section side top>
+                        <q-badge :color="matiere.qté_stock < matiere.stock_mini ? 'red' : 'green'"
+                                 text-color="white">
+                          {{ matiere.qté_stock }}{{ matiere.unite_mesure.nom }}
+                        </q-badge>
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
+              </q-card-section>
+              </q-card-section>
+              </q-card>
+              </q-scroll-area>
+            </q-carousel-slide>
+
           </q-carousel>
         </div>
           <div class="col-md-5 offset-1">
@@ -415,6 +448,10 @@ export default {
 
     filteredMatieresCde() {
       return this.allMatieres.filter(matiere => matiere.cde === true);
+    },
+
+    filteredMatieresLivraison() {
+      return this.allMatieres.filter(matiere => matiere.attente_livraison === true);
     },
 
     demandesDates() {

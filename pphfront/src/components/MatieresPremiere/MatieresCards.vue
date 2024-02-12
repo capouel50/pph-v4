@@ -248,7 +248,8 @@
                                              size="fa-xs"
                                              style="color: #e57373;"
                           />
-                          <q-icon name="fact_check" color="green-4" size="xs" v-if="matiere.cde"/>
+                          <q-icon name="fact_check" color="orange-4" size="xs" v-if="matiere.cde"/>
+                          <q-icon name="fact_check" color="green-4" size="xs" v-if="matiere.attente_livraison"/>
                           Stock : {{ matiere.qté_stock }}{{ matiere.unite_mesure.nom }}
                         </div>
                       </div>
