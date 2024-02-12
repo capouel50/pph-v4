@@ -58,18 +58,28 @@ INSTALLED_APPS = [
 # Utiliser Channels comme backend de communication en temps réel
 ASGI_APPLICATION = 'Hospi.asgi.application'
 
-
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.getenv("MEMETRIA_REDIS_URL"),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
 
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            # Utilisez la variable d'environnement REDISCLOUD_URL si elle est définie,
-            # sinon, utilisez une URL locale pour le développement
-            'hosts': [os.environ.get('REDISCLOUD_URL', 'redis://localhost:6379')],
+            "hosts": [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
         },
     },
 }
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
