@@ -354,7 +354,7 @@
                     </q-img>
                   </div>
                   <div v-if="matiere.cmr" class="absolute-bottom-left">
-                    <font-awesome-icon fade icon="fa-solid fa-skull-crossbones" class="q-ml-xs q-mb-xs fa-2x" style="color: #e57373;"/>
+                    <q-img v-if="matiere.cmr" class="q-ml-xs q-mb-xs fade-blink" src="@/assets/img/health_hazard.png" :style="{ width: '30px', height: '30px' }"/>
                   </div>
                   <q-btn-group class="absolute-bottom-right q-pa-none q-ma-none">
 

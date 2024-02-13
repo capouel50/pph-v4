@@ -279,8 +279,10 @@
                     <div v-if="matiere.liste.nom==='Stupéfiant'" class="text-red-4 text-subtitle2">S</div>
                   </div>
                   <div class="absolute-bottom-left">
-                    <font-awesome-icon v-if="matiere.froid" fade icon="fa-solid fa-snowflake" class="q-ml-xs q-mb-xs fa-2x" style="color: #4dd0e1;" />
-                    <font-awesome-icon v-if="matiere.cmr" fade icon="fa-solid fa-skull-crossbones" class="q-ml-xs q-mb-xs fa-2x" style="color: #e57373;"/>
+                    <div class="row">
+                      <font-awesome-icon v-if="matiere.froid" fade icon="fa-solid fa-snowflake" class="q-ml-xs q-mb-xs fa-2x" style="color: #4dd0e1;" />
+                      <q-img v-if="matiere.cmr" class="q-ml-xs q-mb-xs fade-blink" src="@/assets/img/health_hazard.png" :style="{ width: '30px', height: '30px' }"/>
+                    </div>
                   </div>
                   <q-btn-group class="absolute-bottom-right q-pa-none q-ma-none">
                     <q-btn

@@ -236,7 +236,7 @@
                         <q-item-label class="text-cyan-1 text-subtitle2" caption>{{ matiere.fournisseur.name }} {{ matiere.code_fournisseur }}</q-item-label>
                       </q-item-section>
                       <q-item-section>
-                        <font-awesome-icon v-if="matiere.cmr" fade icon="fa-solid fa-skull-crossbones" class="fa-xl" style="color: #e57373;"/>
+                        <q-img v-if="matiere.cmr" class="fade-blink" src="@/assets/img/health_hazard.png" :style="{ width: '30px', height: '30px' }"/>
                       </q-item-section>
                       <q-item-section side top>
                         <q-badge :color="matiere.qté_stock < matiere.stock_mini ? 'red' : 'green'"
@@ -269,7 +269,7 @@
                         <q-item-label class="text-cyan-1 text-subtitle2" caption>{{ matiere.fournisseur.name }} {{ matiere.code_fournisseur }}</q-item-label>
                       </q-item-section>
                       <q-item-section>
-                        <font-awesome-icon v-if="matiere.cmr" fade icon="fa-solid fa-skull-crossbones" class="fa-xl" style="color: #e57373;"/>
+                        <q-img v-if="matiere.cmr" class="fade-blink" src="@/assets/img/health_hazard.png" :style="{ width: '30px', height: '30px' }"/>
                       </q-item-section>
                       <q-item-section side top>
                         <q-badge :color="matiere.qté_stock < matiere.stock_mini ? 'red' : 'green'"
