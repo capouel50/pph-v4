@@ -6,7 +6,7 @@ from .views import (
     CompositionViewSet, FormuleViewSet, MatierePremiereViewSet, CatalogueViewSet, ListeViewSet,
     VoieViewSet, TypePrepViewSet, ParametresPrepViewSet, ParametresFormulesViewSet, CompositionFilterView,
     DemandesViewSet, FichesViewSet, FichesSemaine, FichesMois, ConditionnementViewSet, CategorieMatiereViewSet,
-    CatalogueImportViewSet
+    CatalogueImportViewSet, ReceptionViewSet
 )
 from django.conf import settings
 from django.conf.urls.static import static
@@ -24,6 +24,7 @@ router.register(r'nouvelle-formule', FormuleViewSet)
 router.register(r'composition', CompositionViewSet, basename='composition')
 router.register(r'demandes', DemandesViewSet)
 router.register(r'fiches', FichesViewSet)
+router.register(r'reception', ReceptionViewSet)
 router.register(r'catalogue', CatalogueViewSet)
 router.register(r'catalogue-import', CatalogueImportViewSet)
 router.register(r'categories', CategorieMatiereViewSet)

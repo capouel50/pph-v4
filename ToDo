@@ -28,9 +28,31 @@ Matières premières :
 - Certficat d'analyse
 - fiche de sécurité
 
-Champs Datamatrix :
+Formules :
+- Composition
+- Paramètres
+- Cards
+- Modification
 
+Liste commande :
+- Cards
 
+Liste livraison :
+- cards
 
+Réception MP :
+- datamatrix
+
+Fiches de fabrication :
+- Communication avec balances
+
+Intégration websocket :
+- Notifs instantanées
+
+Etiquettes :
+- Pictos
+
+Etablissement :
+- Logo
 
 

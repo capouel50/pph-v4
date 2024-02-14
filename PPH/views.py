@@ -39,12 +39,13 @@ from PPH.serializers import (
     FormuleSerializer, CompositionSerializer,
     CatalogueSerializer, VoieSerializer, ListeSerializer, ParametresPrepSerializer, ParametresFormulesSerializer,
     DemandesSerializer, FichesSerializer, ServiceSerializer, ParametresFormulesListSerializer,
-    ConditionnementSerializer, CategorieMatiereSerializer, CatalogueImportSerializer
+    ConditionnementSerializer, CategorieMatiereSerializer, CatalogueImportSerializer, ReceptionReadSerializer, ReceptionWriteSerializer
 )
 from .models import CustomUser, Supplier, UserFunction, Contact, \
     TypeMatiere, UniteMesure, Forme, MatierePremiere, TypePrep, \
     Formule, Composition, Catalogue, Liste, Voie, ParametresPrep, \
-    ParametresFormules, Demandes, Fiches, Service, Conditionnement, CategorieMatiere, CatalogueImport
+    ParametresFormules, Demandes, Fiches, Service, Conditionnement, \
+    CategorieMatiere, CatalogueImport, Reception
 from .utils import extract_data_from_pdf
 
 logger = logging.getLogger(__name__)
@@ -513,4 +514,10 @@ class CatalogueViewSet(viewsets.ModelViewSet):
     queryset = Catalogue.objects.all()
     serializer_class = CatalogueSerializer
 
+class ReceptionViewSet(viewsets.ModelViewSet):
+    queryset = Reception.objects.all()
 
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve']:
+            return ReceptionReadSerializer
+        return ReceptionWriteSerializer

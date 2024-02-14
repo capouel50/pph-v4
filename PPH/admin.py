@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import CustomUser, UserFunction, Supplier, TypeMatiere, \
     UniteMesure, Forme, MatierePremiere, Liste, TypePrep, Formule, Composition, \
     Catalogue, Voie, ParametresPrep, ParametresFormules, Demandes, Fiches, Service, \
-    Conditionnement, CategorieMatiere, CatalogueImport
+    Conditionnement, CategorieMatiere, CatalogueImport, Reception
 
 
 
@@ -86,6 +86,11 @@ class Composition(admin.ModelAdmin):
 @admin.register(CatalogueImport)
 class CatalogueImportAdmin(admin.ModelAdmin):
     list_display = ['pdf', 'fournisseur', 'categorie', 'page_debut', 'page_fin', 'code_debut', 'code_fin', 'date_import']
+
 @admin.register(Catalogue)
 class CatalogueAdmin(admin.ModelAdmin):
     list_display = ['designation', 'code_fournisseur', 'cip', 'fournisseur', 'qté', 'unite']
+
+@admin.register(Reception)
+class ReceptionAdmin(admin.ModelAdmin):
+    list_display = ['date_reception', 'matiere', 'lot', 'peremption', 'qte', 'certificat']

@@ -179,7 +179,7 @@ class MatierePremiere(models.Model):
     ean = models.CharField(max_length=200, null=True)
     prix = models.DecimalField(max_digits=10, decimal_places=2)
     prix_unit = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    qté_stock = models.PositiveIntegerField(null=True, blank=True)
+    qté_stock = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     stock_mini = models.PositiveIntegerField()
     liste = models.ForeignKey(Liste, on_delete=models.CASCADE, null=True)
     stockee = models.BooleanField(default=False)
@@ -288,4 +288,35 @@ class Fiches(models.Model):
     def __str__(self):
         return str(self.prep)
 
+class Reception(models.Model):
+    date_reception = models.DateField(default=date.today, blank=True)
+    matiere = models.ForeignKey(MatierePremiere, on_delete=models.CASCADE, null=True)
+    lot = models.CharField(max_length=200, null=True)
+    peremption = models.DateField(blank=True)
+    certificat = models.FileField(upload_to='certificats/', null=True)
+    qte = models.PositiveIntegerField(null=True, blank=True)
+    stock_reception = models.DecimalField(max_digits=10, decimal_places=2, default=0, editable=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.pk:
+            self.stock_reception = self.get_default_stock()
+
+    def save(self, *args, **kwargs):
+        created = not self.pk
+        super().save(*args, **kwargs)
+        if created:
+            self.update_matiere_stock()
+
+    def get_default_stock(self):
+        if self.qte and self.matiere:
+            converted_quantity = convert_quantity(self.qte, self.matiere.unite_cdt, self.matiere.unite_mesure.nom)
+            return converted_quantity * self.qte
+        return 0
+
+    def update_matiere_stock(self):
+        if self.matiere and self.qte:
+            self.matiere.qté_stock += self.stock_reception
+            self.matiere.attente_livraison = False
+            self.matiere.save()
 

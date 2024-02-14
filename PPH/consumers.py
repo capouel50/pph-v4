@@ -19,6 +19,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({'message': message}))
 
     async def send_data_extraction_notification(self, event):
+        print("Consumer")
         # Extraction de l'objet notification de l'événement
         notification = event['notification']
         # Envoi de l'objet notification comme JSON au client

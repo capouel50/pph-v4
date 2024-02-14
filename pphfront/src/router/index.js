@@ -15,6 +15,8 @@ import MatieresCards from "@/components/MatieresPremiere/MatieresCards.vue";
 import MatieresCatalogueCards from "@/components/MatieresPremiere/MatieresCatalogueCards.vue";
 import CreateFormula from "@/components/Formules/CreateFormula.vue";
 import CreateMatiere from "@/components/MatieresPremiere/CreateMatiere.vue";
+import MatieresCardsReception from "@/components/MatieresPremiere/MatieresCardsReception.vue";
+import MatieresCardsCommande from "@/components/MatieresPremiere/MatieresCardsCommande.vue";
 
 const routes = [
   {
@@ -136,6 +138,16 @@ const routes = [
     path: '/creation-matiere-premiere',
     name: 'CreateMatiere',
     component: CreateMatiere
+  },
+  {
+    path: '/reception',
+    name: 'MatieresCardsReception',
+    component: MatieresCardsReception
+  },
+  {
+    path: '/commande',
+    name: 'MatieresCardsCommande',
+    component: MatieresCardsCommande
   },
 ]
 

@@ -5,7 +5,7 @@ from rest_framework import serializers
 from .models import CustomUser, Supplier, UserFunction, Contact, \
     TypeMatiere, UniteMesure, Forme, MatierePremiere, TypePrep, Formule, \
     Composition, Catalogue, Voie, Liste, ParametresPrep, ParametresFormules, \
-    Demandes, Fiches, Service, Conditionnement, CategorieMatiere, CatalogueImport
+    Demandes, Fiches, Service, Conditionnement, CategorieMatiere, CatalogueImport, Reception
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -258,4 +258,16 @@ class FichesSerializer(serializers.ModelSerializer):
     prep = FormuleSerializer()
     class Meta:
         model = Fiches
+        fields = '__all__'
+
+class ReceptionWriteSerializer(serializers.ModelSerializer):
+    matiere = MatierePremiereReadSerializer
+    class Meta:
+        model = Reception
+        fields = '__all__'
+
+class ReceptionReadSerializer(serializers.ModelSerializer):
+    matiere = MatierePremiereReadSerializer()
+    class Meta:
+        model = Reception
         fields = '__all__'

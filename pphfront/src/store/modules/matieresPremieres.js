@@ -1,6 +1,7 @@
 import api from '../../../api';
 import serverURL from '../../../server-config.js';
 const state = () => ({
+  receptions: [],
   cdts: [],
   formes: [],
   types: [],
@@ -24,6 +25,7 @@ const getters = {
   allUnites: (state) => state.unites,
   allTypes: (state) => state.types,
   allMatieres: (state) => state.matieres,
+  allReceptions: (state) => state.receptions,
   allCategories: (state) => state.categoriesMatieres,
   allImports: (state) => state.importsCatalogue,
   allMatieresCatalogue: (state) => state.matieresCatalogue,
@@ -64,6 +66,32 @@ const actions = {
         return Promise.reject(error);
       }
     },
+
+  async addReception({ dispatch, commit }, formData) {
+    try {
+    const response = await api.post('PPH/reception/', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      }
+    });
+    const nouvelleReception = response.data; // La nouvelle réception créée
+    commit('ADD_RECEPTION', nouvelleReception); // Commit pour ajouter la nouvelle réception à l'état Vuex
+
+    dispatch('notifications/showNotification', {
+      message: 'Réception ajoutée avec succès',
+      type: 'success'
+    }, { root: true });
+
+    return Promise.resolve();
+  } catch (error) {
+    dispatch('notifications/showNotification', {
+      message: 'Erreur lors de l\'ajout de la réception',
+      type: 'error'
+    }, { root: true });
+    return Promise.reject(error);
+    }
+  },
+
 
 
   async addType({ dispatch }, formData) {
@@ -184,6 +212,21 @@ const actions = {
     } catch (error) {
       dispatch('notifications/showNotification', {
         message: 'Erreur lors du chargement des matières premières',
+        type: 'error'
+      }, { root: true });
+      console.error(error);
+    }
+  },
+
+  async loadReceptions({ commit, dispatch }) {
+    try {
+      console.log("Chargement des réceptions");
+      const response = await api.get('/PPH/reception');
+      commit('SET_RECEPTIONS', response.data);
+      console.log(response.data);
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors du chargement des réceptions',
         type: 'error'
       }, { root: true });
       console.error(error);
@@ -330,6 +373,37 @@ const actions = {
       console.error(error);
     }
   },
+  async toggleLivraison({ dispatch }, payload) {
+    const { matiereId, isLivraison } = payload;
+    try {
+      if (isLivraison) {
+        await api.patch(`/PPH/matieres-premieres/${matiereId}/`, {
+          attente_livraison: false,
+          cde: true
+        });
+        dispatch('notifications/showNotification', {
+          message: 'Matière première en attente de commande',
+          type: 'success'
+        }, { root: true });
+      } else {
+        await api.patch(`/PPH/matieres-premieres/${matiereId}/`, {
+          attente_livraison: true,
+          cde: false
+        });
+        dispatch('notifications/showNotification', {
+          message: 'Matière première en attente de livraison',
+          type: 'success'
+        }, { root: true });
+      }
+      dispatch('loadMatieresPremieres');
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors du changement d\'état',
+        type: 'error'
+      }, { root: true });
+      console.error(error);
+    }
+  },
 
   async deleteMatiere({ dispatch }, matiereId) {
       console.log("deleteMatiere appelée avec l'ID :", matiereId);
@@ -370,7 +444,6 @@ const actions = {
   },
 };
 
-
 const mutations = {
   ADD_CDT(state, cdt) {
     state.cdts.push(cdt);
@@ -387,6 +460,9 @@ const mutations = {
   ADD_IMPORT(state, importCat) {
     state.importsCatalogue.push(importCat);
   },
+  ADD_RECEPTION(state, reception) {
+    state.receptions.push(reception);
+  },
   SET_LOADING_MATIERES(state, loading) {
     state.loadingMatieres = loading;
   },
@@ -398,6 +474,9 @@ const mutations = {
   },
   SET_MATIERES(state, matieres) {
     state.matieres = matieres;
+  },
+  SET_RECEPTIONS(state, receptions) {
+    state.receptions = receptions;
   },
   SET_CATEGORIES(state, categoriesMatieres) {
     state.categoriesMatieres = categoriesMatieres;

@@ -1,5 +1,6 @@
 <template>
   <q-page v-if="loadedPage">
+
     <div class="row justify-center">
       <div class="col-md-8">
 
@@ -30,6 +31,29 @@
                   <q-spinner-rings color="red-4" />
                 </template>
               </q-img>
+              <q-btn-group class="absolute-bottom-right q-pa-none q-ma-none">
+                <router-link to="/commande/">
+                  <q-btn
+                       class="q-pa-none hover-effect"
+                       flat
+                       color="cyan-4"
+                       icon="visibility"
+                    />
+                </router-link>
+                <q-btn
+                    class="q-pa-none hover-effect"
+                    flat
+                    color="cyan-4"
+                    icon="print"
+                />
+                <q-btn
+                    class="q-pa-none hover-effect"
+                    flat
+                    color="green-4"
+                    icon="check_circle"
+                    @click="validateCommande"
+                />
+              </q-btn-group>
             </q-card>
           </div>
 
@@ -50,6 +74,16 @@
                   <q-spinner-rings color="red-4" />
                 </template>
               </q-img>
+              <q-btn-group class="absolute-bottom-right q-pa-none q-ma-none">
+                <router-link to="/reception/" >
+                  <q-btn
+                       class="q-pa-none hover-effect"
+                       flat
+                       color="cyan-4"
+                       icon="visibility"
+                    />
+                </router-link>
+              </q-btn-group>
             </q-card>
           </div>
 
@@ -192,12 +226,12 @@
       </div>
     </div>
 
-       <div class="row justify-center q-mx-md q-pb-lg q-mt-lg bd-radius-10 bg-op-8" style="background-color:#1a2946;">
-        <div class="col-12 text-center">
+    <div class="row justify-center q-mx-md q-pb-lg q-mt-lg bd-radius-10 bg-op-8" style="background-color:#1a2946;">
+      <div class="col-12 text-center">
           <div class="text-h6 text-cyan-4">Tableau de bord</div>
         </div>
-         <div class="col-md-5">
-          <q-carousel
+      <div class="col-md-5">
+        <q-carousel
             animated
             v-model="carousel1"
             arrows
@@ -209,14 +243,43 @@
             style="background-image: linear-gradient(to left, #263238, #3F6B79);"
           >
             <q-carousel-slide name="slide1">
-              <q-card class="items-center q-px-none" style="background-image: linear-gradient(to left, #263238, #3F6B79);">
-                <q-card-section class="text-subtitle2 text-center text-cyan-1">
-                  <q-card-section v-if="loadedDonut">
-                    <div>Répartition des fiches</div>
-                    <apexchart :options="donutOptions" :series="donutSeries" type="donut" height="200"></apexchart>
-                  </q-card-section>
-                </q-card-section>
+              <q-scroll-area
+                  :thumb-style="thumbStyle"
+                  :bar-style="barStyle"
+                  style="height: 350px;"
+              >
+              <q-card class="items-center" style="background-image: linear-gradient(to left, #263238, #3F6B79);">
+                <q-card-section>
+                  <q-card-section>
+                    <div class="text-center text-cyan-1">Produits arrivant à expiration en {{ currentYear }}</div>
+                  <q-list class="text-cyan-1">
+                    <q-item v-for="(reception, index) in filteredMatieresExpire" :key="index" clickable v-ripple>
+                      <q-item-section class="hover-effect">
+                        <q-item-label class="text-cyan-1 text-no-wrap">{{ reception.matiere.nom }} {{ reception.matiere.qté_cdt }}{{ reception.matiere.unite_cdt }}</q-item-label>
+                        <q-item-label class="text-cyan-1 text-subtitle2 text-no-wrap" caption>{{ reception.matiere.fournisseur.name }} {{ reception.lot }} {{ reception.peremption }}</q-item-label>
+                      </q-item-section>
+                      <q-item-section class="q-mr-md" top>
+                        <div class="row justify-center">
+                          <q-item-section>
+                            <font-awesome-icon v-if="reception.matiere.froid" fade icon="fa-solid fa-snowflake" class="fa-2x" style="color: #4dd0e1;" />
+                          </q-item-section>
+                          <q-item-section>
+                            <q-img v-if="reception.matiere.cmr" class="fade-blink" src="@/assets/img/health_hazard.png" :style="{ width: '30px', height: '30px' }"/>
+                          </q-item-section>
+                        </div>
+                      </q-item-section>
+                      <q-item-section side top>
+                        <q-badge color="cyan-4"
+                                 text-color="white">
+                          {{ reception.stock_reception }}{{ reception.matiere.unite_mesure.nom }}<br/>{{ reception.matiere.qté_stock }}{{ reception.matiere.unite_mesure.nom }}
+                        </q-badge>
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
+              </q-card-section>
+              </q-card-section>
               </q-card>
+              </q-scroll-area>
             </q-carousel-slide>
 
             <q-carousel-slide name="slide2">
@@ -232,11 +295,18 @@
                   <q-list class="text-cyan-1">
                     <q-item v-for="(matiere, index) in filteredMatieresCde" :key="index" clickable v-ripple>
                       <q-item-section class="hover-effect">
-                        <q-item-label class="text-subtitle-1">{{ matiere.nom }} {{ matiere.qté_cdt }}{{ matiere.unite_cdt }}</q-item-label>
-                        <q-item-label class="text-cyan-1 text-subtitle2" caption>{{ matiere.fournisseur.name }} {{ matiere.code_fournisseur }}</q-item-label>
+                        <q-item-label class="text-cyan-1 text-no-wrap">{{ matiere.nom }} {{ matiere.qté_cdt }}{{ matiere.unite_cdt }}</q-item-label>
+                        <q-item-label class="text-cyan-1 text-subtitle2 text-no-wrap" caption>{{ matiere.fournisseur.name }} {{ matiere.code_fournisseur }}</q-item-label>
                       </q-item-section>
-                      <q-item-section>
-                        <q-img v-if="matiere.cmr" class="fade-blink" src="@/assets/img/health_hazard.png" :style="{ width: '30px', height: '30px' }"/>
+                      <q-item-section class="q-mr-md" top>
+                        <div class="row justify-center">
+                          <q-item-section>
+                            <font-awesome-icon v-if="matiere.froid" fade icon="fa-solid fa-snowflake" class="fa-2x" style="color: #4dd0e1;" />
+                          </q-item-section>
+                          <q-item-section>
+                            <q-img v-if="matiere.cmr" class="fade-blink" src="@/assets/img/health_hazard.png" :style="{ width: '30px', height: '30px' }"/>
+                          </q-item-section>
+                        </div>
                       </q-item-section>
                       <q-item-section side top>
                         <q-badge :color="matiere.qté_stock < matiere.stock_mini ? 'red' : 'green'"
@@ -265,11 +335,18 @@
                   <q-list class="text-cyan-1">
                     <q-item v-for="(matiere, index) in filteredMatieresLivraison" :key="index" clickable v-ripple>
                       <q-item-section class="hover-effect">
-                        <q-item-label class="text-subtitle-1">{{ matiere.nom }} {{ matiere.qté_cdt }}{{ matiere.unite_cdt }}</q-item-label>
-                        <q-item-label class="text-cyan-1 text-subtitle2" caption>{{ matiere.fournisseur.name }} {{ matiere.code_fournisseur }}</q-item-label>
+                        <q-item-label class="text-cyan-1 text-no-wrap">{{ matiere.nom }} {{ matiere.qté_cdt }}{{ matiere.unite_cdt }}</q-item-label>
+                        <q-item-label class="text-cyan-1 text-subtitle2 text-no-wrap" caption>{{ matiere.fournisseur.name }} {{ matiere.code_fournisseur }}</q-item-label>
                       </q-item-section>
-                      <q-item-section>
-                        <q-img v-if="matiere.cmr" class="fade-blink" src="@/assets/img/health_hazard.png" :style="{ width: '30px', height: '30px' }"/>
+                      <q-item-section class="q-mr-md" top>
+                        <div class="row justify-center">
+                          <q-item-section>
+                            <font-awesome-icon v-if="matiere.froid" fade icon="fa-solid fa-snowflake" class="fa-2x" style="color: #4dd0e1;" />
+                          </q-item-section>
+                          <q-item-section>
+                            <q-img v-if="matiere.cmr" class="fade-blink" src="@/assets/img/health_hazard.png" :style="{ width: '30px', height: '30px' }"/>
+                          </q-item-section>
+                        </div>
                       </q-item-section>
                       <q-item-section side top>
                         <q-badge :color="matiere.qté_stock < matiere.stock_mini ? 'red' : 'green'"
@@ -286,9 +363,9 @@
             </q-carousel-slide>
 
           </q-carousel>
-        </div>
-          <div class="col-md-5 offset-1">
-          <q-carousel
+      </div>
+      <div class="col-md-5 offset-1">
+        <q-carousel
             animated
             v-model="carousel2"
             arrows
@@ -302,7 +379,7 @@
           >
             <!-- Carousel Slide 1 -->
             <q-carousel-slide name="slide2-1">
-               <q-card class="text-subtitle2 text-center text-cyan-1" style="background-image: linear-gradient(to right, #263238, #3F6B79);">
+              <q-card class="text-subtitle2 text-center text-cyan-1" style="background-image: linear-gradient(to right, #263238, #3F6B79);">
                 <q-card-section v-if="loadedBar">
                     <q-toggle
                        v-model="toggleMonth"
@@ -326,9 +403,8 @@
                        size="md"
                     />
                     <apexchart :key="graphKey" id="apex-bar" height="200" :type="toggleType ? 'area' : 'bar'" :options="chartOptions" :series="series"></apexchart>
-
                 </q-card-section>
-            </q-card>
+              </q-card>
             </q-carousel-slide>
             <!-- Carousel Slide 2 -->
             <q-carousel-slide name="slide2-2">
@@ -339,7 +415,7 @@
                   <q-list class="text-cyan-1">
                     <q-item v-for="(fiche, index) in topFichesData" :key="index" clickable v-ripple>
                       <q-item-section class="hover-effect">
-                        <q-item-label class="text-subtitle-1">{{ fiche.prep }}</q-item-label>
+                        <q-item-label>{{ fiche.prep }}</q-item-label>
                         <q-item-label class="text-cyan-1 text-subtitle2" caption>{{ previousYear }}: {{ fiche.previousCount }} fiches - {{ currentYear }}: {{ fiche.count }} fiches</q-item-label>
                       </q-item-section>
                       <q-item-section side top>
@@ -354,7 +430,6 @@
               </q-card-section>
               </q-card>
             </q-carousel-slide>
-
             <!-- Carousel Slide 3 -->
             <q-carousel-slide name="slide2-3">
               <q-card class="items-center" style="background-image: linear-gradient(to right, #263238, #3F6B79);">
@@ -367,10 +442,11 @@
               </q-card>
             </q-carousel-slide>
           </q-carousel>
-        </div>
       </div>
+    </div>
 
   </q-page>
+
   <q-page v-else class="row items-center justify-center">
   <div class=" row justify-center">
       <atom-spinner
@@ -442,9 +518,20 @@ export default {
   },
 
   computed: {
-    ...mapGetters('matieresPremieres', ['allMatieres', 'matieresCdeCount', 'matieresLivraisonCount']),
+    ...mapGetters('matieresPremieres', ['allMatieres', 'allReceptions', 'matieresCdeCount', 'matieresLivraisonCount']),
     ...mapGetters('demandes', ['nombreDemandes', 'demandeProche', 'nombreDemandesProche', 'demandesDates', 'demandesAll']),
     ...mapGetters('fiches', ['fichesControlCount', 'fichesSemaine']),
+
+    filteredMatieresExpire() {
+      const today = new Date(); // Date d'aujourd'hui
+      const endOfYear = new Date(today.getFullYear(), 11, 31); // Date du 31 décembre de l'année en cours
+      return this.allReceptions.filter(reception => {
+        // Parse la date de péremption dans le format jj/mm/aaaa
+        const [day, month, year] = reception.peremption.split('/'); // Supposant que la date est au format jj/mm/aaaa
+        const peremptionDate = new Date(`${year}-${month}-${day}`); // Crée un objet Date avec le bon format
+        return peremptionDate >= today && peremptionDate <= endOfYear; // Vérifie si la date de péremption est comprise entre aujourd'hui et le 31 décembre de l'année en cours
+      });
+    },
 
     filteredMatieresCde() {
       return this.allMatieres.filter(matiere => matiere.cde === true);
@@ -539,7 +626,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('matieresPremieres', ['loadMatieresPremieres']),
+    ...mapActions('matieresPremieres', ['loadMatieresPremieres', 'loadReceptions']),
     ...mapActions('demandes', ['loadDemandes']),
     ...mapActions('fiches', ['loadFiches']),
 
@@ -547,9 +634,11 @@ export default {
     await this.loadMatieresPremieres();
     await this.loadDemandes();
     await this.loadFiches();
+    await this.loadReceptions();
     await this.loadData();
     await this.loadTopFichesData();
     await this.loadDonutData();
+    console.log('receptions : ', this.allReceptions)
   },
 
   async loadData() {

@@ -77,6 +77,9 @@ CHANNEL_LAYERS = {
     },
 }
 
+# Celery Configuration
+CELERY_BROKER_URL = os.environ.get('MEMETRIA_REDIS_URL', 'redis://localhost:6379')  # Utilisez votre URL Redis
+
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',

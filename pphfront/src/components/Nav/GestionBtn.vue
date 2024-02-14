@@ -57,25 +57,7 @@
       </q-item>
 
       <q-item clickable class="hover-effect">
-        <q-item-section :class="{ 'text-cyan-1': !submenuOpen3, 'text-cyan-4': submenuOpen3, 'hover-effect': true }">stock</q-item-section>
-        <q-item-section side>
-          <q-icon name="keyboard_arrow_right" />
-        </q-item-section>
-
-        <q-menu anchor="top end" self="top start" @show="submenuOpen3 = true" @hide="submenuOpen3 = false">
-          <q-list class="bg-blue-grey-3">
-            <q-item clickable class="hover-effect" v-close-popup>
-              <q-item-section class="text-cyan-1 hover-effect">Préparations</q-item-section>
-            </q-item>
-            <q-item clickable class="hover-effect" v-close-popup>
-              <q-item-section class="text-cyan-1 hover-effect">Matières premières</q-item-section>
-            </q-item>
-          </q-list>
-        </q-menu>
-      </q-item>
-
-      <q-item clickable class="hover-effect">
-        <q-item-section :class="{ 'text-cyan-1': !submenuOpen4, 'text-cyan-4': submenuOpen4, 'hover-effect': true }">Commandes</q-item-section>
+        <q-item-section :class="{ 'text-cyan-1': !submenuOpen4, 'text-cyan-4': submenuOpen4, 'hover-effect': true }">Stock</q-item-section>
         <q-item-section side>
           <q-icon name="keyboard_arrow_right" />
         </q-item-section>
@@ -83,16 +65,14 @@
         <q-menu anchor="top end" self="top start" @show="submenuOpen4 = true" @hide="submenuOpen4 = false">
           <q-list class="bg-blue-grey-3">
             <q-item clickable class="hover-effect" v-close-popup>
-              <q-item-section class="text-cyan-1 hover-effect">Produits en attente de commande</q-item-section>
+              <router-link to="/commande/" class="pph-link">
+                <q-item-section class="text-cyan-1 hover-effect">Commandes</q-item-section>
+              </router-link>
             </q-item>
             <q-item clickable class="hover-effect" v-close-popup>
-              <q-item-section class="text-cyan-1 hover-effect">Edition fiche de commande</q-item-section>
-            </q-item>
-            <q-item clickable class="hover-effect" v-close-popup>
-              <q-item-section class="text-cyan-1 hover-effect">Produits en attente de livraison</q-item-section>
-            </q-item>
-            <q-item clickable class="hover-effect" v-close-popup>
-              <q-item-section class="text-cyan-1 hover-effect">Réceptionner une livraison</q-item-section>
+              <router-link to="/reception/" class="pph-link">
+                <q-item-section class="text-cyan-1 hover-effect">Livraisons</q-item-section>
+              </router-link>
             </q-item>
             <q-item clickable class="hover-effect" v-close-popup>
               <q-item-section class="text-cyan-1 hover-effect">Historique des commandes</q-item-section>

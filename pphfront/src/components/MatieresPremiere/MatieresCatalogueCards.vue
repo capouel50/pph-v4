@@ -331,7 +331,7 @@
                 <q-card bordered
                         class="card-maxi justify-center items-center text-center relative">
 
-                  <div @click="redirectToLink(matiere.id)" class="card-content">
+                  <div>
                     <q-img class="logo-card-mini"
                            src="../../assets/img/blanc.jpg"
                            loading="lazy"
@@ -369,9 +369,9 @@
                   </q-btn-group>
 
                 </q-card>
-                </div>
-                </div>
-                <div v-else class="row">
+              </div>
+            </div>
+            <div v-else class="row">
                 <q-list bordered class="col-12 bg-white bg-op-8">
                   <div class="row">
                     <div class="col-3 text-center">Désignation</div>

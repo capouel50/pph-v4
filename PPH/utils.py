@@ -1,19 +1,19 @@
-import pandas as pd
-import traceback
-import os
-import re
 import decimal
+import re
+import traceback
+from celery import shared_task
+import pandas as pd
 import pdfplumber
-from django.conf import settings
-from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
+@shared_task
 def send_extraction_notification(message, message_type="info"):
     notification = {
         "message": message,
         "notification_type": message_type  # Clé renommée pour différencier du 'type' pour Django Channels
     }
-    # Enregistrer un message de débogage
+    print("Une notif")
     print(notification)
 
     channel_layer = get_channel_layer()
@@ -29,7 +29,7 @@ def send_extraction_notification(message, message_type="info"):
 def extract_data_from_pdf(instance):
     from .models import TypeMatiere, Catalogue
     notifs = []
-    send_extraction_notification("Vérification des paramètres d'extraction.", message_type="info")
+    send_extraction_notification.delay("Vérification des paramètres d'extraction.", message_type="info")
     fournisseur = "Cooper"
     categories_script = ["Alcools & Alcoolats", "Chimiques & Excipients"]
     categories_materiel = ["Flaconnage", "Gélules", "Matériel & Articles de conditionnement", "Pots"]
@@ -59,7 +59,7 @@ def extract_data_from_pdf(instance):
 
             start_extraction = False
 
-            send_extraction_notification("Analyse en cours.", message_type="info")
+            send_extraction_notification.delay("Analyse en cours.", message_type="info")
 
             with pdfplumber.open(pdf_path) as pdf:
                 global_data = []
@@ -67,7 +67,7 @@ def extract_data_from_pdf(instance):
                 for page_number in range(start_page - 1, min(end_page, len(pdf.pages))):
 
                     data = []
-                    send_extraction_notification(f'Traitement de la page {page_number + 1}', message_type="info")
+                    send_extraction_notification.delay(f'Traitement de la page {page_number + 1}', message_type="info")
 
                     page = pdf.pages[page_number]
                     page_text = page.extract_text()
@@ -180,12 +180,12 @@ def extract_data_from_pdf(instance):
                             # Vérifiez si nous avons atteint la ligne de début
                             if code_cpf == start_code:
                                 start_extraction = True
-                                send_extraction_notification(f"Code d'initialisation détecté : {start_code}", message_type="info")
+                                send_extraction_notification.delay(f"Code d'initialisation détecté : {start_code}", message_type="info")
                                 # Commencez à extraire les données à partir de ce point
 
                             # Vérifiez si nous avons atteint la ligne de fin
                             if code_cpf == end_code:
-                                send_extraction_notification(f"Code d'arrêt détecté : {end_code}.", message_type="info")
+                                send_extraction_notification.delay(f"Code d'arrêt détecté : {end_code}.", message_type="info")
                                 data.append(
                                     [code_cpf, code_ean, cmr, match_designation, quantity, unit, statut_formatted,
                                      puht_decimal])
@@ -204,7 +204,7 @@ def extract_data_from_pdf(instance):
                 columns = ["CODE CPF", "CODE EAN", "CMR", "DESIGNATION", "QUANTITE", "UNITE", "STATUT", "P.U.H.T."]
                 df = pd.DataFrame(global_data, columns=columns)
 
-                send_extraction_notification("Ajouts des données au préparatoire", message_type="info")
+                send_extraction_notification.delay("Ajouts des données au préparatoire", message_type="info")
 
                 for row in global_data:
                     code_cpf, code_ean, cmr, designation, quantity, unit, statut_formatted, puht_decimal = row
@@ -224,12 +224,12 @@ def extract_data_from_pdf(instance):
                     )
                     catalogue.save()
 
-            send_extraction_notification("Catalogue importé", message_type="success")
+            send_extraction_notification.delay("Catalogue importé", message_type="success")
 
     except Exception as e:
         traceback.print_exc()
         # Gérez l'erreur ici, par exemple, en enregistrant les détails de l'erreur dans un journal
-        send_extraction_notification(f"Une erreur s'est produite lors de l'extraction des données depuis le PDF : {str(e)}", message_type="error")
+        send_extraction_notification.delay(f"Une erreur s'est produite lors de l'extraction des données depuis le PDF : {str(e)}", message_type="error")
 
     return notifs
 
