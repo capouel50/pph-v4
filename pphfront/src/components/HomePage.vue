@@ -1,10 +1,10 @@
 <template>
   <q-page v-if="loadedPage">
 
-    <div class="row justify-center">
-      <div class="col-md-8">
+    <div class="row q-mx-md justify-center">
+      <div class="col-md-12">
 
-        <div class="row q-mt-md">
+        <div class="row q-mt-xs">
           <div class="col-6 text-h6 text-center text-cyan-4">
             Matières premières
           </div>
@@ -14,7 +14,9 @@
         </div>
 
         <div class="row justify-center">
-          <div class="col-2 card-home q-ml-sm q-mt-sm">
+          <div class="col-5">
+            <div class="row">
+              <div class="col-3 card-home offset-1 q-mt-sm">
             <q-card bordered>
               <q-img
                   src="../assets/img/commande.jpg"
@@ -63,7 +65,7 @@
             </q-card>
           </div>
 
-          <div class="col-2 card-home offset-1 q-mt-sm">
+              <div class="col-3 card-home offset-2 q-mt-sm">
             <q-card bordered>
               <q-img
                   src="../assets/img/livrer.jpg"
@@ -94,8 +96,12 @@
               </q-btn-group>
             </q-card>
           </div>
+            </div>
+          </div>
 
-          <div class="col-2 card-home offset-1 q-mt-sm">
+          <div class="col-5">
+            <div class="row">
+              <div class="col-3 card-home offset-3 q-ml-sm q-mt-sm">
             <q-card bordered>
               <q-img
                   src="../assets/img/demande3.jpg"
@@ -213,7 +219,7 @@
             </q-card>
           </div>
 
-          <div class="col-2 card-home offset-1 q-mt-sm">
+              <div class="col-3 card-home offset-2 q-mt-sm">
             <q-card bordered>
               <q-img
                   src="../assets/img/controle2.jpg"
@@ -244,14 +250,16 @@
               </q-btn-group>
             </q-card>
           </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="row justify-center q-mx-md q-pb-lg q-mt-lg bd-radius-10 bg-op-8" style="background-color:#1a2946;">
       <div class="col-12 text-center">
-          <div class="text-h6 text-cyan-4">Tableau de bord</div>
-        </div>
+        <div class="text-h6 text-cyan-4">Tableau de bord</div>
+      </div>
       <div class="col-md-5">
         <q-carousel
             animated
