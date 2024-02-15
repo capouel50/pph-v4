@@ -14,6 +14,7 @@ import HomePage from "@/components/HomePage.vue";
 import MatieresCards from "@/components/MatieresPremiere/MatieresCards.vue";
 import MatieresCatalogueCards from "@/components/MatieresPremiere/MatieresCatalogueCards.vue";
 import CreateFormula from "@/components/Formules/CreateFormula.vue";
+import FormulaCards from "@/components/Formules/FormulaCards.vue";
 import CreateMatiere from "@/components/MatieresPremiere/CreateMatiere.vue";
 import MatieresCardsReception from "@/components/MatieresPremiere/MatieresCardsReception.vue";
 import MatieresCardsCommande from "@/components/MatieresPremiere/MatieresCardsCommande.vue";
@@ -133,6 +134,11 @@ const routes = [
     path: '/nouvelle-formule',
     name: 'CreateFormula',
     component: CreateFormula
+  },
+  {
+    path: '/formules',
+    name: 'FormulaCards',
+    component: FormulaCards
   },
   {
     path: '/creation-matiere-premiere',

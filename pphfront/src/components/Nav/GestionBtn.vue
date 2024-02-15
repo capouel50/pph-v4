@@ -50,7 +50,12 @@
               </router-link>
             </q-item>
             <q-item clickable class="hover-effect" v-close-popup>
-              <q-item-section class="text-cyan-1 hover-effect">En attente de validation</q-item-section>
+              <router-link to="/formules/" class="pph-link">
+                <q-item-section class="text-cyan-1 hover-effect">Formules</q-item-section>
+              </router-link>
+            </q-item>
+            <q-item clickable class="hover-effect" v-close-popup>
+              <q-item-section class="text-cyan-1 hover-effect">Cloud</q-item-section>
             </q-item>
           </q-list>
         </q-menu>
@@ -75,7 +80,14 @@
               </router-link>
             </q-item>
             <q-item clickable class="hover-effect" v-close-popup>
-              <q-item-section class="text-cyan-1 hover-effect">Historique des commandes</q-item-section>
+              <router-link to="/reception/" class="pph-link">
+                <q-item-section class="text-cyan-1 hover-effect">Historique des livraisons</q-item-section>
+              </router-link>
+            </q-item>
+            <q-item clickable class="hover-effect" v-close-popup>
+              <router-link to="/reception/" class="pph-link">
+                <q-item-section class="text-cyan-1 hover-effect">Inventaire</q-item-section>
+              </router-link>
             </q-item>
           </q-list>
         </q-menu>
@@ -108,10 +120,10 @@
         <q-menu anchor="top end" self="top start" @show="submenuOpen6 = true" @hide="submenuOpen6 = false">
           <q-list class="bg-blue-grey-3">
             <q-item clickable class="hover-effect" v-close-popup>
-              <q-item-section class="text-cyan-1 hover-effect">Menu1</q-item-section>
+              <q-item-section class="text-cyan-1 hover-effect">Paramètres</q-item-section>
             </q-item>
             <q-item clickable class="hover-effect" v-close-popup>
-              <q-item-section class="text-cyan-1 hover-effect">Menu2</q-item-section>
+              <q-item-section class="text-cyan-1 hover-effect">Générer facture</q-item-section>
             </q-item>
           </q-list>
         </q-menu>

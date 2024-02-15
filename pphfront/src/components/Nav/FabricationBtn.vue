@@ -12,9 +12,6 @@
       <q-item clickable class="hover-effect" v-close-popup>
         <q-item-section class="text-cyan-1 hover-effect">Réattribution</q-item-section>
       </q-item>
-      <q-item clickable class="hover-effect" v-close-popup>
-        <q-item-section class="text-cyan-1 hover-effect">Reconditionnement</q-item-section>
-      </q-item>
     </q-list>
   </q-menu>
 </q-btn>

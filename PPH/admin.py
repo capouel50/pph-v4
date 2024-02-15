@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import CustomUser, UserFunction, Supplier, TypeMatiere, \
     UniteMesure, Forme, MatierePremiere, Liste, TypePrep, Formule, Composition, \
     Catalogue, Voie, ParametresPrep, ParametresFormules, Demandes, Fiches, Service, \
-    Conditionnement, CategorieMatiere, CatalogueImport, Reception
+    Conditionnement, CategorieMatiere, CatalogueImport, Reception, Etablissement
 
 
 
@@ -20,6 +20,9 @@ admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(UserFunction, UserFunctionAdmin)
 admin.site.register(Supplier)
 
+@admin.register(Etablissement)
+class EtablissementAdmin(admin.ModelAdmin):
+    list_display = ['nom_long','nom_court', 'address', 'postal', 'city', 'phone', 'email', 'site', 'logo']
 @admin.register(TypeMatiere)
 class TypeMatiereAdmin(admin.ModelAdmin):
     list_display = ['id','nom']

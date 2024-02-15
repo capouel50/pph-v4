@@ -6,13 +6,14 @@ from .views import (
     CompositionViewSet, FormuleViewSet, MatierePremiereViewSet, CatalogueViewSet, ListeViewSet,
     VoieViewSet, TypePrepViewSet, ParametresPrepViewSet, ParametresFormulesViewSet, CompositionFilterView,
     DemandesViewSet, FichesViewSet, FichesSemaine, FichesMois, ConditionnementViewSet, CategorieMatiereViewSet,
-    CatalogueImportViewSet, ReceptionViewSet
+    CatalogueImportViewSet, ReceptionViewSet, EtablissementViewSet
 )
 from django.conf import settings
 from django.conf.urls.static import static
 
 router = DefaultRouter()
-router.register(r'formules', SupplierViewSet)
+router.register(r'etablissement', EtablissementViewSet)
+router.register(r'formules', FormuleViewSet)
 router.register(r'suppliers', SupplierViewSet)
 router.register(r'types-matieres', TypeMatiereViewSet)
 router.register(r'unites-mesure', UniteMesureViewSet)

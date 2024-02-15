@@ -5,7 +5,7 @@ from rest_framework import serializers
 from .models import CustomUser, Supplier, UserFunction, Contact, \
     TypeMatiere, UniteMesure, Forme, MatierePremiere, TypePrep, Formule, \
     Composition, Catalogue, Voie, Liste, ParametresPrep, ParametresFormules, \
-    Demandes, Fiches, Service, Conditionnement, CategorieMatiere, CatalogueImport, Reception
+    Demandes, Fiches, Service, Conditionnement, CategorieMatiere, CatalogueImport, Reception, Etablissement
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -86,6 +86,16 @@ class CustomUserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'function', 'is_staff', 'is_active']
 
+class EtablissementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Etablissement
+        fields = '__all__'
+
+    def get_logo_url(self, obj):
+        if obj.logo:
+            return self.context['request'].build_absolute_uri(settings.MEDIA_URL + obj.logo.name)
+        else:
+            return None
 
 class SupplierSerializer(serializers.ModelSerializer):
     class Meta:

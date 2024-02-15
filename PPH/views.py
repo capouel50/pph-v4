@@ -39,17 +39,22 @@ from PPH.serializers import (
     FormuleSerializer, CompositionSerializer,
     CatalogueSerializer, VoieSerializer, ListeSerializer, ParametresPrepSerializer, ParametresFormulesSerializer,
     DemandesSerializer, FichesSerializer, ServiceSerializer, ParametresFormulesListSerializer,
-    ConditionnementSerializer, CategorieMatiereSerializer, CatalogueImportSerializer, ReceptionReadSerializer, ReceptionWriteSerializer
+    ConditionnementSerializer, CategorieMatiereSerializer, CatalogueImportSerializer, ReceptionReadSerializer,
+    ReceptionWriteSerializer, EtablissementSerializer
 )
 from .models import CustomUser, Supplier, UserFunction, Contact, \
     TypeMatiere, UniteMesure, Forme, MatierePremiere, TypePrep, \
     Formule, Composition, Catalogue, Liste, Voie, ParametresPrep, \
     ParametresFormules, Demandes, Fiches, Service, Conditionnement, \
-    CategorieMatiere, CatalogueImport, Reception
+    CategorieMatiere, CatalogueImport, Reception, Etablissement
+
 from .utils import extract_data_from_pdf
 
 logger = logging.getLogger(__name__)
 
+class EtablissementViewSet(viewsets.ModelViewSet):
+    queryset = Etablissement.objects.all()
+    serializer_class = EtablissementSerializer
 class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
@@ -273,6 +278,7 @@ class ContactView(generics.CreateAPIView):
 class ServiceViewSet(viewsets.ModelViewSet):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
+
 class DemandesViewSet(viewsets.ModelViewSet):
     queryset = Demandes.objects.all()
     serializer_class = DemandesSerializer

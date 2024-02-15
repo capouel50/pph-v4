@@ -252,6 +252,7 @@ def convert_quantity(quantity, from_unit, to_unit):
             'kg': 0.000001,
             'g': 0.001,
             'mg': 1,
+            'gttes': 0.055,
         },
         'gttes': {
              'g': 0.018,
@@ -264,6 +265,15 @@ def convert_quantity(quantity, from_unit, to_unit):
         'ml': {
             'l': 0.001,
             'ml': 1,
+        },
+        'fl': {
+            'fl': 1,
+        },
+        'pot': {
+            'pot': 1,
+        },
+        'tube': {
+            'tube': 1,
         },
     }
 

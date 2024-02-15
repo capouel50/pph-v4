@@ -5,6 +5,27 @@ from datetime import date
 from decimal import Decimal
 from .utils import convert_quantity
 
+class Etablissement(models.Model):
+
+    nom_long = models.CharField(max_length=100, unique=True)
+    nom_court = models.CharField(max_length=100, unique=True)
+    address = models.CharField(max_length=100, blank=True)
+    postal = models.CharField(max_length=100, blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    phone = models.CharField(max_length=100, blank=True)
+    email = models.CharField(max_length=254, blank=True)
+    site = models.URLField(max_length=200, blank=True)
+    logo = models.ImageField(upload_to='hopitaux/', default='hopitaux/defaut.jpg')
+
+    class Meta:
+        ordering = ['nom_long']
+
+    def get_absolute_url(self):
+        return reverse('fiche', args=[str(self.id)])
+
+    def __str__(self):
+        return self.nom_long
+
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, first_name, last_name, password=None):
         if not email:
@@ -163,6 +184,7 @@ class ParametresPrep(models.Model):
 class ParametresFormules(models.Model):
     num_formule = models.CharField(max_length=200)
     parametre = models.ForeignKey(ParametresPrep, on_delete=models.CASCADE)
+    valeur_parametre = models.CharField(max_length=200, null=True)
 
     def __str__(self):
         return f"{self.num_formule} - {self.parametre}"
@@ -189,6 +211,9 @@ class MatierePremiere(models.Model):
     cmr = models.BooleanField(default=False)
     froid = models.BooleanField(default=False)
     unite_mesure = models.ForeignKey(UniteMesure, on_delete=models.CASCADE, null=True)
+    tva = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    prix_ttc = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    prix_unit_ttc = models.DecimalField(max_digits=10, decimal_places=2, null=True)
 
     def save(self, *args, **kwargs):
         if self.prix and self.qté_cdt and self.unite_cdt and self.unite_mesure:
@@ -219,6 +244,12 @@ class Formule(models.Model):
     mode_operatoire = models.CharField(max_length=1000, null=False)
     contre_indications = models.CharField(max_length=1000, null=False)
     publications = models.CharField(max_length=1000, null=True)
+    is_activate = models.BooleanField(default=False)
+    is_valid = models.BooleanField(default=False)
+    temps_preparation = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    temps_controle = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    prix_ht = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    prix_ttc = models.DecimalField(max_digits=10, decimal_places=2, null=True)
 
     class Meta:
         ordering = ['nom']
@@ -235,6 +266,13 @@ class Composition(models.Model):
 
     def __str__(self):
         return str(self.num_formule)
+
+class ParametresTarifs(models.Model):
+    tarif_horaire_preparateur = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    tarif_horaire_pharmacien = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+
+    def __str__(self):
+        return self.nom
 
 class CatalogueImport(models.Model):
     fournisseur = models.ForeignKey(Supplier, on_delete=models.CASCADE)
@@ -280,11 +318,17 @@ class Demandes(models.Model):
         return f"{self.prep} - {self.date_prevu}"
 
 class Fiches(models.Model):
+    patient = models.CharField(max_length=200, null=True)
+    age = models.PositiveIntegerField(null=True, blank=True)
+    typePrep = models.ForeignKey(TypePrep, on_delete=models.CASCADE, null=True)
     prep = models.ForeignKey(Formule, on_delete=models.CASCADE, null=True)
     attente_controle = models.BooleanField(default=False)
+    controle_valide = models.BooleanField(default=False)
     date_fab = models.DateField(default=date.today, blank=True)
     service = models.CharField(max_length=200, null=True)
     qté = models.CharField(max_length=200, null=True)
+    preparateur = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, related_name='fiches_preparateur')
+    controleur = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, related_name='fiches_controleur')
     def __str__(self):
         return str(self.prep)
 
@@ -319,4 +363,3 @@ class Reception(models.Model):
             self.matiere.qté_stock += self.stock_reception
             self.matiere.attente_livraison = False
             self.matiere.save()
-

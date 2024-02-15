@@ -4,14 +4,20 @@ const state = () => ({
   types: [],
   parametres: [],
   parametresFormules: [],
+  formules: [],
   listes: [],
+  showMenu: {},
+  expanded: {},
   currentFormuleId: null,
 });
 
 const getters = {
+  expanded: (state) => state.expanded,
+  showMenu: (state) => state.showMenu,
   allTypes: (state) => state.types,
   allParametres: (state) => state.parametres,
   allParametresFormules: (state) => state.parametresFormules,
+  allFormules: (state) => state.formules,
   allListes: (state) => state.listes,
 };
 
@@ -88,6 +94,20 @@ const actions = {
     }
   },
 
+  async loadFormules({commit, dispatch}) {
+    try {
+      const response = await api.get('/PPH/formules');
+      commit('SET_FORMULES', response.data);
+      console.log(response.data);
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors du chargement des formules',
+        type: 'error'
+      }, {root: true});
+      console.error(error);
+    }
+  },
+
   async loadListes({commit, dispatch}) {
     try {
       const response = await api.get('/PPH/liste');
@@ -143,6 +163,66 @@ const actions = {
       console.error(error);
     }
   },
+
+  async toggleActivation({ dispatch }, payload) {
+    const { formuleId, isActive } = payload;
+    try {
+      if (isActive) {
+        await api.patch(`/PPH/formules/${formuleId}/`, { is_activate: false });
+        dispatch('notifications/showNotification', {
+          message: 'Formule désactivée',
+          type: 'success'
+        }, { root: true });
+      } else {
+        await api.patch(`/PPH/formules/${formuleId}/`, { is_activate: true });
+        dispatch('notifications/showNotification', {
+          message: 'Formule activée',
+          type: 'success'
+        }, { root: true });
+      }
+      dispatch('loadFormules');
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors du changement d\'état',
+        type: 'error'
+      }, { root: true });
+      console.error(error);
+    }
+  },
+
+  async validFormule({ dispatch }, payload) {
+    const { formuleId, isValid } = payload;
+    try {
+      if (isValid) {
+        await api.patch(`/PPH/formules/${formuleId}/`, { is_valid: false });
+        dispatch('notifications/showNotification', {
+          message: 'Formule non-validée',
+          type: 'success'
+        }, { root: true });
+      } else {
+        await api.patch(`/PPH/formules/${formuleId}/`, { is_valid: true });
+        dispatch('notifications/showNotification', {
+          message: 'Formule validée',
+          type: 'success'
+        }, { root: true });
+      }
+      dispatch('loadformules');
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors du changement d\'état',
+        type: 'error'
+      }, { root: true });
+      console.error(error);
+    }
+  },
+
+  toggleMenu({ commit }, id) {
+    commit('TOGGLE_MENU', id);
+  },
+
+  toggleInfo({ commit }, id) {
+    commit('TOGGLE_INFO', id);
+  },
 };
 
 const mutations = {
@@ -170,6 +250,15 @@ const mutations = {
   },
   SET_PARAMETRE_FORMULES(state, parametres) {
     state.parametresFormules = parametres;
+  },
+  SET_FORMULES(state, formules) {
+    state.formules = formules;
+  },
+  TOGGLE_MENU(state, id) {
+    state.showMenu[id] = !state.showMenu[id];
+  },
+  TOGGLE_INFO(state, id) {
+    state.expanded[id] = !state.expanded[id];
   },
 };
 

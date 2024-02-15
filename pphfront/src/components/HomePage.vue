@@ -38,21 +38,27 @@
                        flat
                        color="cyan-4"
                        icon="visibility"
-                    />
+                  >
+                    <q-tooltip class="bg-blue-grey-4">Voir la liste de commande</q-tooltip>
+                  </q-btn>
                 </router-link>
                 <q-btn
                     class="q-pa-none hover-effect"
                     flat
                     color="cyan-4"
                     icon="print"
-                />
+                >
+                  <q-tooltip class="bg-blue-grey-4">Imprimer la liste de commande</q-tooltip>
+                </q-btn>
                 <q-btn
                     class="q-pa-none hover-effect"
                     flat
                     color="green-4"
                     icon="check_circle"
                     @click="validateCommande"
-                />
+                >
+                  <q-tooltip class="bg-blue-grey-4">Mettre les produits en attente de livraison</q-tooltip>
+                </q-btn>
               </q-btn-group>
             </q-card>
           </div>
@@ -81,7 +87,9 @@
                        flat
                        color="cyan-4"
                        icon="visibility"
-                    />
+                  >
+                    <q-tooltip class="bg-blue-grey-4">Voir les produits</q-tooltip>
+                  </q-btn>
                 </router-link>
               </q-btn-group>
             </q-card>
@@ -115,7 +123,9 @@
                        color="cyan-4"
                        icon="calendar_month"
                        @click="openCalendar"
-                    />
+                    >
+                      <q-tooltip class="bg-blue-grey-4">Voir la plannification</q-tooltip>
+                    </q-btn>
               </q-btn-group>
               <q-dialog v-model="calendarDialog">
                 <q-card>
@@ -220,6 +230,18 @@
                   <q-spinner-rings color="red-4" />
                 </template>
               </q-img>
+              <q-btn-group class="absolute-bottom-right q-pa-none q-ma-none">
+                <router-link to="/controles/" >
+                  <q-btn
+                       class="q-pa-none hover-effect"
+                       flat
+                       color="cyan-4"
+                       icon="visibility"
+                  >
+                    <q-tooltip class="bg-blue-grey-4">Voir les contrôles en attente</q-tooltip>
+                  </q-btn>
+                </router-link>
+              </q-btn-group>
             </q-card>
           </div>
         </div>

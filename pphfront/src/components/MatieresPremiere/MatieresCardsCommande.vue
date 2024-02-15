@@ -116,20 +116,25 @@
                     </div>
                   </div>
                   <q-btn-group class="absolute-bottom-right q-pa-none q-ma-none">
-                    <q-btn
+                      <q-btn
                        class="q-pa-none hover-effect"
                        flat
                        color="red-4"
                        icon="playlist_remove"
                        @click.stop="toggleCde({ matiereId: matiere.id, isCde: matiere.cde })"
-                    />
+                      >
+                        <q-tooltip class="bg-blue-grey-4">Retirer de la liste de commande</q-tooltip>
+                      </q-btn>
+
                     <q-btn
                        class="q-pa-none hover-effect"
                        flat
                        color="green-4"
                        icon="check_circle"
                        @click.stop="toggleLivraison({ matiereId: matiere.id, isLivraison: matiere.attente_livraison })"
-                    />
+                    >
+                      <q-tooltip class="bg-blue-grey-4">Mettre en attente de livraison</q-tooltip>
+                    </q-btn>
                     <q-btn
                       class="hover-effect"
                       color="cyan-4"
@@ -138,7 +143,9 @@
                       dense
                       icon="info"
                       @click.stop="toggleInfo(matiere.id)"
-                    />
+                    >
+                      <q-tooltip class="bg-blue-grey-4">Informations</q-tooltip>
+                    </q-btn>
                   </q-btn-group>
                   <q-form>
                     <q-dialog v-model="addMatiereStock">

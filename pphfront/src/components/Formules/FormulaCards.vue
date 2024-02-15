@@ -2,25 +2,25 @@
   <q-page>
     <div class="row justify-center">
       <div class="col-md-12">
-        <div class="row">
-          <div class="col-1 q-ml-sm q-mt-sm">
+        <div class="row q-mx-sm">
+          <div class="col-1 q-mt-sm">
             <router-link to="/formules/">
               <q-btn round class="glossy btn-grey-primary-pph" icon="add"/>
             </router-link>
           </div>
-          <div class="col-2 q-ml-lg offset-8">
+          <div class="col-2 offset-9">
             <q-input
                 ref="searchInput"
                 v-model="searchQuery"
                 label="Recherche..."
-                @input="filterSuppliers"
+                @input="filterFormules"
                 color="cyan-4"
                 @mouseover="changeLabelColor('searchInput', '#ffb74d')"
                 @mouseleave="changeLabelColor('searchInput', '')"
                 @focus="onFocus('searchQuery', '#4dd0e1')"
                 @blur="onBlur('searchQuery')"
             >
-              <template v-slot:before>
+              <template v-slot:append>
                 <q-icon name="search" color="cyan-4"/>
               </template>
             </q-input>
@@ -29,79 +29,92 @@
         <div class="row q-mt-sm">
           <div class="col col-12 justify-center">
             <div class="row justify-start">
-              <div class="col-1 q-pa-sm" v-for="supplier in filteredSuppliers" :key="supplier.id" @click="redirectToLink(supplier.id)">
-                <q-card bordered class="card-mini justify-center items-center text-center relative" :class="{ 'bd-red-4': !supplier.is_activate}">
-                  <div @click="redirectToLink(supplier.id)" class="card-content">
-                    <q-img class="logo-card-mini" :src="supplier.logo" :alt="supplier.name">
-                      <div class="absolute-top hover-effect q-my-none" :class="{ 'text-cyan-1': supplier.is_activate, 'text-red-4': !supplier.is_activate }">
-                        {{ supplier.name }}
+              <div class="col-2 q-pa-sm" v-for="formule in filteredFormules" :key="formule.id" @click="redirectToLink(formule.id)">
+                <q-card bordered class="card-maxi justify-center items-center text-center relative" :class="{ 'bd-red-4': !formule.is_activate}">
+                  <div @click="redirectToLink(formule.id)" class="card-content">
+                    <q-img class="logo-card-mini" src="../../assets/img/blanc.jpg" :alt="formule.nom">
+                      <q-icon
+                          v-if="formule.is_valid"
+                          name="done_all"
+                          color="green-4"
+                          class="icon-background"
+                      />
+                      <q-icon
+                          v-if="!formule.is_valid"
+                          name="remove_done"
+                          color="red-4"
+                          class="icon-background"
+                      />
+                      <div class="absolute-top hover-effect q-my-none" :class="{ 'text-cyan-1': formule.is_activate, 'text-red-4': !formule.is_activate }">
+                        <div>{{ formule.nom }}</div>
+                        <div>{{ formule.type.nom }}</div>
                       </div>
                     </q-img>
-                    <q-btn flat color="white" class="absolute-top-right hover-effect q-pa-none q-ma-none" icon="more_vert" @click.stop="toggleMenu(supplier.id)" />
-                    <q-menu fit anchor="top right" self="bottom middle" v-model="showMenu[supplier.id]">
+                    <q-btn flat color="white" class="absolute-top-right hover-effect q-pa-none q-ma-none" icon="more_vert" @click.stop="toggleMenu(formule.id)" />
+                    <q-menu fit anchor="top right" self="bottom middle" v-model="showMenu[formule.id]">
                       <q-list style="min-width: 100px">
-                        <q-item clickable v-close-popup @click.stop="deleteSupplier(supplier.id)">
-                          <q-item-section class="hover-effect">Supprimer</q-item-section>
-                        </q-item>
-                        <q-item clickable v-close-popup @click.stop="toggleActivation({ supplierId: supplier.id, isActive: supplier.is_activate })">
+                        <q-item clickable v-close-popup @click.stop="toggleActivation({ formuleId: formule.id, isActive: formule.is_activate })">
                           <q-item-section class="hover-effect">
-                            {{ supplier.is_activate ? 'Désactiver' : 'Activer' }}
+                            {{ formule.is_activate ? 'Désactiver' : 'Activer' }}
                           </q-item-section>
                         </q-item>
                       </q-list>
                     </q-menu>
                   </div>
-                  <q-btn
-                    class="absolute-bottom-right hover-effect q-pa-none q-ma-none"
-                    color="cyan-4"
-                    round
-                    flat
-                    dense
-                    icon="info"
-                    @click.stop="toggleInfo(supplier.id)"
-                  />
-                  <q-menu fit anchor="bottom right" self="top middle" v-model="expanded[supplier.id]">
+                  <div class="absolute-bottom-left">
+                    <div class="row">
+                      <font-awesome-icon v-if="formule.froid" fade icon="fa-solid fa-snowflake" class="q-ml-xs q-mb-xs fa-2x" style="color: #4dd0e1;" />
+                      <q-icon v-if="formule.agiter" name="waving_hand" class="q-ml-xs q-mb-xs" color="cyan-4" size="md"/>
+                      <q-icon v-if="formule.lumiere" name="light_mode" class="q-ml-xs q-mb-xs" color="red-4" size="md"/>
+                    </div>
+                  </div>
+                  <q-btn-group class="absolute-bottom-right q-pa-none q-ma-none">
+                    <q-btn
+                       class="q-pa-none hover-effect"
+                       flat
+                       color="cyan-4"
+                       icon="bar_chart"
+                    />
+                    <q-btn
+                       class="q-pa-none hover-effect"
+                       flat
+                       color="cyan-4"
+                       icon="list"
+                       @click.stop="toggleCompo(formule.id)"
+                    />
+                    <q-btn
+                       class="q-pa-none hover-effect"
+                       flat
+                       color="cyan-4"
+                       icon="settings"
+                       @click.stop="toggleSettings(formule.id)"
+                    />
+                    <q-btn
+                      class="hover-effect"
+                      color="cyan-4"
+                      round
+                      flat
+                      dense
+                      icon="info"
+                      @click.stop="toggleInfo(formule.id)"
+                    />
+                  </q-btn-group>
+                  <q-menu fit anchor="bottom right" self="top middle" v-model="expanded[formule.id]">
                     <q-list style="min-width: 100px">
-                      <q-item v-if="supplier.phone">
+                      <q-item v-if="formule.voie">
                         <q-item-section avatar class="text-cyan-4">
-                          Téléphone :
+                          Voie :
                         </q-item-section>
                         <q-item-section class="text-grey-7">
-                          {{ supplier.phone }}
+                          {{ formule.voie.nom }}
                         </q-item-section>
                       </q-item>
-                      <q-item v-if="supplier.email">
+                      <q-item v-if="formule.liste">
                         <q-item-section avatar class="text-cyan-4">
-                          E-mail :
+                          Liste :
                         </q-item-section>
                         <q-item-section class="text-grey-7">
-                          {{ supplier.email }}
-                        </q-item-section>
-                      </q-item>
-                      <q-item clickable class="hover-effect" v-if="supplier.site">
-                        <q-item-section avatar class="text-cyan-4">
-                          Site :
-                        </q-item-section>
-                        <a :href="supplier.site" target="_blank" rel="noopener noreferrer" class="pph-link">
-                          <q-item-section class=" row items-center text-grey-7 hover-effect">
-                            {{ supplier.site }}
-                          </q-item-section>
-                        </a>
-                      </q-item>
-                      <q-item v-if="supplier.user_code">
-                        <q-item-section avatar class="text-cyan-4">
-                          Code utilisateur :
-                        </q-item-section>
-                        <q-item-section class="text-grey-7">
-                          {{ supplier.user_code }}
-                        </q-item-section>
-                      </q-item>
-                      <q-item v-if="supplier.password">
-                        <q-item-section avatar class="text-cyan-4">
-                          Mot de passe :
-                        </q-item-section>
-                        <q-item-section class="text-grey-7">
-                          {{ supplier.password }}
+                          {{ formule.liste.nom }} €
                         </q-item-section>
                       </q-item>
                     </q-list>
@@ -120,7 +133,7 @@
 import { mapActions, mapGetters } from 'vuex';
 
 export default {
-  name: "SuppliersCards",
+  name: "formulaCards",
 
   data() {
     return {
@@ -129,32 +142,32 @@ export default {
   },
 
   computed: {
-    ...mapGetters('suppliers', ['allSuppliers', 'showMenu', 'expanded']),
+    ...mapGetters('formules', ['allFormules', 'showMenu', 'expanded']),
 
-    filteredSuppliers() {
+    filteredFormules() {
       if (this.searchQuery) {
-        return this.allSuppliers.filter(supplier =>
-          supplier.name.toLowerCase().startsWith(this.searchQuery.toLowerCase())
+        return this.allFormules.filter(formule =>
+          formule.nom.toLowerCase().startsWith(this.searchQuery.toLowerCase())
         );
       }
-      return this.allSuppliers;
+      return this.allFormules;
     }
   },
 
   created() {
-    this.loadSuppliers();
-    console.log(this.allSuppliers);
+    this.loadFormules();
+    console.log(this.allFormules);
   },
 
   methods: {
-    ...mapActions('suppliers', ['loadSuppliers', 'toggleActivation', 'deleteSupplier', 'toggleMenu', 'toggleInfo']),
+    ...mapActions('formules', ['loadFormules', 'toggleActivation', 'validFormule', 'toggleInfo', 'toggleMenu']),
 
-    filterSuppliers() {
+    filterFormules() {
     if (!this.searchQuery) {
-      return this.allSuppliers;
+      return this.allFormules;
     } else {
-      return this.allSuppliers.filter(supplier => {
-        return supplier.name.toLowerCase().startsWith(this.searchQuery.toLowerCase());
+      return this.allFormules.filter(formule => {
+        return formule.nom.toLowerCase().startsWith(this.searchQuery.toLowerCase());
       });
     }
   },
