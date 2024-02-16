@@ -156,7 +156,7 @@ export default {
 
   created() {
     this.loadFormules();
-    console.log(this.allFormules);
+    console.log('filteredformules : ', this.filteredFormules);
   },
 
   methods: {

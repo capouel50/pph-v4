@@ -2,15 +2,24 @@ import api from '../../../api';
 
 const state = {
   demandes: [],
+  showMenu: {},
+  expanded: {},
 };
 
 const getters = {
-  demandesAll: state => state.demandes,
+  expanded: (state) => state.expanded,
+
+  showMenu: (state) => state.showMenu,
+
+  allDemandes: state => state.demandes,
+
   demandesDates: state => {
     // Retourner un tableau contenant uniquement les dates des demandes
     return state.demandes.map(demande => demande.date_prevu);
   },
+
   nombreDemandes: (state) => state.demandes.length,
+
   demandeProche: (state) => {
     const demandesTriees = [...state.demandes].sort((a, b) => {
       return new Date(a.date_prevu) - new Date(b.dat_prevu);
@@ -52,24 +61,38 @@ const getters = {
   },
 };
 
-const mutations = {
-  setDemandes: (state, demandes) => {
-    state.demandes = demandes;
-  },
-};
-
 const actions = {
   async loadDemandes({ commit }) {
     try {
       const response = await api.get('/demandes');
-      commit('setDemandes', response.data);
+      commit('SET_DEMANDES', response.data);
 
     } catch (error) {
       console.error('Erreur lors du chargement des demandes :', error);
     }
   },
+
+  toggleMenu({ commit }, id) {
+    commit('TOGGLE_MENU', id);
+  },
+
+  toggleInfo({ commit }, id) {
+    commit('TOGGLE_INFO', id);
+  },
 };
 
+const mutations = {
+  SET_DEMANDES: (state, demandes) => {
+    state.demandes = demandes;
+  },
+
+  TOGGLE_MENU(state, id) {
+    state.showMenu[id] = !state.showMenu[id];
+  },
+  TOGGLE_INFO(state, id) {
+    state.expanded[id] = !state.expanded[id];
+  },
+};
 export default {
   namespaced: true,
   state,

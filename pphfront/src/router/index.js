@@ -14,6 +14,11 @@ import HomePage from "@/components/HomePage.vue";
 import MatieresCards from "@/components/MatieresPremiere/MatieresCards.vue";
 import MatieresCatalogueCards from "@/components/MatieresPremiere/MatieresCatalogueCards.vue";
 import CreateFormula from "@/components/Formules/CreateFormula.vue";
+import CreateFiche from "@/components/Fiches/CreateFiche.vue";
+import ControlesCards from "@/components/Fiches/ControlesCards.vue";
+import FichesArchivesCards from "@/components/Fiches/FichesArchivesCards.vue";
+import CreateDemande from "@/components/Demandes/CreateDemande.vue";
+import DemandesCards from "@/components/Demandes/DemandesCards.vue";
 import FormulaCards from "@/components/Formules/FormulaCards.vue";
 import CreateMatiere from "@/components/MatieresPremiere/CreateMatiere.vue";
 import MatieresCardsReception from "@/components/MatieresPremiere/MatieresCardsReception.vue";
@@ -139,6 +144,31 @@ const routes = [
     path: '/formules',
     name: 'FormulaCards',
     component: FormulaCards
+  },
+  {
+    path: '/demande',
+    name: 'CreateDemande',
+    component: CreateDemande
+  },
+  {
+    path: '/demandes',
+    name: 'DemandesCards',
+    component: DemandesCards
+  },
+  {
+    path: '/fiches',
+    name: 'CreateFiche',
+    component: CreateFiche
+  },
+  {
+    path: '/controles',
+    name: 'ControlesCards',
+    component: ControlesCards
+  },
+  {
+    path: '/archives',
+    name: 'FichesArchivesCards',
+    component: FichesArchivesCards
   },
   {
     path: '/creation-matiere-premiere',

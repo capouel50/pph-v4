@@ -136,22 +136,26 @@
               <q-dialog v-model="calendarDialog">
                 <q-card>
                   <q-toolbar>
-                    <q-btn
+                    <router-link to="demande" class="pph-link">
+                      <q-btn
                         flat
                         class="text-cyan-4 hover-effect"
                         label="Nouvelle demande"
-                  />
-                    <q-btn
+                      />
+                    </router-link>
+                    <router-link to="demandes" class="pph-link">
+                      <q-btn
                         flat
                         class="text-cyan-4 hover-effect"
                         label="Toutes les demandes"
-                  />
-                  <q-btn
+                      />
+                    </router-link>
+                    <q-btn
                         flat
                         class="text-cyan-4 hover-effect absolute-right"
                         icon="close"
                         @click="calendarDialog = false"
-                  />
+                    />
                   </q-toolbar>
                     <q-splitter v-model="splitterModel">
                       <template v-slot:before>
@@ -549,7 +553,7 @@ export default {
 
   computed: {
     ...mapGetters('matieresPremieres', ['allMatieres', 'allReceptions', 'matieresCdeCount', 'matieresLivraisonCount']),
-    ...mapGetters('demandes', ['nombreDemandes', 'demandeProche', 'nombreDemandesProche', 'demandesDates', 'demandesAll']),
+    ...mapGetters('demandes', ['nombreDemandes', 'demandeProche', 'nombreDemandesProche', 'demandesDates', 'allDemandes']),
     ...mapGetters('fiches', ['fichesControlCount', 'fichesSemaine']),
 
     filteredMatieresExpire() {
@@ -596,7 +600,7 @@ export default {
     let dateSelectionneeFormatee = this.dateCalendar.replace(/\//g, '-');
     console.log('Date formatée pour comparaison:', dateSelectionneeFormatee);
 
-    let demandesFiltrees = this.demandesAll.filter(demande => {
+    let demandesFiltrees = this.allDemandes.filter(demande => {
       console.log('Comparaison de dates:', demande.date_prevu, dateSelectionneeFormatee);
       return demande.date_prevu === dateSelectionneeFormatee;
     });

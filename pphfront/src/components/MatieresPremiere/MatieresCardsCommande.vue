@@ -20,7 +20,7 @@
                 ref="searchInput"
                 v-model="searchQuery"
                 label="Recherche..."
-                @input="filterMatieres"
+                @input="filteredMatieres"
                 color="cyan-4"
                 @mouseover="changeLabelColor('searchInput', '#ffb74d')"
                 @mouseleave="changeLabelColor('searchInput', '')"

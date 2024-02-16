@@ -231,6 +231,12 @@ class MatierePremiere(models.Model):
             self.prix_unit = None
         super(MatierePremiere, self).save(*args, **kwargs)
 
+    class Meta:
+        ordering = ['nom']
+
+    def __str__(self):
+        return self.nom
+
 
 class Formule(models.Model):
     nom = models.CharField(max_length=200, null=False)
@@ -313,7 +319,10 @@ class Demandes(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE, null=True)
     qté = models.CharField(max_length=200, null=True)
     date_prevu = models.DateField(default=date.today, blank=True)
+    prescripteur = models.CharField(max_length=200, null=True)
     commentaire = models.CharField(max_length=200, null=True)
+    production = models.BooleanField(default=False)
+
     def __str__(self):
         return f"{self.prep} - {self.date_prevu}"
 
@@ -322,8 +331,10 @@ class Fiches(models.Model):
     age = models.PositiveIntegerField(null=True, blank=True)
     typePrep = models.ForeignKey(TypePrep, on_delete=models.CASCADE, null=True)
     prep = models.ForeignKey(Formule, on_delete=models.CASCADE, null=True)
+    prescripteur = models.CharField(max_length=200, null=True)
     attente_controle = models.BooleanField(default=False)
     controle_valide = models.BooleanField(default=False)
+    destruction = models.BooleanField(default=False)
     date_fab = models.DateField(default=date.today, blank=True)
     service = models.CharField(max_length=200, null=True)
     qté = models.CharField(max_length=200, null=True)

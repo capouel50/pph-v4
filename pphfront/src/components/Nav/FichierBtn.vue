@@ -25,10 +25,19 @@
         <q-menu anchor="top end" self="top start" @show="submenuOpen = true" @hide="submenuOpen = false">
           <q-list class="bg-blue-grey-3">
             <q-item clickable class="hover-effect" v-close-popup>
-              <q-item-section class="text-cyan-1 hover-effect-2">Etablissement</q-item-section>
+              <router-link class="pph-link" to="/etablissement/">
+                <q-item-section class="text-cyan-1 hover-effect">Etablissement</q-item-section>
+              </router-link>
             </q-item>
             <q-item clickable class="hover-effect" v-close-popup>
-              <q-item-section class="text-cyan-1 hover-effect-2">Utilisateurs</q-item-section>
+              <router-link class="pph-link" to="/unites-soin/">
+                <q-item-section class="text-cyan-1 hover-effect">Unités de soin</q-item-section>
+              </router-link>
+            </q-item>
+            <q-item clickable class="hover-effect" v-close-popup>
+              <router-link class="pph-link" to="/users/">
+                <q-item-section class="text-cyan-1 hover-effect">Utilisateurs</q-item-section>
+              </router-link>
             </q-item>
           </q-list>
         </q-menu>
