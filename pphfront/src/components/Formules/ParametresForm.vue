@@ -14,7 +14,7 @@
         class="col-6 hover-effect"
         :options="allParametresLabel"
         option-label="label"
-        option-value="id"
+        option-value="value"
       />
       <q-btn-group flat class="q-ml-lg">
         <q-btn flat size="sm" @click="addRow" icon="add_box" color="green-4"/>
@@ -57,6 +57,7 @@ export default {
       return this.allParametres.map(parametre => ({
         ...parametre,
         label: `${parametre.nom} - ${parametre.unite}`,
+        value: parametre.id,
       }));
     },
   },
@@ -115,9 +116,7 @@ export default {
       // Préparez un tableau d'objets pour l'envoi
       const formData = this.formRows.map(row => ({
           num_formule: row.num_formule,
-          parametre: row.parametre.id
-
-
+          parametre: row.parametre.value,
       }));
       console.log("Envoi de formData:", formData);
 

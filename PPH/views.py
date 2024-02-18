@@ -36,17 +36,17 @@ from PPH.serializers import (
     CustomRegisterSerializer, UserFunctionSerializer, SupplierSerializer, CustomUserSerializer,
     ContactSerializer, TypeMatiereSerializer, TypePrepSerializer, UniteMesureSerializer,
     FormeReadSerializer, FormeWriteSerializer, MatierePremiereReadSerializer, MatierePremiereWriteSerializer,
-    FormuleSerializer, CompositionSerializer,
+    FormuleSerializer, CompositionReadSerializer, CompositionWriteSerializer,
     CatalogueSerializer, VoieSerializer, ListeSerializer, ParametresPrepSerializer, ParametresFormulesSerializer,
-    DemandesSerializer, FichesSerializer, ServiceSerializer, ParametresFormulesListSerializer,
+    DemandesReadSerializer, DemandesWriteSerializer, FichesSerializer, ServiceSerializer, ParametresFormulesListSerializer,
     ConditionnementSerializer, CategorieMatiereSerializer, CatalogueImportSerializer, ReceptionReadSerializer,
-    ReceptionWriteSerializer, EtablissementSerializer
+    ReceptionWriteSerializer, EtablissementSerializer, ParametresDemandesReadSerializer, ParametresDemandesWriteSerializer,
 )
 from .models import CustomUser, Supplier, UserFunction, Contact, \
     TypeMatiere, UniteMesure, Forme, MatierePremiere, TypePrep, \
     Formule, Composition, Catalogue, Liste, Voie, ParametresPrep, \
     ParametresFormules, Demandes, Fiches, Service, Conditionnement, \
-    CategorieMatiere, CatalogueImport, Reception, Etablissement
+    CategorieMatiere, CatalogueImport, Reception, Etablissement, ParametresDemandes
 
 from .utils import extract_data_from_pdf
 
@@ -281,7 +281,11 @@ class ServiceViewSet(viewsets.ModelViewSet):
 
 class DemandesViewSet(viewsets.ModelViewSet):
     queryset = Demandes.objects.all()
-    serializer_class = DemandesSerializer
+
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve']:
+            return DemandesReadSerializer
+        return DemandesWriteSerializer
 
 class TypeMatiereViewSet(viewsets.ModelViewSet):
     queryset = TypeMatiere.objects.all()
@@ -295,6 +299,34 @@ class ParametresPrepViewSet(viewsets.ModelViewSet):
     queryset = ParametresPrep.objects.all()
     serializer_class = ParametresPrepSerializer
 
+class ParametresDemandesViewSet(viewsets.ModelViewSet):
+    queryset = ParametresDemandes.objects.all()
+
+    def get_serializer_class(self):
+        if self.request.method in ['POST', 'PUT']:
+            return ParametresDemandesWriteSerializer
+        return ParametresDemandesReadSerializer
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        # Vérifier si les données sont une liste
+        if not isinstance(data, list):
+            return Response({"detail": "Invalid data. Expected a list of dictionaries."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        created_instances = []
+        for item in data:
+            serializer = self.get_serializer(data=item)
+            if serializer.is_valid():
+                # Associer le numéro de demande à chaque paramètre
+                item['num_demande'] = item.get('num_demande',
+                                               None)  # Assurez-vous que num_demande est présent dans vos données JSON
+                serializer.save()
+                created_instances.append(serializer.data)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(created_instances, status=status.HTTP_201_CREATED)
 class ParametresFormulesViewSet(viewsets.ModelViewSet):
     queryset = ParametresFormules.objects.all()
 
@@ -434,7 +466,11 @@ class FormuleViewSet(viewsets.ModelViewSet):
 
 class CompositionViewSet(viewsets.ModelViewSet):
     queryset = Composition.objects.all()
-    serializer_class = CompositionSerializer
+
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve']:
+            return CompositionReadSerializer
+        return CompositionWriteSerializer
 
     def create(self, request, *args, **kwargs):
         try:
@@ -443,7 +479,7 @@ class CompositionViewSet(viewsets.ModelViewSet):
             logger.info(f'Received data: {compositions_data}')
 
             # Assume you are using a serializer for Composition
-            serializer = CompositionSerializer(data=compositions_data, many=True)
+            serializer = CompositionWriteSerializer(data=compositions_data, many=True)
             if serializer.is_valid():
                 serializer.save()
                 # Log the saved data for debugging purposes
@@ -458,7 +494,7 @@ class CompositionViewSet(viewsets.ModelViewSet):
 class CompositionFilterView(APIView):
     def get(self, request, num_formule):
         compositions = Composition.objects.filter(num_formule=num_formule)
-        serializer = CompositionSerializer(compositions, many=True)
+        serializer = CompositionReadSerializer(compositions, many=True)
         return Response(serializer.data)
 
 class CatalogueImportViewSet(viewsets.ModelViewSet):

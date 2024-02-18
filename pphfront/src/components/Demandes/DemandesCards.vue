@@ -40,7 +40,8 @@
                         spinner-color="red-4"
                     >
                       <div class="absolute-top hover-effect q-my-none text-cyan-1">
-                        <div>{{ demande.qté }} {{ demande.prep.nom }}</div>
+                        <div>{{ demande.prep.nom }}</div>
+                        <div>{{ demande.prep.type.nom }}</div>
                         <div>Pour le {{ demande.date_prevu }}</div>
                         <div v-if="demande.service">{{ demande.service.nom }}</div>
                       </div>
@@ -70,6 +71,22 @@
                   </div>
                   <q-btn-group class="absolute-bottom-right q-pa-none q-ma-none">
                     <q-btn
+                       class="q-pa-none hover-effect"
+                       flat
+                       color="cyan-4"
+                       icon="list"
+                       @click.stop="toggleCompo(demande.id)"
+                    />
+                    <q-btn
+                      class="hover-effect"
+                      color="cyan-4"
+                      round
+                      flat
+                      dense
+                      icon="settings"
+                      @click.stop="toggleSettings(demande.id)"
+                    />
+                    <q-btn
                       class="hover-effect"
                       color="cyan-4"
                       round
@@ -79,6 +96,85 @@
                       @click.stop="toggleInfo(demande.id)"
                     />
                   </q-btn-group>
+                  <q-menu class="row" fit anchor="bottom right" self="top middle" v-model="compo[demande.id]">
+                    <q-list class="col-12">
+                      <q-item>
+                        <q-item-section class="text-cyan-4 text-center">
+                          Composition de la formule
+                        </q-item-section>
+                      </q-item>
+                      <q-item class="row" v-for="compo in filteredCompositions(demande.prep.id)" :key="compo.id">
+                        <q-item-section class="col-auto text-orange-4 text-no-wrap">
+                          {{ compo.matiere.nom }} :
+                        </q-item-section>
+                        <q-item-section class="col-auto text-grey-7">
+                          {{ compo.qté }} {{ compo.matiere.unite_mesure.nom }}
+                        </q-item-section>
+                        <q-item-section v-if="compo.matiere.cmr" class="col-auto q-ml-none text-grey-7">
+                          <q-img class="fade-blink" src="@/assets/img/health_hazard.png"
+                                 :style="{ width: '20px', height: '20px' }"/>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+                  <q-menu fit anchor="bottom right" self="top middle" v-model="settings[demande.id]">
+                    <q-list style="min-width: 100px">
+                      <q-item>
+                        <q-item-section class="text-cyan-4 text-center">
+                          Paramètres de la formule
+                        </q-item-section>
+                      </q-item>
+                      <q-item class="row" v-for="parametre in filteredParametres(demande.id)" :key="parametre.id">
+                        <q-item-section class="col-auto text-orange-4 text-no-wrap">
+                          {{ parametre.parametre.nom }} :
+                        </q-item-section>
+                        <q-item-section class="col-auto text-grey-7">
+                          {{ parametre.valeur_parametre }}{{ parametre.parametre.unite }}
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+                  <q-menu fit anchor="bottom right" self="top middle" v-model="expanded[demande.id]">
+                    <q-list style="min-width: 100px">
+                      <q-item>
+                        <q-item-section class="text-cyan-4 text-center">
+                          Détails de la demande n° {{ demande.id }}
+                        </q-item-section>
+                      </q-item>
+                      <q-item v-if="demande.date_demande">
+                        <q-item-section avatar class="text-orange-4">
+                          Date d'émission :
+                        </q-item-section>
+                        <q-item-section class="text-grey-7">
+                          {{ demande.date_demande }}
+                        </q-item-section>
+                      </q-item>
+                      <q-item v-if="demande.patient">
+                        <q-item-section avatar class="text-orange-4">
+                          Patient :
+                        </q-item-section>
+                        <q-item-section class="text-grey-7">
+                          {{ demande.patient }} - {{ demande.age }} ans
+                        </q-item-section>
+                      </q-item>
+                      <q-item v-if="demande.prescripteur">
+                        <q-item-section avatar class="text-orange-4">
+                          Prescripteur :
+                        </q-item-section>
+                        <q-item-section class="text-grey-7">
+                          {{ demande.prescripteur }}
+                        </q-item-section>
+                      </q-item>
+                      <q-item v-if="demande.commentaire">
+                        <q-item-section avatar class="text-orange-4">
+                          Commentaire :
+                        </q-item-section>
+                        <q-item-section class=" row items-center text-grey-7 hover-effect">
+                            {{ demande.commentaire }}
+                          </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
                 </q-card>
               </div>
             </div>
@@ -102,11 +198,14 @@ export default {
   },
 
   computed: {
-    ...mapGetters('demandes', ['allDemandes', 'showMenu', 'info']),
+    ...mapGetters('demandes', ['allDemandes', 'allParametresDemandes', 'settings', 'showMenu', 'expanded', 'compo']),
+    ...mapGetters('dateFormatter', ['getFormattedDate']),
+    ...mapGetters('formules', ['allCompositions']),
 
     controlCount() {
       return this.filteredDemandesAttente.length;
     },
+
 
     filteredDemandesAttente() {
       return this.allDemandes.filter(demande => demande.production === false);
@@ -125,10 +224,23 @@ export default {
 
   created() {
     this.loadDemandes();
+    this.loadParametresDemandes();
+    this.loadCompositions();
   },
 
   methods: {
-    ...mapActions('demandes', ['loadDemandes', 'toggleInfo', 'toggleMenu']),
+    ...mapActions('demandes', ['loadDemandes', 'loadParametresDemandes', 'deleteDemande', 'toggleInfo',
+                               'toggleMenu', 'toggleProduction', 'toggleSettings', 'toggleCompo']),
+    ...mapActions('dateFormatter', ['formatDate']),
+    ...mapActions('formules', ['loadCompositions', 'loadFormules']),
+
+    filteredParametres(demandeId) {
+      return this.allParametresDemandes.filter(parametre => parametre.num_demande === demandeId);
+    },
+
+    filteredCompositions(demandeFormule) {
+      return this.allCompositions.filter(compo => compo.num_formule === demandeFormule);
+    },
 
     changeLabelColor(inputRef, color) {
       if (!this[inputRef.replace('Input', '')]) {

@@ -205,6 +205,7 @@
                                         size="xs"
                                         icon="delete_forever"
                                         color="red-4"
+                                        @click.stop="deleteDemande(demande.id)"
                                   />
                                 </div>
                                 <br/>
@@ -661,7 +662,7 @@ export default {
 
   methods: {
     ...mapActions('matieresPremieres', ['loadMatieresPremieres', 'loadReceptions']),
-    ...mapActions('demandes', ['loadDemandes']),
+    ...mapActions('demandes', ['loadDemandes', 'deleteDemande']),
     ...mapActions('fiches', ['loadFiches']),
 
   async loadAllData() {

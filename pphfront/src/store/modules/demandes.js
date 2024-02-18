@@ -2,14 +2,23 @@ import api from '../../../api';
 
 const state = {
   demandes: [],
+  parametresDemandes: [],
   showMenu: {},
   expanded: {},
+  settings: {},
+  compo: {},
 };
 
 const getters = {
+  compo: (state) => state.compo,
+
+  settings: (state) => state.settings,
+
   expanded: (state) => state.expanded,
 
   showMenu: (state) => state.showMenu,
+
+  allParametresDemandes: state => state.parametresDemandes,
 
   allDemandes: state => state.demandes,
 
@@ -62,6 +71,55 @@ const getters = {
 };
 
 const actions = {
+
+  async addParametresValues({dispatch}, jsonData) {
+    try {
+      await api.post('PPH/parametres-demandes/', jsonData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      dispatch('notifications/showNotification', {
+        message: 'Paramètres enregistrés avec succès',
+        type: 'success'
+      }, {root: true});
+      return Promise.resolve();
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors de l\'ajout des paramètres',
+        type: 'error'
+      }, {root: true});
+      return Promise.reject(error);
+    }
+  },
+
+  async loadParametresDemandes({ commit }) {
+    try {
+      const response = await api.get('/parametres-demandes');
+      commit('SET_PARAMETRES_DEMANDES', response.data);
+
+    } catch (error) {
+      console.error('Erreur lors du chargement des demandes :', error);
+    }
+  },
+
+  async addDemande({dispatch}, demandeData) {
+    try {
+      await api.post('PPH/demandes/', demandeData);
+      dispatch('notifications/showNotification', {
+        message: 'Demande enregistrée avec succès',
+        type: 'success'
+      }, {root: true});
+      return Promise.resolve();
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors de l\'ajout de la demande',
+        type: 'error'
+      }, {root: true});
+      return Promise.reject(error);
+    }
+  },
+
   async loadDemandes({ commit }) {
     try {
       const response = await api.get('/demandes');
@@ -72,12 +130,61 @@ const actions = {
     }
   },
 
+  async deleteDemande({ dispatch }, demandeId) {
+    try {
+      await api.delete(`/PPH/demandes/${demandeId}`);
+      dispatch('notifications/showNotification', {
+        message: 'Demande supprimée',
+        type: 'success'
+      }, { root: true });
+      dispatch('loadDemandes');
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors de la suppression',
+        type: 'error'
+      }, { root: true });
+      console.error(error);
+    }
+  },
+
+  async toggleActivation({ dispatch }, payload) {
+    const { demandeId, isProduction } = payload;
+    try {
+      if (isProduction) {
+        await api.patch(`/PPH/demandes/${demandeId}/`, { production: false });
+        dispatch('notifications/showNotification', {
+          message: 'Demande mise en attente',
+          type: 'success'
+        }, { root: true });
+      } else {
+        await api.patch(`/PPH/demandes/${demandeId}/`, { production: true });
+        dispatch('notifications/showNotification', {
+          message: 'Demande mise en production',
+          type: 'success'
+        }, { root: true });
+      }
+      dispatch('loadDemandes');
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors du changement d\'état',
+        type: 'error'
+      }, { root: true });
+      console.error(error);
+    }
+  },
+
   toggleMenu({ commit }, id) {
     commit('TOGGLE_MENU', id);
   },
 
   toggleInfo({ commit }, id) {
     commit('TOGGLE_INFO', id);
+  },
+  toggleSettings({ commit }, id) {
+    commit('TOGGLE_SETTINGS', id);
+  },
+  toggleCompo({ commit }, id) {
+    commit('TOGGLE_COMPO', id);
   },
 };
 
@@ -86,11 +193,21 @@ const mutations = {
     state.demandes = demandes;
   },
 
+  SET_PARAMETRES_DEMANDES: (state, parametresDemandes) => {
+    state.parametresDemandes = parametresDemandes;
+  },
+
   TOGGLE_MENU(state, id) {
     state.showMenu[id] = !state.showMenu[id];
   },
   TOGGLE_INFO(state, id) {
     state.expanded[id] = !state.expanded[id];
+  },
+  TOGGLE_SETTINGS(state, id) {
+    state.settings[id] = !state.settings[id];
+  },
+  TOGGLE_COMPO(state, id) {
+    state.compo[id] = !state.compo[id];
   },
 };
 export default {

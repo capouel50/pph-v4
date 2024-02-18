@@ -3,10 +3,10 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     CurrentUserView, ContactView, SupplierViewSet, UserFunctionListCreateView, CustomUserListCreateView,
     CustomUserRetrieveUpdateDestroyView, TypeMatiereViewSet, UniteMesureViewSet, FormeViewSet,
-    CompositionViewSet, FormuleViewSet, MatierePremiereViewSet, CatalogueViewSet, ListeViewSet,
+    CompositionViewSet, FormuleViewSet, MatierePremiereViewSet, CatalogueViewSet, ListeViewSet, ServiceViewSet,
     VoieViewSet, TypePrepViewSet, ParametresPrepViewSet, ParametresFormulesViewSet, CompositionFilterView,
     DemandesViewSet, FichesViewSet, FichesSemaine, FichesMois, ConditionnementViewSet, CategorieMatiereViewSet,
-    CatalogueImportViewSet, ReceptionViewSet, EtablissementViewSet
+    CatalogueImportViewSet, ReceptionViewSet, EtablissementViewSet, ParametresDemandesViewSet
 )
 from django.conf import settings
 from django.conf.urls.static import static
@@ -30,10 +30,12 @@ router.register(r'catalogue', CatalogueViewSet)
 router.register(r'catalogue-import', CatalogueImportViewSet)
 router.register(r'categories', CategorieMatiereViewSet)
 router.register(r'voie', VoieViewSet)
+router.register(r'service', ServiceViewSet)
 router.register(r'liste', ListeViewSet)
 router.register(r'type-prep', TypePrepViewSet)
 router.register(r'parametres-prep', ParametresPrepViewSet)
 router.register(r'parametres-formules', ParametresFormulesViewSet)
+router.register(r'parametres-demandes', ParametresDemandesViewSet)
 
 urlpatterns = [
     path('fiches-mois/', FichesMois.as_view(), name='fiches-mois'),

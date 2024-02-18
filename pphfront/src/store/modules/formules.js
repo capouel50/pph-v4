@@ -4,6 +4,7 @@ const state = () => ({
   types: [],
   parametres: [],
   parametresFormules: [],
+  compositions: [],
   formules: [],
   listes: [],
   showMenu: {},
@@ -15,6 +16,7 @@ const getters = {
   expanded: (state) => state.expanded,
   showMenu: (state) => state.showMenu,
   allTypes: (state) => state.types,
+  allCompositions: (state) => state.compositions,
   allParametres: (state) => state.parametres,
   allParametresFormules: (state) => state.parametresFormules,
   allFormules: (state) => state.formules,
@@ -91,6 +93,20 @@ const actions = {
         type: 'error',
       }, { root: true });
       return Promise.reject(error);
+    }
+  },
+
+  async loadCompositions({commit, dispatch}) {
+    try {
+      const response = await api.get('/PPH/composition');
+      commit('SET_COMPOSITIONS', response.data);
+      console.log(response.data);
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors du chargement des compositions',
+        type: 'error'
+      }, {root: true});
+      console.error(error);
     }
   },
 
@@ -235,6 +251,9 @@ const mutations = {
   
   ADD_TYPE(state, type) {
     state.types.push(type);
+  },
+  SET_COMPOSITIONS(state, compositions) {
+    state.compositions = compositions;
   },
   SET_TYPE(state, types) {
     state.types = types;

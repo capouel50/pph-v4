@@ -181,10 +181,16 @@ class ParametresPrep(models.Model):
     def __str__(self):
         return self.nom
 
-class ParametresFormules(models.Model):
-    num_formule = models.CharField(max_length=200)
+class ParametresDemandes(models.Model):
+    num_demande = models.IntegerField()
     parametre = models.ForeignKey(ParametresPrep, on_delete=models.CASCADE)
-    valeur_parametre = models.CharField(max_length=200, null=True)
+    valeur_parametre = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+
+    def __str__(self):
+        return f"{self.num_demande} - {self.valeur_parametre}"
+class ParametresFormules(models.Model):
+    num_formule = models.IntegerField()
+    parametre = models.ForeignKey(ParametresPrep, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.num_formule} - {self.parametre}"
@@ -264,9 +270,9 @@ class Formule(models.Model):
         return self.nom
 
 class Composition(models.Model):
-    num_formule = models.CharField(max_length=200, null=True)
+    num_formule = models.IntegerField(null=True)
     matiere = models.ForeignKey(MatierePremiere, on_delete=models.CASCADE, null=True)
-    qté = models.CharField(max_length=200, null=True)
+    qté = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     unite = models.ForeignKey(UniteMesure, on_delete=models.CASCADE, null=True)
     calcul = models.CharField(max_length=200, null=True)
 
@@ -315,9 +321,12 @@ class Catalogue(models.Model):
         return self.designation
 
 class Demandes(models.Model):
+    date_demande = models.DateField(default=date.today, blank=True)
+    typePrep = models.ForeignKey(TypePrep, on_delete=models.CASCADE, null=True)
     prep = models.ForeignKey(Formule, on_delete=models.CASCADE, null=True)
+    patient = models.CharField(max_length=200, null=True)
+    age = models.IntegerField(null=True)
     service = models.ForeignKey(Service, on_delete=models.CASCADE, null=True)
-    qté = models.CharField(max_length=200, null=True)
     date_prevu = models.DateField(default=date.today, blank=True)
     prescripteur = models.CharField(max_length=200, null=True)
     commentaire = models.CharField(max_length=200, null=True)

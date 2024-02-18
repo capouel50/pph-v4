@@ -5,10 +5,12 @@ from rest_framework import serializers
 from .models import CustomUser, Supplier, UserFunction, Contact, \
     TypeMatiere, UniteMesure, Forme, MatierePremiere, TypePrep, Formule, \
     Composition, Catalogue, Voie, Liste, ParametresPrep, ParametresFormules, \
-    Demandes, Fiches, Service, Conditionnement, CategorieMatiere, CatalogueImport, Reception, Etablissement
+    Demandes, Fiches, Service, Conditionnement, CategorieMatiere, CatalogueImport, \
+    Reception, Etablissement, ParametresDemandes
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
 
 class CustomRegisterSerializer(RegisterSerializer):
     first_name = serializers.CharField()
@@ -185,11 +187,33 @@ class ParametresPrepSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ParametresFormulesSerializer(serializers.ModelSerializer):
-    parametre = serializers.PrimaryKeyRelatedField(queryset=ParametresPrep.objects.all())
+    parametre = ParametresPrepSerializer()
 
     class Meta:
         model = ParametresFormules
         fields = '__all__'
+
+class ParametresDemandesReadSerializer(serializers.ModelSerializer):
+    parametre = ParametresPrepSerializer()
+
+    class Meta:
+        model = ParametresDemandes
+        fields = '__all__'
+
+class ParametresDemandesBulkWriteSerializer(serializers.ListSerializer):
+    def create(self, validated_data):
+        instances = [ParametresDemandes(**item) for item in validated_data]
+        return ParametresDemandes.objects.bulk_create(instances)
+
+class ParametresDemandesWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ParametresDemandes
+        fields = ['num_demande', 'parametre', 'valeur_parametre']
+
+    def create(self, validated_data):
+        num_demande = validated_data.pop('num_demande')
+        parametres_demande = ParametresDemandes.objects.create(num_demande=num_demande, **validated_data)
+        return parametres_demande
 
 class ParametresFormulesListSerializer(serializers.ListSerializer):
     child = ParametresFormulesSerializer()
@@ -230,9 +254,17 @@ class FormuleSerializer(serializers.ModelSerializer):
         model = Formule
         fields = '__all__'
 
-class CompositionSerializer(serializers.ModelSerializer):
+class CompositionWriteSerializer(serializers.ModelSerializer):
     matiere = MatierePremiereWriteSerializer
     unite = UniteMesureSerializer
+
+    class Meta:
+        model = Composition
+        fields = '__all__'
+
+class CompositionReadSerializer(serializers.ModelSerializer):
+    matiere = MatierePremiereReadSerializer()
+    unite = UniteMesureSerializer()
 
     class Meta:
         model = Composition
@@ -257,9 +289,16 @@ class CatalogueSerializer(serializers.ModelSerializer):
         model = Catalogue
         fields = '__all__'
 
-class DemandesSerializer(serializers.ModelSerializer):
+class DemandesReadSerializer(serializers.ModelSerializer):
     prep = FormuleSerializer()
     service = ServiceSerializer()
+    class Meta:
+        model = Demandes
+        fields = '__all__'
+
+class DemandesWriteSerializer(serializers.ModelSerializer):
+    prep = FormuleSerializer
+    service = ServiceSerializer
     class Meta:
         model = Demandes
         fields = '__all__'

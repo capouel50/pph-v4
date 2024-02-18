@@ -2,15 +2,12 @@ from django.contrib import admin
 from .models import CustomUser, UserFunction, Supplier, TypeMatiere, \
     UniteMesure, Forme, MatierePremiere, Liste, TypePrep, Formule, Composition, \
     Catalogue, Voie, ParametresPrep, ParametresFormules, Demandes, Fiches, Service, \
-    Conditionnement, CategorieMatiere, CatalogueImport, Reception, Etablissement
-
-
+    Conditionnement, CategorieMatiere, CatalogueImport, Reception, Etablissement, ParametresDemandes
 
 class CustomUserAdmin(admin.ModelAdmin):
     list_display = ('username', 'email', 'first_name', 'last_name', 'function', 'is_active', 'is_staff')
     search_fields = ('username', 'email')
     list_filter = ('is_active', 'is_staff', 'function')
-
 
 class UserFunctionAdmin(admin.ModelAdmin):
     list_display = ('id', 'title')
@@ -23,6 +20,7 @@ admin.site.register(Supplier)
 @admin.register(Etablissement)
 class EtablissementAdmin(admin.ModelAdmin):
     list_display = ['nom_long','nom_court', 'address', 'postal', 'city', 'phone', 'email', 'site', 'logo']
+
 @admin.register(TypeMatiere)
 class TypeMatiereAdmin(admin.ModelAdmin):
     list_display = ['id','nom']
@@ -58,12 +56,16 @@ class ParametresPrepAdmin(admin.ModelAdmin):
 class ParametresFormulesAdmin(admin.ModelAdmin):
     list_display = ['num_formule', 'parametre']
 
+@admin.register(ParametresDemandes)
+class ParametresFormulesAdmin(admin.ModelAdmin):
+    list_display = ['num_demande', 'parametre', 'valeur_parametre']
+
 @admin.register(CategorieMatiere)
 class CategorieMatiereAdmin(admin.ModelAdmin):
     list_display = ['nom', 'fournisseur']
 @admin.register(Demandes)
 class DemandesAdmin(admin.ModelAdmin):
-    list_display = ['prep', 'qté', 'date_prevu']
+    list_display = ['date_demande', 'prep', 'typePrep', 'date_prevu', 'patient', 'age', 'service', 'prescripteur', 'commentaire', 'production']
 
 @admin.register(Fiches)
 class FichesAdmin(admin.ModelAdmin):

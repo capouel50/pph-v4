@@ -15,9 +15,13 @@ import demandes from './modules/demandes';
 import fiches from './modules/fiches';
 import spinner from './modules/spinner';
 import websocket from './modules/websocket';
+import dateFormatter from './modules/dateFormatter';
+import services from './modules/services';
 
 const store = createStore({
   modules: {
+    services,
+    dateFormatter,
     websocket,
     spinner,
     fiches,

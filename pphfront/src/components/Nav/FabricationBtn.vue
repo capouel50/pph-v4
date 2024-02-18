@@ -10,7 +10,7 @@
       </q-item>
       <q-item clickable class="hover-effect" v-close-popup>
         <router-link to="/controles/" class="pph-link">
-          <q-item-section class="text-cyan-1 hover-effect">Attente contrôle</q-item-section>
+          <q-item-section class="text-cyan-1 hover-effect">Libération</q-item-section>
         </router-link>
       </q-item>
       <q-item clickable class="hover-effect" v-close-popup>
