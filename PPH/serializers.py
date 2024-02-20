@@ -6,7 +6,7 @@ from .models import CustomUser, Supplier, UserFunction, Contact, \
     TypeMatiere, UniteMesure, Forme, MatierePremiere, TypePrep, Formule, \
     Composition, Catalogue, Voie, Liste, ParametresPrep, ParametresFormules, \
     Demandes, Fiches, Service, Conditionnement, CategorieMatiere, CatalogueImport, \
-    Reception, Etablissement, ParametresDemandes
+    Reception, Etablissement, ParametresDemandes, ParametresFiches
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -186,9 +186,20 @@ class ParametresPrepSerializer(serializers.ModelSerializer):
         model = ParametresPrep
         fields = '__all__'
 
-class ParametresFormulesSerializer(serializers.ModelSerializer):
-    parametre = ParametresPrepSerializer()
+class ParametresFormulesWriteSerializer(serializers.ModelSerializer):
+    parametre = serializers.PrimaryKeyRelatedField(queryset=ParametresPrep.objects.all())
 
+    class Meta:
+        model = ParametresFormules
+        fields = '__all__'
+class ParametresFormulesListSerializer(serializers.ListSerializer):
+    child = ParametresFormulesWriteSerializer()
+
+    def create(self, validated_data):
+        parametres_formules = [ParametresFormules(**item) for item in validated_data]
+        return ParametresFormules.objects.bulk_create(parametres_formules)
+class ParametresFormulesReadSerializer(serializers.ModelSerializer):
+    parametre = ParametresPrepSerializer()
     class Meta:
         model = ParametresFormules
         fields = '__all__'
@@ -200,11 +211,6 @@ class ParametresDemandesReadSerializer(serializers.ModelSerializer):
         model = ParametresDemandes
         fields = '__all__'
 
-class ParametresDemandesBulkWriteSerializer(serializers.ListSerializer):
-    def create(self, validated_data):
-        instances = [ParametresDemandes(**item) for item in validated_data]
-        return ParametresDemandes.objects.bulk_create(instances)
-
 class ParametresDemandesWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = ParametresDemandes
@@ -215,12 +221,22 @@ class ParametresDemandesWriteSerializer(serializers.ModelSerializer):
         parametres_demande = ParametresDemandes.objects.create(num_demande=num_demande, **validated_data)
         return parametres_demande
 
-class ParametresFormulesListSerializer(serializers.ListSerializer):
-    child = ParametresFormulesSerializer()
+class ParametresFichesReadSerializer(serializers.ModelSerializer):
+    parametre = ParametresPrepSerializer()
+
+    class Meta:
+        model = ParametresFiches
+        fields = '__all__'
+
+class ParametresFichesWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ParametresFiches
+        fields = ['num_fiche', 'parametre', 'valeur_parametre']
 
     def create(self, validated_data):
-        parametres_formules = [ParametresFormules(**item) for item in validated_data]
-        return ParametresFormules.objects.bulk_create(parametres_formules)
+        num_fiche = validated_data.pop('num_fiche')
+        parametres_fiche = ParametresFiches.objects.create(num_fiche=num_fiche, **validated_data)
+        return parametres_fiche
 
 class MatierePremiereReadSerializer(serializers.ModelSerializer):
     type = TypeMatiereSerializer()
@@ -256,16 +272,12 @@ class FormuleSerializer(serializers.ModelSerializer):
 
 class CompositionWriteSerializer(serializers.ModelSerializer):
     matiere = MatierePremiereWriteSerializer
-    unite = UniteMesureSerializer
-
     class Meta:
         model = Composition
         fields = '__all__'
 
 class CompositionReadSerializer(serializers.ModelSerializer):
     matiere = MatierePremiereReadSerializer()
-    unite = UniteMesureSerializer()
-
     class Meta:
         model = Composition
         fields = '__all__'
@@ -303,11 +315,20 @@ class DemandesWriteSerializer(serializers.ModelSerializer):
         model = Demandes
         fields = '__all__'
 
-class FichesSerializer(serializers.ModelSerializer):
+class FichesReadSerializer(serializers.ModelSerializer):
     prep = FormuleSerializer()
+    service = ServiceSerializer()
     class Meta:
         model = Fiches
         fields = '__all__'
+
+class FichesWriteSerializer(serializers.ModelSerializer):
+    prep = FormuleSerializer
+    service = ServiceSerializer
+    class Meta:
+        model = Fiches
+        fields = '__all__'
+
 
 class ReceptionWriteSerializer(serializers.ModelSerializer):
     matiere = MatierePremiereReadSerializer

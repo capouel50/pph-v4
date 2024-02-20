@@ -60,40 +60,123 @@
                     </q-menu>
                   </div>
                   <div class="absolute-top-left hover-effect q-ml-xs q-my-none text-red-4">
-                    <div>{{ fiche.id }}</div>
+                    <div>n°{{ fiche.id }}</div>
                   </div>
                   <div class="absolute-bottom-left">
-                    <div class="row">
-                      <font-awesome-icon v-if="fiche.prep.froid" fade icon="fa-solid fa-snowflake" class="q-ml-xs q-mb-xs fa-2x" style="color: #4dd0e1;" />
-                      <q-icon v-if="fiche.prep.agiter" name="waving_hand" class="q-ml-xs q-mb-xs" color="cyan-4" size="md"/>
-                      <q-icon v-if="fiche.prep.lumiere" name="light_mode" class="q-ml-xs q-mb-xs" color="red-4" size="md"/>
+                    <div class="row q-mb-xs">
+                      <font-awesome-icon v-if="fiche.prep.pediatric" icon="fa-solid fa-child" class="q-ml-xs fa-lg" style="color: #4dd0e1;"/>
+                      <font-awesome-icon v-if="fiche.prep.froid" fade icon="fa-solid fa-snowflake" class="q-ml-xs fa-lg" style="color: #4dd0e1;" />
+                      <q-icon v-if="fiche.prep.agiter" name="waving_hand" class="q-ml-xs" color="cyan-4" size="xs"/>
+                      <q-icon v-if="fiche.prep.lumiere" name="light_mode" class="q-ml-xs" color="red-4" size="xs"/>
                     </div>
                   </div>
                   <q-btn-group class="absolute-bottom-right q-pa-none q-ma-none">
                     <q-btn
                        class="q-pa-none hover-effect"
                        flat
-                       color="cyan-4"
+                       :color="compo[fiche.id] ? 'orange-4' : 'cyan-4'"
                        icon="list"
+                       size="sm"
                        @click.stop="toggleCompo(fiche.id)"
                     />
                     <q-btn
                        class="q-pa-none hover-effect"
                        flat
-                       color="cyan-4"
+                       :color="settings[fiche.id] ? 'orange-4' : 'cyan-4'"
                        icon="settings"
+                       size="sm"
                        @click.stop="toggleSettings(fiche.id)"
                     />
                     <q-btn
                       class="hover-effect"
-                      color="cyan-4"
+                      :color="info[fiche.id] ? 'orange-4' : 'cyan-4'"
                       round
                       flat
                       dense
                       icon="info"
+                      size="sm"
                       @click.stop="toggleInfo(fiche.id)"
                     />
                   </q-btn-group>
+                  <q-menu class="row" fit anchor="bottom right" self="top middle" v-model="compo[fiche.id]">
+                    <q-list class="col-12">
+                      <q-item>
+                        <q-item-section class="text-cyan-4 text-center">
+                          Composition de la formule
+                        </q-item-section>
+                      </q-item>
+                      <q-item class="row" v-for="compo in filteredCompositions(fiche.prep.id)" :key="compo.id">
+                        <q-item-section class="col-auto text-orange-4 text-no-wrap">
+                          {{ compo.matiere.nom }} :
+                        </q-item-section>
+                        <q-item-section class="col-auto text-grey-7">
+                          <q-item-label>{{ getCalculatedQty(compo.calcul,filteredParametres(fiche.id), compo.qté, compo.matiere.unite_mesure.nom) }} {{ compo.matiere.unite_mesure.nom }}</q-item-label>
+                        </q-item-section>
+                        <q-item-section v-if="compo.matiere.cmr" class="col-auto q-ml-none text-grey-7">
+                          <q-img class="fade-blink" src="@/assets/img/health_hazard.png"
+                                 :style="{ width: '20px', height: '20px' }"/>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+                  <q-menu fit anchor="bottom right" self="top middle" v-model="settings[fiche.id]">
+                    <q-list style="min-width: 100px">
+                      <q-item>
+                        <q-item-section class="text-cyan-4 text-center">
+                          Paramètres de la formule
+                        </q-item-section>
+                      </q-item>
+                      <q-item class="row" v-for="parametre in filteredParametres(fiche.id)" :key="parametre.id">
+                        <q-item-section class="col-auto text-orange-4 text-no-wrap">
+                          {{ parametre.parametre.nom }} :
+                        </q-item-section>
+                        <q-item-section class="col-auto text-grey-7">
+                          {{ parametre.valeur_parametre }}{{ parametre.parametre.unite }}
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+                  <q-menu fit anchor="bottom right" self="top middle" v-model="info[fiche.id]">
+                    <q-list style="min-width: 100px">
+                      <q-item>
+                        <q-item-section class="text-cyan-4 text-center">
+                          Détails de la fiche n° {{ fiche.id }}
+                        </q-item-section>
+                      </q-item>
+                      <q-item v-if="fiche.date_fab">
+                        <q-item-section avatar class="text-orange-4">
+                          Date d'émission :
+                        </q-item-section>
+                        <q-item-section class="text-grey-7">
+                          {{ fiche.date_fab }}
+                        </q-item-section>
+                      </q-item>
+                      <q-item v-if="fiche.patient">
+                        <q-item-section avatar class="text-orange-4">
+                          Patient :
+                        </q-item-section>
+                        <q-item-section class="text-grey-7">
+                          {{ fiche.patient }} - {{ fiche.age }} ans
+                        </q-item-section>
+                      </q-item>
+                      <q-item v-if="fiche.service.nom">
+                        <q-item-section avatar class="text-orange-4">
+                          Service :
+                        </q-item-section>
+                        <q-item-section class="text-grey-7">
+                          {{ fiche.service.nom }}
+                        </q-item-section>
+                      </q-item>
+                      <q-item v-if="fiche.prescripteur">
+                        <q-item-section avatar class="text-orange-4">
+                          Prescripteur :
+                        </q-item-section>
+                        <q-item-section class="text-grey-7">
+                          {{ fiche.prescripteur }}
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
                 </q-card>
               </div>
             </div>
@@ -117,7 +200,8 @@ export default {
   },
 
   computed: {
-    ...mapGetters('fiches', ['allFiches', 'fichesControlCount', 'showMenu', 'settings', 'info', 'compo']),
+    ...mapGetters('fiches', ['allFiches', 'allParametresFiches', 'fichesControlCount', 'showMenu', 'settings', 'info', 'compo']),
+    ...mapGetters('formules', ['allCompositions']),
 
     controlCount() {
       return this.filteredFiches.length;
@@ -141,12 +225,44 @@ export default {
 
   created() {
     this.loadFiches();
-    console.log('filteredfiches:', this.filteredFichesControle)
-    console.log('allfiches:', this.allFiches)
+    this.loadFormules();
+    this.loadCompositions();
+    this.loadParametresFiches();
   },
 
   methods: {
-    ...mapActions('fiches', ['loadFiches', 'toggleInfo', 'toggleSettings', 'toggleCompo', 'toggleControle', 'toggleMenu']),
+    ...mapActions('fiches', ['loadFiches', 'loadParametresFiches', 'toggleInfo', 'toggleSettings', 'toggleCompo', 'toggleControle', 'toggleMenu']),
+    ...mapActions('formules', ['loadCompositions', 'loadFormules']),
+
+    getCalculatedQty(formula, params, qte, unitMeasureString) {
+      for(let param of params){
+        let searchTerm = param.parametre.nom + " - " + param.parametre.unite;
+        formula = formula.replace(new RegExp(searchTerm, 'g'), param.valeur_parametre);
+
+        let qteSearchTerm = "Quantité - " + unitMeasureString;
+        formula = formula.replace(new RegExp(qteSearchTerm, 'g'), qte);
+      }
+
+      try {
+        let result = eval(formula);
+        // Si le résultat est un nombre, le formater avec 3 chiffres après la virgule
+        if(!isNaN(result)) {
+          return Number(result).toFixed(2);
+        } else {
+          return result;
+        }
+      } catch(e) {
+        return "Erreur";
+      }
+    },
+
+    filteredParametres(ficheId) {
+      return this.allParametresFiches.filter(parametre => parametre.num_fiche === ficheId);
+    },
+
+    filteredCompositions(ficheFormule) {
+      return this.allCompositions.filter(compo => compo.num_formule === ficheFormule);
+    },
 
     changeLabelColor(inputRef, color) {
       if (!this[inputRef.replace('Input', '')]) {

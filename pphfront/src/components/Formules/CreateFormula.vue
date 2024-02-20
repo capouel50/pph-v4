@@ -16,8 +16,8 @@
         icon="info"
         :done="step > 1"
       >
-  <div class="row">
-        <q-input
+        <div class="row">
+          <q-input
             ref="nomInput"
             class="q-mr-lg col-3"
             v-model="name"
@@ -33,7 +33,7 @@
           </template>
         </q-input>
 
-        <q-select
+          <q-select
         v-model="typePrep"
         color="cyan-4"
         class="col-3 hover-effect"
@@ -46,26 +46,47 @@
           <q-icon name="local_pharmacy" color="cyan-4"/>
         </template>
       </q-select>
-      </div>
-      <div class="row">
-      <q-select
-        v-model="liste"
-        color="cyan-4"
-        class="col-2 hover-effect"
-        label="Liste"
-        :options="allListeLabel"
-        option-label="label"
-        option-value="id"
-      >
-        <template v-slot:before>
-          <q-icon name="gavel" color="cyan-4"/>
-        </template>
-      </q-select>
-      </div>
-    <q-stepper-navigation>
-      <q-btn flat @click="step = 2" color="cyan-4" label="Suivant" class="hover-effect" />
-    </q-stepper-navigation>
-  </q-step>
+
+          <div class="col-3 q-ml-md q-mt-md">
+            <q-toggle
+                v-model="specialite"
+                label="Utilisation d'une spécialité"
+                size="md"
+                color="blue-4"
+                icon="medication"
+            />
+          </div>
+        </div>
+        <div class="row">
+          <q-select
+            v-model="liste"
+            color="cyan-4"
+            class="col-2 hover-effect"
+            label="Liste"
+            :options="allListeLabel"
+            option-label="label"
+            option-value="id"
+          >
+            <template v-slot:before>
+              <q-icon name="gavel" color="cyan-4"/>
+            </template>
+          </q-select>
+        </div>
+        <div class="row q-mt-md">
+          <div class="col-2">
+            <q-toggle
+                v-model="pediatric"
+                label="Formule pédiatrique"
+                size="md"
+                color="red-4"
+                icon="account_child"
+            />
+          </div>
+        </div>
+        <q-stepper-navigation>
+          <q-btn flat @click="step = 2" color="cyan-4" label="Suivant" class="hover-effect" />
+        </q-stepper-navigation>
+      </q-step>
 
       <q-step
         :name="2"
@@ -90,8 +111,8 @@
       </div>
 
       <q-stepper-navigation>
-          <q-btn flat @click="step = 3" color="cyan-4" label="Suivant" class="hover-effect"/>
           <q-btn flat @click="step = 1" color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
+        <q-btn flat @click="step = 3" color="cyan-4" label="Suivant" class="hover-effect"/>
         </q-stepper-navigation>
       </q-step>
 
@@ -146,8 +167,8 @@
       </div>
 
         <q-stepper-navigation>
-          <q-btn flat @click="step = 4" color="cyan-4" label="Suivant" class="hover-effect"/>
           <q-btn flat @click="step = 2" color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
+          <q-btn flat @click="step = 4" color="cyan-4" label="Suivant" class="hover-effect"/>
         </q-stepper-navigation>
       </q-step>
 
@@ -164,8 +185,8 @@
         </div>
 
         <q-stepper-navigation>
-          <q-btn flat @click="step = 5" color="cyan-4" label="Suivant" class="hover-effect"/>
           <q-btn flat @click="step = 3" color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
+          <q-btn flat @click="step = 5" color="cyan-4" label="Suivant" class="hover-effect"/>
         </q-stepper-navigation>
       </q-step>
 
@@ -196,8 +217,8 @@
       </div>
 
         <q-stepper-navigation>
-          <q-btn flat @click="step = 6" color="cyan-4" label="Suivant" class="hover-effect"/>
           <q-btn flat @click="step = 4" color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
+          <q-btn flat @click="step = 6" color="cyan-4" label="Suivant" class="hover-effect"/>
         </q-stepper-navigation>
       </q-step>
 
@@ -214,8 +235,8 @@
         </div>
 
         <q-stepper-navigation>
-          <q-btn flat @click="step = 7" color="cyan-4" label="Suivant" class="hover-effect"/>
           <q-btn flat @click="step = 5" color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
+          <q-btn flat @click="step = 7" color="cyan-4" label="Suivant" class="hover-effect"/>
         </q-stepper-navigation>
       </q-step>
 
@@ -245,8 +266,8 @@
       </div>
 
         <q-stepper-navigation>
-          <q-btn flat @click="step = 8" color="cyan-4" label="Suivant" class="hover-effect"/>
           <q-btn flat @click="step = 6"  color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
+          <q-btn flat @click="step = 8" color="cyan-4" label="Suivant" class="hover-effect"/>
         </q-stepper-navigation>
       </q-step>
 
@@ -276,9 +297,34 @@
       </div>
         <q-stepper-navigation>
           <q-btn flat @click="step = 7" color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
-          <q-btn flat @click="step = 9" color="cyan-4" label="Terminer" class="hover-effect q-ml-sm" />
+          <q-btn flat @click="step = 9" color="cyan-4" label="Suivant" class="hover-effect q-ml-sm" />
         </q-stepper-navigation>
       </q-step>
+
+      <q-step
+          :name="9"
+          title="PPH cloud"
+          icon="cloud"
+          :done="step > 9"
+        >
+        <div class="row">
+          <div class="col-2">
+            <q-toggle
+                v-model="cloud"
+                :label="cloud ? 'Publique' : 'Privée'"
+                size="md"
+                color="green-4"
+                icon="publish"
+            />
+          </div>
+        </div>
+
+        <q-stepper-navigation>
+          <q-btn flat @click="step = 8" color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
+          <q-btn flat @click="step = 10" color="cyan-4" label="Terminer" class="hover-effect"/>
+        </q-stepper-navigation>
+      </q-step>
+
       <div class="row justify-center">
         <q-btn-group>
           <q-btn flat @click="submitForm" color="green-4" label="Enregistrer" class="btn-flat-success-pph"/>
@@ -312,7 +358,10 @@ export default {
       agiter: false,           // Toggle pour Agiter avant emploi
       modeOperatoire: '',      // Pour le Mode opératoire
       emploi: '',              // Pour les Contre-indications et précautions d'emploi
-      publications: ''
+      publications: '',
+      cloud: false,
+      pediatric: false,
+      specialite: false,
     };
   },
 
@@ -367,9 +416,26 @@ export default {
         mode_operatoire: this.modeOperatoire,
         contre_indications: this.emploi,
         publications: this.publications,
-
+        cloud: this.cloud,
+        pediatric: this.pediatric,
+        specialite: this.specialite,
       };
       this.addFormule(formData);
+      this.name= '';
+      this.typePrep= null;
+      this.liste= null;
+      this.voie= null;
+      this.duree= '';
+      this.froid= false;
+      this.lumiere= false;
+      this.agiter= false;
+      this.modeOperatoire= '';
+      this.emploi= '';
+      this.publications= '';
+      this.cloud= false;
+      this.pediatric= false;
+      this.specialite= false;
+      this.step= 1;
     },
   },
 };

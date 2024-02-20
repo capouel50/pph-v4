@@ -43,7 +43,6 @@
                         <div>{{ demande.prep.nom }}</div>
                         <div>{{ demande.prep.type.nom }}</div>
                         <div>Pour le {{ demande.date_prevu }}</div>
-                        <div v-if="demande.service">{{ demande.service.nom }}</div>
                       </div>
                       <template v-slot:loading>
                         <q-spinner-rings color="red-4" />
@@ -52,47 +51,59 @@
                     <q-btn flat color="white" class="absolute-top-right hover-effect q-pa-none q-ma-none" icon="more_vert" @click.stop="toggleMenu(demande.id)" />
                     <q-menu fit anchor="top right" self="bottom middle" v-model="showMenu[demande.id]">
                       <q-list style="min-width: 100px">
-                        <q-item clickable v-close-popup @click.stop="toggleProduction(demande.id)">
+                        <q-item clickable v-close-popup @click.stop="toggleProduction({ demandeId: demande.id })">
                           <q-item-section class="hover-effect-success">
                             Générer fiche de fabrication
                           </q-item-section>
+                        </q-item>
+                        <q-item v-if="demande.recurence" clickable v-close-popup @click.stop="stopRepeat({ demandeId: demande.id })">
+                          <q-item-section class="hover-effect-warning">Stopper répétition</q-item-section>
                         </q-item>
                         <q-item clickable v-close-popup @click.stop="deleteDemande(demande.id)">
                           <q-item-section class="hover-effect-warning">Supprimer</q-item-section>
                         </q-item>
                       </q-list>
                     </q-menu>
+                    <div v-if="demande.recurence" class="absolute-top-left row q-ml-xs q-mt-xs">
+                      <q-icon name="update" color="cyan-4" size="xs" />
+                      <div class="text-cyan-4">{{ demande.recurence }}j</div>
+                    </div>
                   </div>
                   <div class="absolute-bottom-left">
-                    <div class="row">
-                      <font-awesome-icon v-if="demande.prep.froid" fade icon="fa-solid fa-snowflake" class="q-ml-xs q-mb-xs fa-2x" style="color: #4dd0e1;" />
-                      <q-icon v-if="demande.prep.lumiere" name="light_mode" class="q-ml-xs q-mb-xs" color="red-4" size="md"/>
+                    <div class="row q-mb-xs">
+                      <font-awesome-icon v-if="demande.prep.pediatric" icon="fa-solid fa-child" class="q-ml-xs fa-lg" style="color: #4dd0e1;"/>
+                      <font-awesome-icon v-if="demande.prep.froid" fade icon="fa-solid fa-snowflake" class="q-ml-xs fa-lg" style="color: #4dd0e1;" />
+                      <q-icon v-if="demande.prep.agiter" name="waving_hand" class="q-ml-xs" color="cyan-4" size="xs"/>
+                      <q-icon v-if="demande.prep.lumiere" name="light_mode" class="q-ml-xs" color="red-4" size="xs"/>
                     </div>
                   </div>
                   <q-btn-group class="absolute-bottom-right q-pa-none q-ma-none">
                     <q-btn
                        class="q-pa-none hover-effect"
                        flat
-                       color="cyan-4"
-                       icon="list"
+                       :color="compo[demande.id] ? 'orange-4' : 'cyan-4'"
+                       icon="science"
+                       size="sm"
                        @click.stop="toggleCompo(demande.id)"
                     />
                     <q-btn
                       class="hover-effect"
-                      color="cyan-4"
+                      :color="settings[demande.id] ? 'orange-4' : 'cyan-4'"
                       round
                       flat
                       dense
                       icon="settings"
+                      size="sm"
                       @click.stop="toggleSettings(demande.id)"
                     />
                     <q-btn
                       class="hover-effect"
-                      color="cyan-4"
+                      :color="expanded[demande.id] ? 'orange-4' : 'cyan-4'"
                       round
                       flat
                       dense
                       icon="info"
+                      size="sm"
                       @click.stop="toggleInfo(demande.id)"
                     />
                   </q-btn-group>
@@ -108,7 +119,7 @@
                           {{ compo.matiere.nom }} :
                         </q-item-section>
                         <q-item-section class="col-auto text-grey-7">
-                          {{ compo.qté }} {{ compo.matiere.unite_mesure.nom }}
+                          <q-item-label>{{ getCalculatedQty(compo.calcul,filteredParametres(demande.id), compo.qté, compo.matiere.unite_mesure.nom) }} {{ compo.matiere.unite_mesure.nom }}</q-item-label>
                         </q-item-section>
                         <q-item-section v-if="compo.matiere.cmr" class="col-auto q-ml-none text-grey-7">
                           <q-img class="fade-blink" src="@/assets/img/health_hazard.png"
@@ -155,6 +166,14 @@
                         </q-item-section>
                         <q-item-section class="text-grey-7">
                           {{ demande.patient }} - {{ demande.age }} ans
+                        </q-item-section>
+                      </q-item>
+                      <q-item v-if="demande.service.nom">
+                        <q-item-section avatar class="text-orange-4">
+                          Service :
+                        </q-item-section>
+                        <q-item-section class="text-grey-7">
+                          {{ demande.service.nom }}
                         </q-item-section>
                       </q-item>
                       <q-item v-if="demande.prescripteur">
@@ -230,9 +249,31 @@ export default {
 
   methods: {
     ...mapActions('demandes', ['loadDemandes', 'loadParametresDemandes', 'deleteDemande', 'toggleInfo',
-                               'toggleMenu', 'toggleProduction', 'toggleSettings', 'toggleCompo']),
+                               'toggleMenu', 'toggleProduction', 'toggleSettings', 'toggleCompo', 'stopRepeat']),
     ...mapActions('dateFormatter', ['formatDate']),
     ...mapActions('formules', ['loadCompositions', 'loadFormules']),
+
+    getCalculatedQty(formula, params, qte, unitMeasureString) {
+      for(let param of params){
+        let searchTerm = param.parametre.nom + " - " + param.parametre.unite;
+        formula = formula.replace(new RegExp(searchTerm, 'g'), param.valeur_parametre);
+
+        let qteSearchTerm = "Quantité - " + unitMeasureString;
+        formula = formula.replace(new RegExp(qteSearchTerm, 'g'), qte);
+      }
+
+      try {
+        let result = eval(formula);
+        // Si le résultat est un nombre, le formater avec 3 chiffres après la virgule
+        if(!isNaN(result)) {
+          return Number(result).toFixed(2);
+        } else {
+          return result;
+        }
+      } catch(e) {
+        return "Erreur";
+      }
+    },
 
     filteredParametres(demandeId) {
       return this.allParametresDemandes.filter(parametre => parametre.num_demande === demandeId);

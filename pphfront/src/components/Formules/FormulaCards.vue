@@ -4,7 +4,7 @@
       <div class="col-md-12">
         <div class="row q-mx-sm">
           <div class="col-1 q-mt-sm">
-            <router-link to="/formules/">
+            <router-link to="/nouvelle-formule/">
               <q-btn round class="glossy btn-grey-primary-pph" icon="add"/>
             </router-link>
           </div>
@@ -32,7 +32,12 @@
               <div class="col-2 q-pa-sm" v-for="formule in filteredFormules" :key="formule.id" @click="redirectToLink(formule.id)">
                 <q-card bordered class="card-maxi justify-center items-center text-center relative" :class="{ 'bd-red-4': !formule.is_activate}">
                   <div @click="redirectToLink(formule.id)" class="card-content">
-                    <q-img class="logo-card-mini" src="../../assets/img/blanc.jpg" :alt="formule.nom">
+                    <q-img class="logo-card-mini"
+                           src="../../assets/img/blanc.jpg"
+                           :alt="formule.nom"
+                           loading="lazy"
+                           spinner-color="red-4"
+                    >
                       <q-icon
                           v-if="formule.is_valid"
                           name="done_all"
@@ -49,23 +54,40 @@
                         <div>{{ formule.nom }}</div>
                         <div>{{ formule.type.nom }}</div>
                       </div>
+                      <template v-slot:loading>
+                        <q-spinner-rings color="red-4" />
+                      </template>
                     </q-img>
                     <q-btn flat color="white" class="absolute-top-right hover-effect q-pa-none q-ma-none" icon="more_vert" @click.stop="toggleMenu(formule.id)" />
                     <q-menu fit anchor="top right" self="bottom middle" v-model="showMenu[formule.id]">
                       <q-list style="min-width: 100px">
-                        <q-item clickable v-close-popup @click.stop="toggleActivation({ formuleId: formule.id, isActive: formule.is_activate })">
+                        <q-item clickable v-close-popup @click.stop="toggleCloud({ formuleId: formule.id, isCloud: formule.cloud })">
                           <q-item-section class="hover-effect">
+                            {{ formule.cloud ? 'Retirer du cloud' : 'Ajouter au cloud' }}
+                          </q-item-section>
+                        </q-item>
+                        <q-item clickable v-close-popup v-if="formule.is_valid" @click.stop="toggleActivation({ formuleId: formule.id, isActive: formule.is_activate })">
+                          <q-item-section :class="{ 'hover-effect-success': !formule.is_activate, 'hover-effect-warning': formule.is_activate }">
                             {{ formule.is_activate ? 'Désactiver' : 'Activer' }}
+                          </q-item-section>
+                        </q-item>
+                        <q-item v-if="!formule.is_valid" clickable v-close-popup @click.stop="validFormule({ formuleId: formule.id, isValid: formule.is_valid })">
+                          <q-item-section class="green-4 hover-effect-success">
+                            Valider la formule
                           </q-item-section>
                         </q-item>
                       </q-list>
                     </q-menu>
+                    <div class="absolute-top-left row q-ml-xs q-mt-xs">
+                      <q-icon v-if="formule.cloud" name="cloud" color="cyan-4" size="xs" />
+                    </div>
                   </div>
                   <div class="absolute-bottom-left">
-                    <div class="row">
-                      <font-awesome-icon v-if="formule.froid" fade icon="fa-solid fa-snowflake" class="q-ml-xs q-mb-xs fa-2x" style="color: #4dd0e1;" />
-                      <q-icon v-if="formule.agiter" name="waving_hand" class="q-ml-xs q-mb-xs" color="cyan-4" size="md"/>
-                      <q-icon v-if="formule.lumiere" name="light_mode" class="q-ml-xs q-mb-xs" color="red-4" size="md"/>
+                    <div class="row q-mb-xs">
+                      <font-awesome-icon v-if="formule.pediatric" icon="fa-solid fa-child" class="q-ml-xs fa-lg" style="color: #4dd0e1;"/>
+                      <font-awesome-icon v-if="formule.froid" fade icon="fa-solid fa-snowflake" class="q-ml-xs fa-lg" style="color: #4dd0e1;" />
+                      <q-icon v-if="formule.agiter" name="waving_hand" class="q-ml-xs" color="cyan-4" size="xs"/>
+                      <q-icon v-if="formule.lumiere" name="light_mode" class="q-ml-xs" color="red-4" size="xs"/>
                     </div>
                   </div>
                   <q-btn-group class="absolute-bottom-right q-pa-none q-ma-none">
@@ -74,31 +96,74 @@
                        flat
                        color="cyan-4"
                        icon="bar_chart"
+                       size="sm"
                     />
                     <q-btn
                        class="q-pa-none hover-effect"
                        flat
-                       color="cyan-4"
-                       icon="list"
+                       :color="compo[formule.id] ? 'orange-4' : 'cyan-4'"
+                       icon="science"
+                       size="sm"
                        @click.stop="toggleCompo(formule.id)"
                     />
                     <q-btn
                        class="q-pa-none hover-effect"
                        flat
-                       color="cyan-4"
+                       :color="settings[formule.id] ? 'orange-4' : 'cyan-4'"
                        icon="settings"
+                       size="sm"
                        @click.stop="toggleSettings(formule.id)"
                     />
                     <q-btn
                       class="hover-effect"
-                      color="cyan-4"
+                      :color="expanded[formule.id] ? 'orange-4' : 'cyan-4'"
                       round
                       flat
                       dense
                       icon="info"
+                      size="sm"
                       @click.stop="toggleInfo(formule.id)"
                     />
                   </q-btn-group>
+                  <q-menu class="row" fit anchor="bottom right" self="top middle" v-model="compo[formule.id]">
+                    <q-list class="col-12">
+                      <q-item>
+                        <q-item-section class="text-cyan-4 text-center">
+                          Composition  et calcul de la formule
+                        </q-item-section>
+                      </q-item>
+                      <q-item class="row" v-for="compo in filteredCompositions(formule.id)" :key="compo.id">
+                        <q-item-section class="col-auto">
+                          <q-item-label class="row">
+                            <div class="text-orange-4">{{ compo.matiere.nom }} :&nbsp;</div>
+                            <div class="text-grey-7">{{ compo.qté }} {{ compo.matiere.unite_mesure.nom }}</div>
+                            </q-item-label>
+                          <q-item-label class="row text-no-wrap" caption>
+                            <div class="text-bold">Calcul :&nbsp;</div>
+                            <div class="text-italic">{{ compo.calcul }}</div>
+                          </q-item-label>
+                        </q-item-section>
+                        <q-item-section top v-if="compo.matiere.cmr" class="col-auto q-ml-none text-grey-7">
+                          <q-img class="fade-blink" src="@/assets/img/health_hazard.png"
+                                 :style="{ width: '20px', height: '20px' }"/>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+                  <q-menu fit anchor="bottom right" self="top middle" v-model="settings[formule.id]">
+                    <q-list style="min-width: 100px">
+                      <q-item>
+                        <q-item-section class="text-cyan-4 text-center">
+                          Paramètres de la formule
+                        </q-item-section>
+                      </q-item>
+                      <q-item class="row" v-for="parametre in filteredParametres(formule.id)" :key="parametre.id">
+                        <q-item-section class="col-auto text-no-wrap">
+                          {{ parametre.parametre.nom }} - {{ parametre.parametre.unite }}
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
                   <q-menu fit anchor="bottom right" self="top middle" v-model="expanded[formule.id]">
                     <q-list style="min-width: 100px">
                       <q-item v-if="formule.voie">
@@ -142,7 +207,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('formules', ['allFormules', 'showMenu', 'expanded']),
+    ...mapGetters('formules', ['allFormules', 'allCompositions', 'allParametresFormules', 'compo', 'settings', 'showMenu', 'expanded']),
 
     filteredFormules() {
       if (this.searchQuery) {
@@ -156,11 +221,21 @@ export default {
 
   created() {
     this.loadFormules();
-    console.log('filteredformules : ', this.filteredFormules);
+    this.loadParametresFormules();
+    this.loadCompositions();
   },
 
   methods: {
-    ...mapActions('formules', ['loadFormules', 'toggleActivation', 'validFormule', 'toggleInfo', 'toggleMenu']),
+    ...mapActions('formules', ['loadFormules', 'loadParametresFormules', 'loadCompositions',  'toggleActivation', 'validFormule',
+                               'toggleInfo', 'toggleCompo', 'toggleSettings', 'toggleMenu', 'toggleCloud']),
+
+    filteredParametres(formuleId) {
+      return this.allParametresFormules.filter(parametre => parametre.num_formule === formuleId);
+    },
+
+    filteredCompositions(formuleId) {
+      return this.allCompositions.filter(compo => compo.num_formule === formuleId);
+    },
 
     filterFormules() {
     if (!this.searchQuery) {
@@ -193,6 +268,4 @@ export default {
   }
 };
 </script>
-
-
 

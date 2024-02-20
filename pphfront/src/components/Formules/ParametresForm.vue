@@ -8,7 +8,7 @@
       class="row"
     >
       <q-select
-        square outlined
+        :label="'Paramètre n° ' + (index + 1)"
         v-model="row.parametre"
         color="cyan-4"
         class="col-6 hover-effect"
@@ -116,7 +116,7 @@ export default {
       // Préparez un tableau d'objets pour l'envoi
       const formData = this.formRows.map(row => ({
           num_formule: row.num_formule,
-          parametre: row.parametre.value,
+          parametre: row.parametre.id,
       }));
       console.log("Envoi de formData:", formData);
 

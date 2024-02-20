@@ -15,10 +15,18 @@
               <div class="col-1 q-pa-sm" v-for="user in allUsers" :key="user.id" @click="redirectToLink(user.id)">
                 <q-card bordered class="card-mini justify-center items-center text-center relative" :class="{ 'bd-red-4': !user.is_active}">
                   <div @click="redirectToLink(user.id)" class="card-content">
-                    <q-img class="logo-card-mini" :src="user.function.logo" :alt="user.function.title">
+                    <q-img class="logo-card-mini"
+                           :src="user.function.logo"
+                           :alt="user.function.title"
+                           loading="lazy"
+                           spinner-color="red-4"
+                    >
                       <div class="absolute-top hover-effect q-my-none text-no-wrap" :class="{ 'text-cyan-1': user.is_active, 'text-red-4': !user.is_active }">
                         {{ user.last_name }} {{ user.first_name[0] }}
                       </div>
+                      <template v-slot:loading>
+                        <q-spinner-rings color="red-4" />
+                      </template>
                     </q-img>
                     <q-btn flat color="white" class="absolute-top-right hover-effect q-pa-none q-ma-none" icon="more_vert" @click.stop="toggleMenu(user.id)" />
                     <q-menu fit anchor="top right" self="bottom middle" v-model="showMenu[user.id]">

@@ -308,8 +308,26 @@ export default {
       errorMessage: null,  // Pour gérer les erreurs
     };
   },
+  async mounted() {
+    if (this.supplierId) {
+        const supplier = await this.getSupplierById(this.supplierId)
+        if (supplier) {
+            this.name = supplier.name;
+            this.postal = supplier.postal;
+            this.address = supplier.address;
+            this.city = supplier.city;
+            this.country = supplier.country;
+            this.phone = supplier.phone;
+            this.email = supplier.email;
+            this.site = supplier.site;
+            this.user_code = supplier.user_code;
+            this.password = supplier.password;
+            this.logo = supplier.logo;
+        }
+    }
+  },
   methods: {
-    ...mapActions('suppliers', ['addSupplier']),
+    ...mapActions('suppliers', ['addSupplier', 'getSupplierById']),
 
     async onSubmit() {
       const formData = new FormData();

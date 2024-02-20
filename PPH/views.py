@@ -10,7 +10,6 @@ from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
-from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
@@ -37,20 +36,38 @@ from PPH.serializers import (
     ContactSerializer, TypeMatiereSerializer, TypePrepSerializer, UniteMesureSerializer,
     FormeReadSerializer, FormeWriteSerializer, MatierePremiereReadSerializer, MatierePremiereWriteSerializer,
     FormuleSerializer, CompositionReadSerializer, CompositionWriteSerializer,
-    CatalogueSerializer, VoieSerializer, ListeSerializer, ParametresPrepSerializer, ParametresFormulesSerializer,
-    DemandesReadSerializer, DemandesWriteSerializer, FichesSerializer, ServiceSerializer, ParametresFormulesListSerializer,
+    CatalogueSerializer, VoieSerializer, ListeSerializer, ParametresPrepSerializer, ParametresFormulesListSerializer,
+    DemandesReadSerializer, DemandesWriteSerializer, FichesReadSerializer, FichesWriteSerializer, ServiceSerializer, ParametresFormulesReadSerializer,
     ConditionnementSerializer, CategorieMatiereSerializer, CatalogueImportSerializer, ReceptionReadSerializer,
     ReceptionWriteSerializer, EtablissementSerializer, ParametresDemandesReadSerializer, ParametresDemandesWriteSerializer,
+    ParametresFichesReadSerializer, ParametresFichesWriteSerializer,
 )
 from .models import CustomUser, Supplier, UserFunction, Contact, \
     TypeMatiere, UniteMesure, Forme, MatierePremiere, TypePrep, \
     Formule, Composition, Catalogue, Liste, Voie, ParametresPrep, \
     ParametresFormules, Demandes, Fiches, Service, Conditionnement, \
-    CategorieMatiere, CatalogueImport, Reception, Etablissement, ParametresDemandes
-
+    CategorieMatiere, CatalogueImport, Reception, Etablissement, ParametresDemandes, ParametresFiches
+from django.http import JsonResponse
 from .utils import extract_data_from_pdf
+from django.apps import apps
+
 
 logger = logging.getLogger(__name__)
+def reset_data(request):
+    try:
+        # Obtenez tous les modèles de votre application Django
+        models = apps.get_models()
+
+        # Parcourez tous les modèles
+        for model in models:
+            # Vérifiez si le modèle a un champ "reinitialisable"
+            if hasattr(model, 'resettable'):
+                # Supprimer toutes les instances du modèle réinitialisable
+                model.objects.filter(resettable=True).delete()
+
+        return JsonResponse({'success': True, 'message': 'Données réinitialisées.'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
 
 class EtablissementViewSet(viewsets.ModelViewSet):
     queryset = Etablissement.objects.all()
@@ -327,13 +344,43 @@ class ParametresDemandesViewSet(viewsets.ModelViewSet):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(created_instances, status=status.HTTP_201_CREATED)
+
+class ParametresFichesViewSet(viewsets.ModelViewSet):
+    queryset = ParametresFiches.objects.all()
+
+    def get_serializer_class(self):
+        if self.request.method in ['POST', 'PUT']:
+            return ParametresFichesWriteSerializer
+        return ParametresFichesReadSerializer
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        # Vérifier si les données sont une liste
+        if not isinstance(data, list):
+            return Response({"detail": "Invalid data. Expected a list of dictionaries."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        created_instances = []
+        for item in data:
+            serializer = self.get_serializer(data=item)
+            if serializer.is_valid():
+                # Associer le numéro de demande à chaque paramètre
+                item['num_fiche'] = item.get('num_fiche',
+                                               None)  # Assurez-vous que num_demande est présent dans vos données JSON
+                serializer.save()
+                created_instances.append(serializer.data)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(created_instances, status=status.HTTP_201_CREATED)
+
 class ParametresFormulesViewSet(viewsets.ModelViewSet):
     queryset = ParametresFormules.objects.all()
 
     def get_serializer_class(self):
         if self.request.method in ['POST', 'PUT']:
             return ParametresFormulesListSerializer
-        return ParametresFormulesSerializer
+        return ParametresFormulesReadSerializer
 
 class UniteMesureViewSet(viewsets.ModelViewSet):
     queryset = UniteMesure.objects.all()
@@ -364,12 +411,16 @@ class FormeViewSet(viewsets.ModelViewSet):
 
 class FichesViewSet(viewsets.ModelViewSet):
     queryset = Fiches.objects.all()
-    serializer_class = FichesSerializer
+
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve']:
+            return FichesReadSerializer
+        return FichesWriteSerializer
 
     @action(detail=False, methods=['get'])
     def count_per_service(self, request):
         # Regroupement des fiches par service et comptage
-        count = Fiches.objects.filter(attente_controle=False).values('service').annotate(count=Count('id')).order_by('service')
+        count = Fiches.objects.filter(attente_controle=False).values('service__nom').annotate(count=Count('id')).order_by('service__nom')
         return Response(count)
 
     @action(detail=False, methods=['get'])
@@ -408,7 +459,7 @@ class FichesSemaine(APIView):
         fiches = Fiches.objects.annotate(
             week=ExtractWeek('date_fab'),
             year=ExtractYear('date_fab')
-        ).filter(year=current_year).values(
+        ).filter(year=current_year, controle_valid=True).values(
             'week'
         ).annotate(count=Count('id'), qte=Sum('qté')).order_by('week')
 
@@ -429,7 +480,7 @@ class FichesMois(APIView):
         fiches = Fiches.objects.annotate(
             month=ExtractMonth('date_fab'),
             year=ExtractYear('date_fab')
-        ).filter(year=current_year).values(
+        ).filter(year=current_year, controle_valid=True).values(
             'month'
         ).annotate(count=Count('id'), qte=Sum('qté')).order_by('month')
 

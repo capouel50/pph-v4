@@ -3,14 +3,7 @@
     <div class="row justify-center">
       <div class="col-md-12">
         <div class="row q-mx-sm q-mt-sm">
-          <div class="col-3">
-            <div class="row">
-            <router-link to="/creation-matiere-premiere/">
-              <q-btn round class="q-mt-sm glossy btn-grey-primary-pph" icon="add"/>
-            </router-link>
-             </div>
-            </div>
-          <div class="col-6 q-mt-md text-cyan-4 text-h6">
+          <div class="col-6 offset-3 q-mt-md text-cyan-4 text-h6">
             <div class="row justify-center">
             {{ countMatieres }} matières premières en attente de livraison
             </div>
@@ -103,6 +96,21 @@
                         <q-spinner-rings color="red-4" />
                       </template>
                     </q-img>
+                    <q-btn flat color="white" class="absolute-top-right hover-effect q-pa-none q-ma-none"
+                           icon="more_vert" @click.stop="toggleMenu(matiere.id)"
+                    />
+                    <q-menu fit anchor="top right" self="bottom middle" v-model="showMenu[matiere.id]">
+                      <q-list style="min-width: 100px">
+                        <q-item clickable v-close-popup @click.stop="toggleLivraison({ matiereId: matiere.id, isLivraison: matiere.attente_livraison })">
+                          <q-item-section class="hover-effect-warning">Annuler commande</q-item-section>
+                        </q-item>
+                        <q-item clickable v-close-popup @click.stop="selectMatiere(matiere)">
+                          <q-item-section class="hover-effect-success">
+                            Réceptionner
+                          </q-item-section>
+                        </q-item>
+                      </q-list>
+                    </q-menu>
                   </div>
                   <div class="absolute-top-left q-ml-sm q-mt-xs">
                     <div v-if="matiere.liste.nom==='Liste 1'" class="text-red-4 text-subtitle2">1</div>
@@ -110,33 +118,20 @@
                     <div v-if="matiere.liste.nom==='Stupéfiant'" class="text-red-4 text-subtitle2">S</div>
                   </div>
                   <div class="absolute-bottom-left">
-                    <div class="row">
-                      <font-awesome-icon v-if="matiere.froid" fade icon="fa-solid fa-snowflake" class="q-ml-xs q-mb-xs fa-2x" style="color: #4dd0e1;" />
-                      <q-img v-if="matiere.cmr" class="q-ml-xs q-mb-xs fade-blink" src="@/assets/img/health_hazard.png" :style="{ width: '30px', height: '30px' }"/>
+                    <div class="row q-mb-xs">
+                      <font-awesome-icon v-if="matiere.froid" fade icon="fa-solid fa-snowflake" class="q-ml-xs fa-2x" style="color: #4dd0e1;" />
+                      <q-img v-if="matiere.cmr" class="q-ml-xs fade-blink" src="@/assets/img/health_hazard.png" :style="{ width: '20px', height: '20px' }"/>
                     </div>
                   </div>
                   <q-btn-group class="absolute-bottom-right q-pa-none q-ma-none">
                     <q-btn
-                       class="q-pa-none hover-effect"
-                       flat
-                       color="cyan-4"
-                       icon="undo"
-                       @click.stop="toggleLivraison({ matiereId: matiere.id, isLivraison: matiere.attente_livraison })"
-                    />
-                    <q-btn
-                       class="q-pa-none hover-effect"
-                       flat
-                       color="green-4"
-                       icon="check_circle"
-                       @click.stop="selectMatiere(matiere)"
-                    />
-                    <q-btn
                       class="hover-effect"
-                      color="cyan-4"
+                      :color="expanded[matiere.id] ? 'orange-4' : 'cyan-4'"
                       round
                       flat
                       dense
                       icon="info"
+                      size="sm"
                       @click.stop="toggleInfo(matiere.id)"
                     />
                   </q-btn-group>
@@ -216,8 +211,13 @@
 
                   <q-menu fit anchor="bottom right" self="top middle" v-model="expanded[matiere.id]">
                     <q-list style="min-width: 100px">
-                      <q-item v-if="matiere.fournisseur">
+                      <q-item class="justify-center">
                         <q-item-section avatar class="text-cyan-4">
+                          Détails
+                        </q-item-section>
+                      </q-item>
+                      <q-item v-if="matiere.fournisseur">
+                        <q-item-section avatar class="text-orange-4">
                           Fournisseur :
                         </q-item-section>
                         <q-item-section class="text-grey-7">
@@ -225,7 +225,7 @@
                         </q-item-section>
                       </q-item>
                       <q-item v-if="matiere.code_fournisseur">
-                        <q-item-section avatar class="text-cyan-4">
+                        <q-item-section avatar class="text-orange-4">
                           Ref :
                         </q-item-section>
                         <q-item-section class="text-grey-7">
@@ -233,31 +233,39 @@
                         </q-item-section>
                       </q-item>
                       <q-item v-if="matiere.ean">
-                        <q-item-section avatar class="text-cyan-4">
+                        <q-item-section avatar class="text-orange-4">
                           EAN/CIP :
                         </q-item-section>
                         <q-item-section class="text-grey-7">
                           {{ matiere.ean }}
                         </q-item-section>
                       </q-item>
+                      <q-item v-if="matiere.tva">
+                        <q-item-section avatar class="text-orange-4">
+                          TVA :
+                        </q-item-section>
+                        <q-item-section class="text-grey-7">
+                          {{ matiere.tva }}%
+                        </q-item-section>
+                      </q-item>
                       <q-item v-if="matiere.prix">
-                        <q-item-section avatar class="text-cyan-4">
+                        <q-item-section avatar class="text-orange-4">
                           Prix :
                         </q-item-section>
                         <q-item-section class="text-grey-7">
-                          {{ matiere.prix }} €
+                          {{ matiere.prix }} € HT - {{ matiere.prix_ttc }} € TTC
                         </q-item-section>
                       </q-item>
                       <q-item v-if="matiere.prix_unit">
-                        <q-item-section avatar class="text-cyan-4">
+                        <q-item-section avatar class="text-orange-4">
                           Prix unitaire :
                         </q-item-section>
                         <q-item-section class="text-grey-7">
-                          {{ matiere.prix_unit }} €/{{ matiere.unite_mesure.nom }}
+                          {{ matiere.prix_unit }} €/{{ matiere.unite_mesure.nom }} HT - {{ matiere.prix_unit_ttc }} €/{{ matiere.unite_mesure.nom }} TTC
                         </q-item-section>
                       </q-item>
                       <q-item v-if="matiere.stock_mini">
-                        <q-item-section avatar class="text-cyan-4">
+                        <q-item-section avatar class="text-orange-4">
                           Stock mini :
                         </q-item-section>
                         <q-item-section class="text-grey-7">
@@ -312,7 +320,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters('matieresPremieres', ['allMatieres', 'expanded']),
+    ...mapGetters('matieresPremieres', ['allMatieres', 'expanded', 'showMenu']),
 
     countMatieres() {
       return this.filteredMatieresLivraison.length;
@@ -339,7 +347,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('matieresPremieres', ['loadMatieresPremieres', 'addReception', 'toggleLivraison', 'toggleInfo']),
+    ...mapActions('matieresPremieres', ['loadMatieresPremieres', 'addReception', 'toggleLivraison', 'toggleInfo', 'toggleMenu']),
 
     selectMatiere(matiere) {
       this.selectedMatiere = { ...matiere };

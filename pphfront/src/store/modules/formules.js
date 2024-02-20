@@ -9,10 +9,14 @@ const state = () => ({
   listes: [],
   showMenu: {},
   expanded: {},
+  compo: {},
+  settings: {},
   currentFormuleId: null,
 });
 
 const getters = {
+  compo: (state) => state.compo,
+  settings: (state) => state.settings,
   expanded: (state) => state.expanded,
   showMenu: (state) => state.showMenu,
   allTypes: (state) => state.types,
@@ -222,7 +226,33 @@ const actions = {
           type: 'success'
         }, { root: true });
       }
-      dispatch('loadformules');
+      dispatch('loadFormules');
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors du changement d\'état',
+        type: 'error'
+      }, { root: true });
+      console.error(error);
+    }
+  },
+
+  async toggleCloud({ dispatch }, payload) {
+    const { formuleId, isCloud } = payload;
+    try {
+      if (isCloud) {
+        await api.patch(`/PPH/formules/${formuleId}/`, { cloud: false });
+        dispatch('notifications/showNotification', {
+          message: 'Formule retirée du cloud',
+          type: 'success'
+        }, { root: true });
+      } else {
+        await api.patch(`/PPH/formules/${formuleId}/`, { cloud: true });
+        dispatch('notifications/showNotification', {
+          message: 'Formule ajoutée au cloud',
+          type: 'success'
+        }, { root: true });
+      }
+      dispatch('loadFormules');
     } catch (error) {
       dispatch('notifications/showNotification', {
         message: 'Erreur lors du changement d\'état',
@@ -238,6 +268,12 @@ const actions = {
 
   toggleInfo({ commit }, id) {
     commit('TOGGLE_INFO', id);
+  },
+  toggleCompo({ commit }, id) {
+    commit('TOGGLE_COMPO', id);
+  },
+  toggleSettings({ commit }, id) {
+    commit('TOGGLE_SETTINGS', id);
   },
 };
 
@@ -278,6 +314,12 @@ const mutations = {
   },
   TOGGLE_INFO(state, id) {
     state.expanded[id] = !state.expanded[id];
+  },
+  TOGGLE_COMPO(state, id) {
+    state.compo[id] = !state.compo[id];
+  },
+  TOGGLE_SETTINGS(state, id) {
+    state.settings[id] = !state.settings[id];
   },
 };
 

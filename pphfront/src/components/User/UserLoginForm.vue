@@ -22,10 +22,10 @@
         <q-input
           ref="password1Input"
           class="my-0"
+          :type="isPwd ? 'password' : 'text'"
           v-model="password1"
           color="cyan-4"
           label="Mot de passe"
-          type="password"
           @mouseover="changeLabelColor('password1Input', '#ffb74d')"
           @mouseleave="changeLabelColor('password1Input', '')"
           @focus="onFocus('password1', '#4dd0e1')"
@@ -34,6 +34,14 @@
           <template v-slot:before>
             <q-icon name="password" color="cyan-4"/>
           </template>
+          <template v-slot:append>
+          <q-icon
+            :name="isPwd ? 'visibility_off' : 'visibility'"
+            class="cursor-pointer hover-effect"
+            @click="isPwd = !isPwd"
+            color="cyan-4"
+          />
+        </template>
         </q-input>
         </div>
       </div>
@@ -74,6 +82,7 @@
 export default {
   data() {
     return {
+      isPwd: true,
       username: '',
       password1: '',
       usernameFocused: false,

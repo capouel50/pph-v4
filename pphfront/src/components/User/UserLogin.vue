@@ -3,7 +3,7 @@
     <div class="row justify-center q-my-xl q-py-xl">
       <atom-spinner class="bg-op-8"
         :animation-duration="1000"
-        :size="200"
+        :size="100"
         :color="'#ff1d5e'"
       />
       </div>

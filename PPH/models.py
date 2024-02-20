@@ -2,7 +2,6 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.db import models
 from django.urls import reverse
 from datetime import date
-from decimal import Decimal
 from .utils import convert_quantity
 
 class Etablissement(models.Model):
@@ -52,7 +51,6 @@ class CustomUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-
 class UserFunction(models.Model):
     title = models.CharField(max_length=100)
     logo = models.ImageField(upload_to='users/', default='users/user.png')
@@ -62,7 +60,6 @@ class UserFunction(models.Model):
 
     def __str__(self):
         return self.title
-
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=255, unique=True)
@@ -83,6 +80,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
+
 class Supplier(models.Model):
     """
     Cet objet représente un fournisseur.
@@ -119,6 +117,7 @@ class CategorieMatiere(models.Model):
         ordering = ['nom']
     def __str__(self):
         return self.nom
+
 class Contact(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField()
@@ -130,6 +129,7 @@ class Contact(models.Model):
 
 class Service(models.Model):
     nom = models.CharField(max_length=200, null=True)
+    resettable = models.BooleanField(default=True)
     def __str__(self):
         return str(self.nom)
 
@@ -185,12 +185,22 @@ class ParametresDemandes(models.Model):
     num_demande = models.IntegerField()
     parametre = models.ForeignKey(ParametresPrep, on_delete=models.CASCADE)
     valeur_parametre = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-
+    resettable = models.BooleanField(default=True)
     def __str__(self):
         return f"{self.num_demande} - {self.valeur_parametre}"
+
+class ParametresFiches(models.Model):
+    num_fiche = models.IntegerField()
+    parametre = models.ForeignKey(ParametresPrep, on_delete=models.CASCADE)
+    valeur_parametre = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    resettable = models.BooleanField(default=True)
+    def __str__(self):
+        return f"{self.num_fiche} - {self.valeur_parametre}"
+
 class ParametresFormules(models.Model):
     num_formule = models.IntegerField()
     parametre = models.ForeignKey(ParametresPrep, on_delete=models.CASCADE)
+    resettable = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.num_formule} - {self.parametre}"
@@ -218,11 +228,12 @@ class MatierePremiere(models.Model):
     froid = models.BooleanField(default=False)
     unite_mesure = models.ForeignKey(UniteMesure, on_delete=models.CASCADE, null=True)
     tva = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    prix_ttc = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    prix_unit_ttc = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    prix_ttc = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    prix_unit_ttc = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    resettable = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
-        if self.prix and self.qté_cdt and self.unite_cdt and self.unite_mesure:
+        if self.prix and self.qté_cdt and self.unite_cdt and self.unite_mesure and self.tva:
             try:
                 # Convertissez la quantité du conditionnement à l'unité de mesure
                 qté_unite_mesure = convert_quantity(
@@ -230,19 +241,31 @@ class MatierePremiere(models.Model):
                 )
                 # Calculez le prix unitaire
                 self.prix_unit = self.prix / qté_unite_mesure
+                # Calculez le prix TTC
+                self.prix_ttc = self.prix * (1 + self.tva / 100)
             except ValueError:
                 # Gérez le cas où la conversion n'est pas possible
                 self.prix_unit = None
+                self.prix_ttc = None
         else:
             self.prix_unit = None
-        super(MatierePremiere, self).save(*args, **kwargs)
+            self.prix_ttc = None
 
+        if self.prix_unit and self.tva:
+            try:
+                # Calculez le prix unitaire TTC
+                self.prix_unit_ttc = self.prix_unit * (1 + self.tva / 100)
+            except ValueError:
+                self.prix_unit_ttc = None
+        else:
+            self.prix_unit_ttc = None
+
+        super(MatierePremiere, self).save(*args, **kwargs)
     class Meta:
         ordering = ['nom']
 
     def __str__(self):
         return self.nom
-
 
 class Formule(models.Model):
     nom = models.CharField(max_length=200, null=False)
@@ -262,6 +285,13 @@ class Formule(models.Model):
     temps_controle = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     prix_ht = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     prix_ttc = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    créateur = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, related_name='formules_createur')
+    controleur = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, related_name='formules_controleur')
+    cloud = models.BooleanField(default=False)
+    pediatric = models.BooleanField(default=False)
+    specialite = models.BooleanField(default=False)
+    hospitaliere = models.BooleanField(default=False)
+    resettable = models.BooleanField(default=True)
 
     class Meta:
         ordering = ['nom']
@@ -273,8 +303,8 @@ class Composition(models.Model):
     num_formule = models.IntegerField(null=True)
     matiere = models.ForeignKey(MatierePremiere, on_delete=models.CASCADE, null=True)
     qté = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    unite = models.ForeignKey(UniteMesure, on_delete=models.CASCADE, null=True)
     calcul = models.CharField(max_length=200, null=True)
+    resettable = models.BooleanField(default=True)
 
     def __str__(self):
         return str(self.num_formule)
@@ -282,9 +312,7 @@ class Composition(models.Model):
 class ParametresTarifs(models.Model):
     tarif_horaire_preparateur = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     tarif_horaire_pharmacien = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-
-    def __str__(self):
-        return self.nom
+    tarif_controle = models.DecimalField(max_digits=10, decimal_places=2, null=True)
 
 class CatalogueImport(models.Model):
     fournisseur = models.ForeignKey(Supplier, on_delete=models.CASCADE)
@@ -296,6 +324,7 @@ class CatalogueImport(models.Model):
     date_import = models.DateTimeField(auto_now_add=True)
     pdf = models.FileField(upload_to='imports/')
     data_source = models.CharField(max_length=200, null=True)
+    resettable = models.BooleanField(default=True)
     class Meta:
         ordering = ['date_import']
     def __str__(self):
@@ -313,6 +342,7 @@ class Catalogue(models.Model):
     cmr = models.BooleanField(default=False)
     froid = models.BooleanField(default=False)
     categorie = models.ForeignKey(CategorieMatiere, on_delete=models.CASCADE, null=True)
+    resettable = models.BooleanField(default=True)
 
     class Meta:
         ordering = ['designation']
@@ -331,6 +361,8 @@ class Demandes(models.Model):
     prescripteur = models.CharField(max_length=200, null=True)
     commentaire = models.CharField(max_length=200, null=True)
     production = models.BooleanField(default=False)
+    recurence = models.IntegerField(null=True)
+    delai = models.IntegerField(null=True)
 
     def __str__(self):
         return f"{self.prep} - {self.date_prevu}"
@@ -341,14 +373,27 @@ class Fiches(models.Model):
     typePrep = models.ForeignKey(TypePrep, on_delete=models.CASCADE, null=True)
     prep = models.ForeignKey(Formule, on_delete=models.CASCADE, null=True)
     prescripteur = models.CharField(max_length=200, null=True)
-    attente_controle = models.BooleanField(default=False)
+    attente_controle = models.BooleanField(default=True)
     controle_valide = models.BooleanField(default=False)
     destruction = models.BooleanField(default=False)
     date_fab = models.DateField(default=date.today, blank=True)
-    service = models.CharField(max_length=200, null=True)
-    qté = models.CharField(max_length=200, null=True)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, null=True)
+    qté = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     preparateur = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, related_name='fiches_preparateur')
     controleur = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, related_name='fiches_controleur')
+    resettable = models.BooleanField(default=True)
+
+    def save(self, *args, **kwargs):
+        parametre_fiche = ParametresFiches.objects.filter(
+            num_fiche=self.id,
+            parametre__nom__startswith="Nb"
+        ).first()
+
+        if parametre_fiche:
+            self.qté = parametre_fiche.valeur_parametre
+
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return str(self.prep)
 
@@ -360,6 +405,7 @@ class Reception(models.Model):
     certificat = models.FileField(upload_to='certificats/', null=True)
     qte = models.PositiveIntegerField(null=True, blank=True)
     stock_reception = models.DecimalField(max_digits=10, decimal_places=2, default=0, editable=False)
+    resettable = models.BooleanField(default=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

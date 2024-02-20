@@ -31,8 +31,9 @@ export default {
         }
       })
         .then((response) => {
+          console.log(response);
           this.formSubmitted = true;
-          console.log(response.data);
+          this.step= 1;
 
         })
         .catch((error) => {

@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import CustomUser, UserFunction, Supplier, TypeMatiere, \
     UniteMesure, Forme, MatierePremiere, Liste, TypePrep, Formule, Composition, \
     Catalogue, Voie, ParametresPrep, ParametresFormules, Demandes, Fiches, Service, \
-    Conditionnement, CategorieMatiere, CatalogueImport, Reception, Etablissement, ParametresDemandes
+    Conditionnement, CategorieMatiere, CatalogueImport, Reception, Etablissement, ParametresDemandes, ParametresFiches
 
 class CustomUserAdmin(admin.ModelAdmin):
     list_display = ('username', 'email', 'first_name', 'last_name', 'function', 'is_active', 'is_staff')
@@ -57,8 +57,12 @@ class ParametresFormulesAdmin(admin.ModelAdmin):
     list_display = ['num_formule', 'parametre']
 
 @admin.register(ParametresDemandes)
-class ParametresFormulesAdmin(admin.ModelAdmin):
+class ParametresDemandesAdmin(admin.ModelAdmin):
     list_display = ['num_demande', 'parametre', 'valeur_parametre']
+
+@admin.register(ParametresFiches)
+class ParametresFichesAdmin(admin.ModelAdmin):
+    list_display = ['num_fiche', 'parametre', 'valeur_parametre']
 
 @admin.register(CategorieMatiere)
 class CategorieMatiereAdmin(admin.ModelAdmin):
@@ -86,7 +90,7 @@ class TypePrepAdmin(admin.ModelAdmin):
 
 @admin.register(Composition)
 class Composition(admin.ModelAdmin):
-    list_display = ['num_formule', 'matiere', 'qté', 'unite']
+    list_display = ['num_formule', 'matiere', 'qté', 'calcul']
 
 @admin.register(CatalogueImport)
 class CatalogueImportAdmin(admin.ModelAdmin):

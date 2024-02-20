@@ -147,7 +147,7 @@ const actions = {
     }
   },
 
-  async toggleActivation({ dispatch }, payload) {
+  async toggleProduction({ dispatch }, payload) {
     const { demandeId, isProduction } = payload;
     try {
       if (isProduction) {
@@ -172,6 +172,34 @@ const actions = {
       console.error(error);
     }
   },
+
+  async stopRepeat({ dispatch }, payload) {
+  const { demandeId } = payload;
+
+  // Check if demandeId is provided
+  if(!demandeId){
+    dispatch('notifications/showNotification', {
+      message: 'Erreur, demandeId is missing',
+      type: 'error'
+    }, { root: true });
+    return;
+  }
+
+  try {
+    await api.patch(`/PPH/demandes/${demandeId}/`, { recurence: '', delai: '' });
+    dispatch('notifications/showNotification', {
+      message: 'Demande mise en attente',
+      type: 'success'
+    }, { root: true });
+    dispatch('loadDemandes');
+  } catch (error) {
+    dispatch('notifications/showNotification', {
+      message: 'Erreur lors du changement d\'état',
+      type: 'error'
+    }, { root: true });
+    console.error(error);
+  }
+},
 
   toggleMenu({ commit }, id) {
     commit('TOGGLE_MENU', id);

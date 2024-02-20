@@ -17,9 +17,11 @@ import spinner from './modules/spinner';
 import websocket from './modules/websocket';
 import dateFormatter from './modules/dateFormatter';
 import services from './modules/services';
+import resetData from './modules/resetData';
 
 const store = createStore({
   modules: {
+    resetData,
     services,
     dateFormatter,
     websocket,

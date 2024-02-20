@@ -344,10 +344,34 @@
                         </div>
                       </q-item-section>
                       <q-item-section side top>
-                        <q-badge :color="matiere.qté_stock < matiere.stock_mini ? 'red' : 'green'"
-                                 text-color="white">
+                        <q-badge
+                            class="q-mt-xs"
+                            :color="matiere.qté_stock < matiere.stock_mini ? 'red' : 'green'"
+                            text-color="white">
                           {{ matiere.qté_stock }}{{ matiere.unite_mesure.nom }}
                         </q-badge>
+                      </q-item-section>
+                      <q-item-section side top>
+                        <q-btn-group>
+                          <q-btn
+                              flat
+                              class="q-px-xs"
+                              icon="check_circle"
+                              size="xs"
+                              color="green-4"
+                              @click.stop="toggleLivraison({ matiereId: matiere.id, isLivraison: matiere.attente_livraison})"
+                          ><q-tooltip class="bg-blue-grey-4">Valider commande</q-tooltip>
+                          </q-btn>
+                          <q-btn
+                              flat
+                              class="q-px-xs"
+                              icon="delete_forever"
+                              size="xs"
+                              color="red-4"
+                              @click.stop="toggleCde({ matiereId: matiere.id, isCde: matiere.cde })"
+                          ><q-tooltip class="bg-blue-grey-4">Supprimer</q-tooltip>
+                          </q-btn>
+                        </q-btn-group>
                       </q-item-section>
                     </q-item>
                   </q-list>
@@ -487,7 +511,7 @@
       <atom-spinner
         class="bg-op-8"
         :animation-duration="1000"
-        :size="200"
+        :size="100"
         :color="'#ff1d5e'"
       />
       </div>
@@ -661,7 +685,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('matieresPremieres', ['loadMatieresPremieres', 'loadReceptions']),
+    ...mapActions('matieresPremieres', ['loadMatieresPremieres', 'loadReceptions', 'toggleCde', 'toggleLivraison']),
     ...mapActions('demandes', ['loadDemandes', 'deleteDemande']),
     ...mapActions('fiches', ['loadFiches']),
 
@@ -836,7 +860,7 @@ export default {
     return {
       series: data.map(c => c.count),
       options: {
-        labels: data.map(s => s.service),
+        labels: data.map(s => s.service__nom),
         colors: colors, // Vos couleurs générées
         plotOptions: {
           pie: {

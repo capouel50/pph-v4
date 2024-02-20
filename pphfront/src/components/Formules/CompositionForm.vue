@@ -1,46 +1,35 @@
 <template>
   <q-form @submit.prevent="submitForm">
-    <div class="row">
-      <div class="col-3 text-cyan-4 text-center">Matière Première</div>
-      <div class="col-1 text-cyan-4 text-center">Qté</div>
-      <div class="col-1 text-cyan-4 text-center">Unité</div>
-      <div class="col-5 text-cyan-4 text-center">Calcul</div>
-    </div>
     <div
       v-for="(row, index) in formRows"
       :key="index"
       class="row"
     >
       <q-select
-        square outlined
+        label="Matière première"
         v-model="row.matiere"
         color="cyan-4"
-        class="col-3 hover-effect"
+        class="col-4 hover-effect q-mr-md"
         :options="allMatieresLabel"
         option-label="label"
         option-value="id"
       />
       <q-input
-        square outlined
         v-model="row.qté"
         color="cyan-4"
-        class="col-1 bd-hover-effect text-center"
-      />
-      <q-select
-        square outlined
-        v-model="row.unite"
-        color="cyan-4"
-        class="col-1 hover-effect text-center"
-        :options="allUnitesMesure"
-        option-label="label"
-        option-value="id"
-      />
+        class="col-1 hover-effect text-center q-mr-md"
+        label="Quantité"
+      >
+        <template v-slot:append>
+          <div class="text-cyan-4 text-subtitle2">{{ row.matiere.unite }}</div>
+        </template>
+      </q-input>
       <q-input
           readonly
+          label="Calcul appliqué"
           v-model="row.calculInput"
-          square outlined
           color="cyan-4"
-          class="col-5 bd-hover-effect text-center"
+          class="col-5 hover-effect text-center"
       >
         <template v-slot:prepend>
           <q-avatar>
@@ -77,8 +66,8 @@
                 flat
                 color="cyan-4"
                 class="hover-effect"
-                :label="'Quantité - ' + (formRows[selectedRowIndex]?.unite?.nom || 'Unité inconnue')"
-                @click="inputParametre('Quantité - ' + (formRows[selectedRowIndex]?.unite?.nom || ''))"
+                :label="'Quantité - ' + (formRows[selectedRowIndex]?.matiere?.unite_mesure?.nom || 'Unité inconnue')"
+                @click="inputParametre('Quantité - ' + (formRows[selectedRowIndex]?.matiere?.unite_mesure?.nom || ''))"
               >
               </q-btn>
             </div>
@@ -88,6 +77,8 @@
         <q-card-section>
           <q-input
               v-model="row.calcul"
+              color="cyan-4"
+              label="Entrez le calcul a appliquer"
           />
         </q-card-section>
         <q-separator/>
@@ -146,7 +137,6 @@ export default {
           num_formule: null,
           matiere: null,
           qté: '',
-          unite: null,
           calcul: '',
           calculInput: '',
         }
@@ -165,11 +155,11 @@ export default {
         return this.allParametresFormules
           .filter(pf => pf.num_formule.toString() === numFormule.toString())
           .map(pf => {
-            const parametreDetail = allParametresDetails.find(p => p.id === pf.parametre);
+            const parametreDetail = allParametresDetails.find(p => p.id === pf.parametre.id);
             return {
               ...pf,
               label: parametreDetail ? `${parametreDetail.nom} - ${parametreDetail.unite}` : 'Inconnu',
-              id: pf.parametre
+              id: pf.parametre.id
             };
           });
       }
@@ -180,15 +170,9 @@ export default {
       // Calculer le libellé complet avec le nom et le fournisseur
       return this.allMatieres.map(matiere => ({
         ...matiere,
-        label: `${matiere.nom} ${matiere.qté_cdt}${matiere.forme.unite_mesure.nom} - ${matiere.forme.nom} - ${matiere.fournisseur.name}`,
+        label: `${matiere.nom} ${matiere.qté_cdt}${matiere.unite_cdt} - ${matiere.forme.nom} - ${matiere.fournisseur.name}`,
         id: `${matiere.id}`,
-      }));
-    },
-    allUnitesMesure() {
-      // Calculer le libellé complet avec le nom et le fournisseur
-      return this.allUnites.map(unite => ({
-        ...unite,
-        label: `${unite.nom}`,
+        unite: `${matiere.unite_mesure.nom}`,
       }));
     },
   },
@@ -212,18 +196,18 @@ export default {
         let calculTransforme = this.formRows[this.selectedRowIndex].calcul;
 
         // Remplacer chaque label par son ID correspondant, sauf pour les cas spéciaux
-        this.calculDetails.forEach(detail => {
-          if (detail.id !== null) {
-            const regex = new RegExp(detail.label, 'g');
-            calculTransforme = calculTransforme.replace(regex, detail.id);
-          } else {
+        //this.calculDetails.forEach(detail => {
+          //if (detail.id !== null) {
+            //const regex = new RegExp(detail.label, 'g');
+            //calculTransforme = calculTransforme.replace(regex, detail.id);
+          //} else {
             // Pour les cas spéciaux comme "Quantité - Unité", vous pouvez choisir de les laisser tels quels,
             // les remplacer par une valeur spécifique, ou effectuer une autre transformation.
             // Exemple : Remplacer par une chaîne spéciale ou laisser tel quel
             //const specialValue = "Qte"; // Définir une valeur spéciale si nécessaire
             //calculTransforme = calculTransforme.replace(new RegExp(detail.label, 'g'), specialValue);
-          }
-        });
+          //}
+        //});
 
         // Mettre à jour le calcul dans formRows
         this.formRows[this.selectedRowIndex].calcul = calculTransforme;
@@ -328,7 +312,6 @@ export default {
             num_formule: enregistrement.num_formule,
             matiere: enregistrement.matiere,
             qté: enregistrement.qté,
-            unite: enregistrement.unite,
             calcul: enregistrement.calcul
             // ... autres propriétés nécessaires
           };
@@ -346,7 +329,6 @@ export default {
           num_formule: newNumFormule,
           matiere: null,
           qté: '',
-          unite: null,
           calcul: ''
         });
       } catch (error) {
@@ -361,7 +343,6 @@ export default {
           num_formule: row.num_formule,
           matiere: row.matiere.id,
           qté: row.qté,
-          unite: row.unite.id,
           calcul: row.calcul
         })),
       };

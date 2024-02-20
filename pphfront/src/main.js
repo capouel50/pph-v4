@@ -12,7 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faMortarPestle, faPrescriptionBottle, faWeightScale,
     faFlask, faPills, faMagnifyingGlass, faMagnifyingGlassPlus,
     faSkullCrossbones, faBottleDroplet, faGlassWaterDroplet, faHandDots,
-    faHandHoldingDroplet, faBookMedical, faSnowflake, faTriangleExclamation, faClone } from '@fortawesome/free-solid-svg-icons';
+    faHandHoldingDroplet, faBookMedical, faSnowflake, faTriangleExclamation, faClone, faChild } from '@fortawesome/free-solid-svg-icons';
 import './registerServiceWorker'
 import 'chart.js';
 import 'vue-chartjs';
@@ -21,7 +21,7 @@ import 'vue-chartjs';
 library.add(faMortarPestle, faPrescriptionBottle, faWeightScale, faFlask, faPills,
     faMagnifyingGlass, faMagnifyingGlassPlus, faSkullCrossbones, faBottleDroplet,
     faGlassWaterDroplet, faHandDots, faHandHoldingDroplet, faBookMedical, faSnowflake,
-    faTriangleExclamation, faClone);
+    faTriangleExclamation, faClone, faChild);
 
 const app = createApp(App)
   .use(Quasar,

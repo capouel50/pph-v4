@@ -61,107 +61,122 @@
                   </q-item>
                 </q-list>
               </q-menu>
-           </q-input>
-           <q-form>
-            <q-dialog v-model="addDialog">
-                    <q-card>
-                      <q-card-section>
-                        <div class="row justify-center text-h6 text-cyan-4">
-                          Intégrer
-                        </div><br/>
-                        <div class="row justify-center text-subtitle1 text-orange-4">
-                        {{ selectedMatiere.designation }} {{ selectedMatiere.cdt }}
-                          {{ selectedMatiere.qté }}{{ selectedMatiere.unite }} {{ selectedMatiere.fournisseur.name }} ref:{{ selectedMatiere.code_fournisseur }}
-                        </div><br/>
-                        <div class="row justify-center text-h6 text-cyan-4">
-                          aux matières premières
-                        </div>
-                      </q-card-section>
-                      <q-separator/>
-                      <q-card-section>
-
-                        <div class="row">
-                          <div class="col-12">
-                            <q-input v-model="nom"
-                                     label="Désignation" color="cyan-4" class="hover-effect">
-                              <template v-slot:prepend>
-                                <q-btn flat color="cyan-4"
-                                       class="hover-effect-success"
-                                       @click="this.nom=this.selectedMatiere.designation"
-                                >
-                                <font-awesome-icon size="fa-sm" icon="fa-solid fa-clone"/>
-                                </q-btn>
-                              </template>
-                            </q-input>
+            </q-input>
+             <q-form>
+              <q-dialog v-model="addDialog">
+                <q-card>
+                  <q-card-section>
+                    <div class="row justify-center text-h6 text-cyan-4">
+                            Intégrer
+                          </div><br/>
+                    <div class="row justify-center text-subtitle1 text-orange-4">
+                          {{ selectedMatiere.designation }} {{ selectedMatiere.cdt }}
+                            {{ selectedMatiere.qté }}{{ selectedMatiere.unite }} {{ selectedMatiere.fournisseur.name }} ref:{{ selectedMatiere.code_fournisseur }}
+                          </div><br/>
+                    <div class="row justify-center text-h6 text-cyan-4">
+                            aux matières premières
                           </div>
-                        </div>
-                        <div class="row">
-                          <div class="col-6">
-                            <q-toggle v-model="stockee" size="md" icon="inventory" label="Stockée" color="green-4"/>
-                          </div>
-                          <div class="col-6">
-                            <q-toggle v-model="cde_auto" size="md" icon="list_alt" label="Commande auto" color="purple-4"/>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="col-5">
-                            <q-select
-                              label="Unité de mesure"
-                              class="hover-effect"
-                              color="cyan-4"
-                              v-model="uniteMesure"
-                              :options="unitesOptions"
-                              options-label="label"
-                              options-value="value"
-                            />
-                          </div>
-                          <div class="col-5 offset-1">
-                            <q-select
-                              label="Liste"
-                              class="hover-effect"
-                              color="cyan-4"
-                              v-model="liste"
-                              :options="listesOptions"
-                              options-label="label"
-                              options-value="value"
-                            />
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="col-5">
-                            <q-input v-model="stock_mini" label="Stock mini" color="cyan-4">
-                              <template v-slot:append>
-                                <div class="uniteStockName text-subtitle2 text-cyan-4">{{ uniteStockNom }}</div>
-                              </template>
-                            </q-input>
-                          </div>
-                          <div class="col-5 offset-1">
-                            <q-select
-                              label="Forme"
-                              class="hover-effect"
-                              color="cyan-4"
-                              v-model="forme"
-                              :options="formesOptions"
-                              options-label="label"
-                              options-value="value"
-                            />
-                          </div>
-                        </div>
-                      </q-card-section>
-                      <q-separator/>
-                      <q-card-section>
-                        <div class="row justify-center">
-                        <q-btn-group>
-                          <q-btn flat label="Transférer" @click="transfert" color="green-4"/>
-                          <q-btn flat label="Annuler" @click="addDialog=false; this.searchCatalogueQuery=''" color="red-4"/>
-                        </q-btn-group>
-                          </div>
-                      </q-card-section>
-                    </q-card>
-                  </q-dialog>
+                  </q-card-section>
+                  <q-separator/>
+                  <q-card-section>
+                    <div class="row">
+                      <div class="col-12">
+                        <q-input
+                            v-model="nom"
+                            label="Désignation" color="cyan-4" class="hover-effect">
+                          <template v-slot:prepend>
+                            <q-btn
+                                flat color="cyan-4"
+                                class="hover-effect-success"
+                                @click="this.nom=this.selectedMatiere.designation"
+                            >
+                              <font-awesome-icon size="fa-sm" icon="fa-solid fa-clone"/>
+                            </q-btn>
+                          </template>
+                        </q-input>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-6">
+                        <q-toggle v-model="stockee" size="md" icon="inventory" label="Stockée" color="green-4"/>
+                      </div>
+                      <div class="col-6">
+                        <q-toggle v-model="cde_auto" size="md" icon="list_alt" label="Commande auto" color="purple-4"/>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-4">
+                        <q-input
+                            label="Liste"
+                            class="hover-effect"
+                            color="cyan-4"
+                            v-model="tva"
+                        >
+                          <template v-slot:append>
+                            <div class="text-cyan-4 text-subtitle2">%</div>
+                          </template>
+                        </q-input>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-5">
+                        <q-select
+                            label="Unité de mesure"
+                            class="hover-effect"
+                            color="cyan-4"
+                            v-model="uniteMesure"
+                            :options="unitesOptions"
+                            options-label="label"
+                            options-value="value"
+                        />
+                      </div>
+                      <div class="col-5 offset-1">
+                        <q-select
+                            label="Liste"
+                            class="hover-effect"
+                            color="cyan-4"
+                            v-model="liste"
+                            :options="listesOptions"
+                            options-label="label"
+                            options-value="value"
+                        />
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-5">
+                        <q-input v-model="stock_mini" label="Stock mini" color="cyan-4">
+                          <template v-slot:append>
+                            <div class="uniteStockName text-subtitle2 text-cyan-4">{{ uniteStockNom }}</div>
+                          </template>
+                        </q-input>
+                      </div>
+                      <div class="col-5 offset-1">
+                        <q-select
+                            label="Forme"
+                            class="hover-effect"
+                            color="cyan-4"
+                            v-model="forme"
+                            :options="formesOptions"
+                            options-label="label"
+                            options-value="value"
+                        />
+                      </div>
+                    </div>
+                  </q-card-section>
+                  <q-separator/>
+                  <q-card-section>
+                    <div class="row justify-center">
+                      <q-btn-group>
+                        <q-btn flat label="Transférer" @click="transfert" color="green-4"/>
+                        <q-btn flat label="Annuler" @click="addDialog=false; this.searchCatalogueQuery=''" color="red-4"/>
+                      </q-btn-group>
+                    </div>
+                  </q-card-section>
+                </q-card>
+              </q-dialog>
              </q-form>
-             </div>
             </div>
+          </div>
           <div class="col-6 q-mt-md text-cyan-4 text-h6">
             <div class="row justify-center">
             {{ countMatieres }} matières premières référencées
@@ -262,8 +277,10 @@
                     />
                     <q-menu fit anchor="top right" self="bottom middle" v-model="showMenu[matiere.id]">
                       <q-list style="min-width: 100px">
-                        <q-item clickable v-close-popup @click.stop="deleteMatiere(matiere.id)">
-                          <q-item-section class="hover-effect">Supprimer</q-item-section>
+                        <q-item clickable v-close-popup @click.stop="toggleCde({ matiereId: matiere.id, isCde: matiere.cde })">
+                          <q-item-section :class="{ 'hover-effect-warning': matiere.cde, 'hover-effect-success': !matiere.cde }">
+                            {{ matiere.cde ? 'Retirer de la liste de commande' : 'Ajouter à la liste de commande' }}
+                          </q-item-section>
                         </q-item>
                         <q-item clickable v-close-popup @click.stop="toggleActivation({ matiereId: matiere.id, isStockee: matiere.stockee })">
                           <q-item-section class="hover-effect">
@@ -279,9 +296,9 @@
                     <div v-if="matiere.liste.nom==='Stupéfiant'" class="text-red-4 text-subtitle2">S</div>
                   </div>
                   <div class="absolute-bottom-left">
-                    <div class="row">
-                      <font-awesome-icon v-if="matiere.froid" fade icon="fa-solid fa-snowflake" class="q-ml-xs q-mb-xs fa-2x" style="color: #4dd0e1;" />
-                      <q-img v-if="matiere.cmr" class="q-ml-xs q-mb-xs fade-blink" src="@/assets/img/health_hazard.png" :style="{ width: '30px', height: '30px' }"/>
+                    <div class="row q-mb-xs">
+                      <font-awesome-icon v-if="matiere.froid" fade icon="fa-solid fa-snowflake" class="q-ml-xs fa-2x" style="color: #4dd0e1;" />
+                      <q-img v-if="matiere.cmr" class="q-ml-xs fade-blink" src="@/assets/img/health_hazard.png" :style="{ width: '20px', height: '20px' }"/>
                     </div>
                   </div>
                   <q-btn-group class="absolute-bottom-right q-pa-none q-ma-none">
@@ -290,53 +307,61 @@
                        flat
                        color="cyan-4"
                        icon="bar_chart"
-                    />
-                    <q-btn
-                       class="q-pa-none hover-effect"
-                       flat
-                       :color="matiere.cde ? 'red-4' : 'green-4'"
-                       :icon="matiere.cde ? 'playlist_remove' : 'playlist_add'"
-                       @click.stop="toggleCde({ matiereId: matiere.id, isCde: matiere.cde })"
+                       size="sm"
                     />
                     <q-btn
                       class="hover-effect"
-                      color="cyan-4"
+                      :color="expanded[matiere.id] ? 'orange-4' : 'cyan-4'"
                       round
                       flat
                       dense
                       icon="info"
+                      size="sm"
                       @click.stop="toggleInfo(matiere.id)"
                     />
                   </q-btn-group>
 
                   <q-menu fit anchor="bottom right" self="top middle" v-model="expanded[matiere.id]">
                     <q-list style="min-width: 100px">
-                      <q-item v-if="matiere.fournisseur">
+                      <q-item class="justify-center">
                         <q-item-section avatar class="text-cyan-4">
+                          Détails
+                        </q-item-section>
+                      </q-item>
+                      <q-item v-if="matiere.fournisseur">
+                        <q-item-section avatar class="text-orange-4">
                           Fournisseur :
                         </q-item-section>
                         <q-item-section class="text-grey-7">
                           {{ matiere.fournisseur.name }}
                         </q-item-section>
                       </q-item>
+                      <q-item v-if="matiere.tva">
+                        <q-item-section avatar class="text-orange-4">
+                          TVA :
+                        </q-item-section>
+                        <q-item-section class="text-grey-7">
+                          {{ matiere.tva }}%
+                        </q-item-section>
+                      </q-item>
                       <q-item v-if="matiere.prix">
-                        <q-item-section avatar class="text-cyan-4">
+                        <q-item-section avatar class="text-orange-4">
                           Prix :
                         </q-item-section>
                         <q-item-section class="text-grey-7">
-                          {{ matiere.prix }} €
+                          {{ matiere.prix }} € HT - {{ matiere.prix_ttc }} € TTC
                         </q-item-section>
                       </q-item>
                       <q-item v-if="matiere.prix_unit">
-                        <q-item-section avatar class="text-cyan-4">
+                        <q-item-section avatar class="text-orange-4">
                           Prix unitaire :
                         </q-item-section>
                         <q-item-section class="text-grey-7">
-                          {{ matiere.prix_unit }} €/{{ matiere.unite_mesure.nom }}
+                          {{ matiere.prix_unit }} €/{{ matiere.unite_mesure.nom }} HT - {{ matiere.prix_unit_ttc }} €/{{ matiere.unite_mesure.nom }} TTC
                         </q-item-section>
                       </q-item>
                       <q-item v-if="matiere.stock_mini">
-                        <q-item-section avatar class="text-cyan-4">
+                        <q-item-section avatar class="text-orange-4">
                           Stock mini :
                         </q-item-section>
                         <q-item-section class="text-grey-7">
@@ -386,6 +411,7 @@ export default {
       menuMat: false,
       selectedMatiere: null,
       nom: '',
+      tva: '',
       stock_mini: '',
       stockee: false,
       cde_auto: false,
@@ -477,9 +503,6 @@ export default {
     },
 
     async transfert() {
-      console.log('Formatage des données');
-      console.log(this.froid);
-      console.log(this.cmr);
       const formData = {
         nom: this.nom,
         type: this.selectedMatiere.type.id,
@@ -487,6 +510,7 @@ export default {
         unite_mesure: this.uniteMesure.value,
         fournisseur: this.selectedMatiere.fournisseur.id,
         prix: this.selectedMatiere.prix,
+        tva: this.tva,
         stock_mini: this.stock_mini,
         qté_stock: 0,
         cdt: 1,
@@ -499,14 +523,13 @@ export default {
         code_fournisseur: this.selectedMatiere.code_fournisseur,
         unite_cdt : this.selectedMatiere.unite,
       };
-      console.log('formData', formData);
-      // Appelez votre action Vuex pour ajouter les compositions
       this.addMatiere(formData);
       await this.loadMatieresPremieres();
       this.selectedMatiere = null;
       this.searchCatalogueQuery = '';
       this.nom = '';
       this.stock_mini = '';
+      this.tva = '';
       this.stockee = false;
       this.cde_auto = false;
       this.uniteMesure = null;

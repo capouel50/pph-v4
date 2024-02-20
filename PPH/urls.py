@@ -6,8 +6,9 @@ from .views import (
     CompositionViewSet, FormuleViewSet, MatierePremiereViewSet, CatalogueViewSet, ListeViewSet, ServiceViewSet,
     VoieViewSet, TypePrepViewSet, ParametresPrepViewSet, ParametresFormulesViewSet, CompositionFilterView,
     DemandesViewSet, FichesViewSet, FichesSemaine, FichesMois, ConditionnementViewSet, CategorieMatiereViewSet,
-    CatalogueImportViewSet, ReceptionViewSet, EtablissementViewSet, ParametresDemandesViewSet
+    CatalogueImportViewSet, ReceptionViewSet, EtablissementViewSet, ParametresDemandesViewSet, ParametresFichesViewSet,
 )
+from PPH import views
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -36,8 +37,10 @@ router.register(r'type-prep', TypePrepViewSet)
 router.register(r'parametres-prep', ParametresPrepViewSet)
 router.register(r'parametres-formules', ParametresFormulesViewSet)
 router.register(r'parametres-demandes', ParametresDemandesViewSet)
+router.register(r'parametres-fiches', ParametresFichesViewSet)
 
 urlpatterns = [
+    path('reset-data/', views.reset_data, name='reset_data'),
     path('fiches-mois/', FichesMois.as_view(), name='fiches-mois'),
     path('fiches-semaine/', FichesSemaine.as_view(), name='fiches-semaine'),
     path('composition/filter/<int:num_formule>/', CompositionFilterView.as_view(), name='composition-filter'),

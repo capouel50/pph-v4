@@ -44,6 +44,10 @@
 
       </q-item>
       <q-separator />
+      <q-item clickable v-close-popup>
+        <q-item-section @click="resetApp" class="text-cyan-1 hover-effect">Réinitialisation</q-item-section>
+      </q-item>
+      <q-separator />
       <q-item class="logout" clickable v-close-popup>
         <q-item-section class="logout-text text-red-5">Fermer</q-item-section>
       </q-item>
@@ -55,6 +59,8 @@
 </template>
 
 <script>
+import {mapActions} from "vuex";
+
 export default {
   name: 'FichierBtn',
   data() {
@@ -64,9 +70,14 @@ export default {
     };
   },
   methods: {
+    ...mapActions('resetData', ['resetData']),
     resetMenu() {
       this.menuOpen = false;
       this.submenuOpen = false;
+    },
+    resetApp() {
+      console.log('ResetApp');
+      this.resetData();
     }
   }
 }

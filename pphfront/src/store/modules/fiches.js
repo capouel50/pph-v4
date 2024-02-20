@@ -2,6 +2,7 @@ import api from '../../../api';
 
 const state = {
   fiches: [],
+  parametresFiches: [],
   fichesSemaine: [],
   showMenu: {},
   settings: {},
@@ -17,6 +18,8 @@ const getters = {
   compo: (state) => state.compo,
 
   info: (state) => state.info,
+
+  allParametresFiches: state => state.parametresFiches,
 
   fichesControlCount: (state) => {
     return state.fiches.filter((fiche) => fiche.attente_controle).length;
@@ -38,6 +41,55 @@ const getters = {
 };
 
 const actions = {
+
+  async addParametresValues({dispatch}, jsonData) {
+    try {
+      await api.post('PPH/parametres-fiches/', jsonData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      dispatch('notifications/showNotification', {
+        message: 'Paramètres enregistrés avec succès',
+        type: 'success'
+      }, {root: true});
+      return Promise.resolve();
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors de l\'ajout des paramètres',
+        type: 'error'
+      }, {root: true});
+      return Promise.reject(error);
+    }
+  },
+
+  async loadParametresFiches({ commit }) {
+    try {
+      const response = await api.get('/parametres-fiches');
+      commit('SET_PARAMETRES_FICHES', response.data);
+
+    } catch (error) {
+      console.error('Erreur lors du chargement des fiches :', error);
+    }
+  },
+
+  async addFiche({dispatch}, ficheData) {
+    try {
+      await api.post('PPH/fiches/', ficheData);
+      dispatch('notifications/showNotification', {
+        message: 'Fiche enregistrée avec succès',
+        type: 'success'
+      }, {root: true});
+      return Promise.resolve();
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors de l\'ajout de la fiche',
+        type: 'error'
+      }, {root: true});
+      return Promise.reject(error);
+    }
+  },
+
   async loadFiches({ commit }) {
     try {
       const response = await api.get('/fiches');
@@ -107,6 +159,9 @@ const actions = {
 const mutations = {
   SET_FICHES: (state, fiches) => {
     state.fiches = fiches;
+  },
+  SET_PARAMETRES_FICHES: (state, parametresFiches) => {
+    state.parametresFiches = parametresFiches;
   },
   SET_FICHES_SEMAINES: (state, fichesSemaine) => {
     state.fichesSemaine= fichesSemaine;

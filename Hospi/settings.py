@@ -277,10 +277,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = [
-    "http://localhost:8080", 'https://pph-frontend.vercel.app', 'https://pph-backend-4f4fd8d99c88.herokuapp.com'
+    "http://localhost:8080", 'https://pph-frontend.vercel.app', 'https://pph-backend-4f4fd8d99c88.herokuapp.com', 'https://pph-cloud-967e91b47466.herokuapp.com'
 ]
 CORS_ALLOWED_ORIGINS = [
-    'https://pph-frontend.vercel.app', "http://localhost:8080", "https://pph-backend-4f4fd8d99c88.herokuapp.com"
+    'https://pph-frontend.vercel.app', "http://localhost:8080", "https://pph-backend-4f4fd8d99c88.herokuapp.com", 'https://pph-cloud-967e91b47466.herokuapp.com'
 ]
 
-ALLOWED_HOSTS = ['pph-backend-4f4fd8d99c88.herokuapp.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['pph-backend-4f4fd8d99c88.herokuapp.com', 'localhost', '127.0.0.1', 'pph-cloud-967e91b47466.herokuapp.com/']

@@ -33,6 +33,54 @@
                 <q-icon name="calendar_month" color="cyan-4"/>
               </template>
             </q-input>
+            <q-toggle
+                v-model="toggleRepeat"
+                icon="calendar_month"
+                color="purple-4"
+                size="md"
+                label="Répéter"
+                class="col-2"
+            />
+          </div>
+          <div class="row">
+            <q-input
+                v-if="toggleRepeat"
+                ref="repeatInput"
+                class="q-mr-lg col-2"
+                v-model="repeat"
+                label="Répétition"
+                color ='cyan-4'
+                @mouseover="changeLabelColor('dateInput','#ffb74d')"
+                @mouseleave="changeLabelColor('dateInput','')"
+                @focus="onFocus('date_prevu','#4dd0e1')"
+                @blur="onBlur('date_prevu')"
+            >
+              <template v-slot:before>
+                <q-icon name="update" color="cyan-4"/>
+              </template>
+              <template v-slot:append>
+                <div class="text-cyan-4 text-subtitle2">Jours</div>
+              </template>
+            </q-input>
+            <q-input
+                v-if="toggleRepeat"
+                ref="repeatInput"
+                class="q-mr-lg col-2"
+                v-model="delai"
+                label="Délai"
+                color ='cyan-4'
+                @mouseover="changeLabelColor('dateInput','#ffb74d')"
+                @mouseleave="changeLabelColor('dateInput','')"
+                @focus="onFocus('date_prevu','#4dd0e1')"
+                @blur="onBlur('date_prevu')"
+            >
+              <template v-slot:before>
+                <q-icon name="alarm" color="cyan-4"/>
+              </template>
+              <template v-slot:append>
+                <div class="text-cyan-4 text-subtitle2">Jours</div>
+              </template>
+            </q-input>
           </div>
           <q-stepper-navigation>
       <q-btn flat @click="step = 2" color="cyan-4" label="Suivant" class="hover-effect" />
@@ -76,7 +124,7 @@
             <q-icon name="badge" color="cyan-4"/>
           </template>
           <template v-slot:append>
-            <div class="text-cyan-4" color="cyan-4">ans</div>
+            <div class="text-cyan-4 text-subtitle2" color="cyan-4">ans</div>
           </template>
         </q-input>
           </div>
@@ -267,6 +315,9 @@ export default {
   data() {
     return {
       step: 1,
+      toggleRepeat: false,
+      repeat: '',
+      delai: '',
       patient: '',
       age: '',
       typePrep: null,
@@ -348,7 +399,7 @@ export default {
       if (this.typePrep) {
         // Filtrer les catégories en fonction de l'ID du fournisseur sélectionné
         this.allFormulesLabel = this.allFormules
-          .filter(formule => formule.type.id === this.typePrep.value)
+          .filter(formule => formule.type.id === this.typePrep.value && formule.is_activate === true)
           .map(formule => ({
             label: formule.nom,
             value: formule.id,
@@ -390,6 +441,8 @@ export default {
 
       const demandeData = {
         date_prevu : this.date_prevu,
+        recurence: this.repeat,
+        delai: this.delai,
         prep: this.formule.value,
         typePrep: this.typePrep.value,
         service: this.service.value,
@@ -400,12 +453,15 @@ export default {
       };
       this.addDemande(demandeData);
       this.date_prevu = '';
+      this.toggleRepeat= false;
+      this.repeat = '';
+      this.delai = '';
       this.formule = null;
       this.typePrep = null;
       this.service = '';
       this.patient = '';
       this.age = '';
-      this.prescipteur = '';
+      this.prescripteur = '';
       this.commentaire = '';
       this.step = 1;
     },

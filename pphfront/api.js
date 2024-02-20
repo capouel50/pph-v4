@@ -17,7 +17,6 @@ const api = axios.create({
   withCredentials: true,
 });
 
-
 export const getRefreshTokenFromCookie = () => {
   const refreshTokenRow = document.cookie.split('; ').find(row => row.startsWith('refresh_token'));
   if (refreshTokenRow) {
@@ -25,7 +24,6 @@ export const getRefreshTokenFromCookie = () => {
   }
   return null;
 };
-
 
 const setCookie = (name, value, days) => {
   var expires = "";

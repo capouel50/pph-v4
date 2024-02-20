@@ -35,6 +35,16 @@ const actions = {
       }
     },
 
+  async getSupplierById(id) {
+    let supplier = null;
+      await api.get(`PPH/suppliers/${id}`)
+        .then(response => {
+          supplier = response.data;
+        })
+        .catch(e => console.error(e));
+      return supplier;
+  },
+
   async fetchSupplierById(id) {
     try {
       const response = await api.get(`PPH/suppliers/${id}`);
