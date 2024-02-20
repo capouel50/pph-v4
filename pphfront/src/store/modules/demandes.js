@@ -72,6 +72,20 @@ const getters = {
 
 const actions = {
 
+  ApiError({ dispatch }, error) {
+    let errorMessage = error.response?.data?.detail;
+    if (errorMessage) {
+      // Supprimer les parties [ErrorDetail(string= et )]
+      errorMessage = errorMessage.replace(/\[ErrorDetail\(string=/g, '').replace(/\)\s*\]/g, '');
+      errorMessage = errorMessage.replace(/code='invalid',/g, '');
+      errorMessage = errorMessage.replace(/code='invalid'/g, '');
+    }
+    dispatch('notifications/showNotification', {
+      message: errorMessage,
+      type: 'error'
+    }, { root: true });
+  },
+
   async addParametresValues({dispatch}, jsonData) {
     try {
       await api.post('PPH/parametres-demandes/', jsonData, {
@@ -89,17 +103,18 @@ const actions = {
         message: 'Erreur lors de l\'ajout des paramètres',
         type: 'error'
       }, {root: true});
+      dispatch('ApiError', error);
       return Promise.reject(error);
     }
   },
 
-  async loadParametresDemandes({ commit }) {
+  async loadParametresDemandes({ commit, dispatch }) {
     try {
       const response = await api.get('/parametres-demandes');
       commit('SET_PARAMETRES_DEMANDES', response.data);
 
     } catch (error) {
-      console.error('Erreur lors du chargement des demandes :', error);
+      dispatch('ApiError', error);
     }
   },
 
@@ -116,17 +131,18 @@ const actions = {
         message: 'Erreur lors de l\'ajout de la demande',
         type: 'error'
       }, {root: true});
+      dispatch('ApiError', error);
       return Promise.reject(error);
     }
   },
 
-  async loadDemandes({ commit }) {
+  async loadDemandes({ commit, dispatch }) {
     try {
       const response = await api.get('/demandes');
       commit('SET_DEMANDES', response.data);
 
     } catch (error) {
-      console.error('Erreur lors du chargement des demandes :', error);
+      dispatch('ApiError', error);
     }
   },
 
@@ -143,7 +159,7 @@ const actions = {
         message: 'Erreur lors de la suppression',
         type: 'error'
       }, { root: true });
-      console.error(error);
+      dispatch('ApiError', error);
     }
   },
 
@@ -169,24 +185,15 @@ const actions = {
         message: 'Erreur lors du changement d\'état',
         type: 'error'
       }, { root: true });
-      console.error(error);
+      dispatch('ApiError', error);
     }
   },
 
   async stopRepeat({ dispatch }, payload) {
+
   const { demandeId } = payload;
-
-  // Check if demandeId is provided
-  if(!demandeId){
-    dispatch('notifications/showNotification', {
-      message: 'Erreur, demandeId is missing',
-      type: 'error'
-    }, { root: true });
-    return;
-  }
-
   try {
-    await api.patch(`/PPH/demandes/${demandeId}/`, { recurence: '', delai: '' });
+    await api.patch(`/PPH/demandes/${demandeId}/`, { recurence: null, delai: null });
     dispatch('notifications/showNotification', {
       message: 'Demande mise en attente',
       type: 'success'
@@ -197,7 +204,7 @@ const actions = {
       message: 'Erreur lors du changement d\'état',
       type: 'error'
     }, { root: true });
-    console.error(error);
+    dispatch('ApiError', error);
   }
 },
 

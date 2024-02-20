@@ -11,6 +11,15 @@ const mutations = {
 };
 
 const actions = {
+  ApiError({ commit, dispatch }, error) {
+    let errorMessage = error.response?.data?.detail || 'Une erreur est survenue.';
+    commit('SET_ERROR', errorMessage);
+    dispatch('notifications/showNotification', {
+      message: errorMessage,
+      type: 'error'
+    }, { root: true });
+  },
+
   async fetchData({ commit, dispatch }, endpoint) {
     try {
       await api.get(endpoint);

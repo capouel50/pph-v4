@@ -361,8 +361,8 @@ class Demandes(models.Model):
     prescripteur = models.CharField(max_length=200, null=True)
     commentaire = models.CharField(max_length=200, null=True)
     production = models.BooleanField(default=False)
-    recurence = models.IntegerField(null=True)
-    delai = models.IntegerField(null=True)
+    recurence = models.IntegerField(null=True, blank=True)
+    delai = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.prep} - {self.date_prevu}"

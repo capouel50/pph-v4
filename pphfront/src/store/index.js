@@ -5,7 +5,7 @@ import notifications from './modules/notifications';
 import contact from './modules/contact';
 import auth from './modules/auth';
 import user from './modules/user';
-import error from './modules/errorModule';
+import errorModule from './modules/errorModule';
 import screen from './modules/screen';
 import forms from './modules/forms';
 import matieresPremieres from './modules/matieresPremieres';
@@ -18,9 +18,11 @@ import websocket from './modules/websocket';
 import dateFormatter from './modules/dateFormatter';
 import services from './modules/services';
 import resetData from './modules/resetData';
+import apiError from './modules/apiError';
 
 const store = createStore({
   modules: {
+    apiError,
     resetData,
     services,
     dateFormatter,
@@ -37,7 +39,7 @@ const store = createStore({
     contact,
     user,
     auth,
-    error,
+    errorModule,
     screen,
     forms,
   }
