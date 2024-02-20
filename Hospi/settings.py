@@ -283,4 +283,4 @@ CORS_ALLOWED_ORIGINS = [
     'https://pph-frontend.vercel.app', "http://localhost:8080", "https://pph-backend-4f4fd8d99c88.herokuapp.com", 'https://pph-cloud-967e91b47466.herokuapp.com'
 ]
 
-ALLOWED_HOSTS = ['pph-backend-4f4fd8d99c88.herokuapp.com', 'localhost', '127.0.0.1', 'pph-cloud-967e91b47466.herokuapp.com/']
+ALLOWED_HOSTS = ['pph-backend-4f4fd8d99c88.herokuapp.com', 'localhost', '127.0.0.1', 'pph-cloud-967e91b47466.herokuapp.com']
