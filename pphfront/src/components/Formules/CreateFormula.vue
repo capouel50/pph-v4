@@ -192,9 +192,45 @@
 
       <q-step
         :name="5"
+        title="Composition"
+        icon="science"
+        :done="step > 5"
+      >
+        <div class="row">
+          <div class="col-12">
+            <CompositionForm/>
+          </div>
+        </div>
+
+        <q-stepper-navigation>
+          <q-btn flat @click="step = 4" color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
+          <q-btn flat @click="step = 6" color="cyan-4" label="Suivant" class="hover-effect"/>
+        </q-stepper-navigation>
+      </q-step>
+
+      <q-step
+        :name="6"
+        title="EPI"
+        icon="masks"
+        :done="step > 6"
+      >
+        <div class="row">
+          <div class="col-8">
+            <ParametresForm v-if="step === 6" />
+          </div>
+        </div>
+
+        <q-stepper-navigation>
+          <q-btn flat @click="step = 5" color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
+          <q-btn flat @click="step = 7" color="cyan-4" label="Suivant" class="hover-effect"/>
+        </q-stepper-navigation>
+      </q-step>
+
+      <q-step
+        :name="7"
         title="Mode opératoire"
         icon="list_alt"
-        :done="step > 5"
+        :done="step > 7"
       >
 
         <div class="row">
@@ -217,26 +253,8 @@
       </div>
 
         <q-stepper-navigation>
-          <q-btn flat @click="step = 4" color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
-          <q-btn flat @click="step = 6" color="cyan-4" label="Suivant" class="hover-effect"/>
-        </q-stepper-navigation>
-      </q-step>
-
-      <q-step
-        :name="6"
-        title="Composition"
-        icon="science"
-        :done="step > 6"
-      >
-        <div class="row">
-          <div class="col-12">
-            <CompositionForm/>
-          </div>
-        </div>
-
-        <q-stepper-navigation>
-          <q-btn flat @click="step = 5" color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
-          <q-btn flat @click="step = 7" color="cyan-4" label="Suivant" class="hover-effect"/>
+          <q-btn flat @click="step = 6" color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
+          <q-btn flat @click="step = 8" color="cyan-4" label="Suivant" class="hover-effect"/>
         </q-stepper-navigation>
       </q-step>
 
@@ -272,10 +290,10 @@
       </q-step>
 
       <q-step
-        :name="8"
+        :name="9"
         title="Publications"
         icon="article"
-        :done="step > 8"
+        :done="step > 9"
       >
       <div class="row">
         <q-input
@@ -296,16 +314,16 @@
       </q-input>
       </div>
         <q-stepper-navigation>
-          <q-btn flat @click="step = 7" color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
-          <q-btn flat @click="step = 9" color="cyan-4" label="Suivant" class="hover-effect q-ml-sm" />
+          <q-btn flat @click="step = 8" color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
+          <q-btn flat @click="step = 10" color="cyan-4" label="Suivant" class="hover-effect q-ml-sm" />
         </q-stepper-navigation>
       </q-step>
 
       <q-step
-          :name="9"
+          :name="10"
           title="PPH cloud"
           icon="cloud"
-          :done="step > 9"
+          :done="step > 10"
         >
         <div class="row">
           <div class="col-2">
@@ -320,8 +338,8 @@
         </div>
 
         <q-stepper-navigation>
-          <q-btn flat @click="step = 8" color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
-          <q-btn flat @click="step = 10" color="cyan-4" label="Terminer" class="hover-effect"/>
+          <q-btn flat @click="step = 9" color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
+          <q-btn flat @click="step = 11" color="cyan-4" label="Terminer" class="hover-effect"/>
         </q-stepper-navigation>
       </q-step>
 

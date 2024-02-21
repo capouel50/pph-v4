@@ -18,7 +18,7 @@ const getters = {
 
 const actions = {
 
-    async addSupplier({ dispatch }, formData) {
+  async addSupplier({ dispatch }, formData) {
       try {
         await api.post('PPH/suppliers/', formData);
         dispatch('notifications/showNotification', {
@@ -29,6 +29,25 @@ const actions = {
       } catch (error) {
         dispatch('notifications/showNotification', {
           message: 'Erreur lors de l\'ajout du fournisseur',
+          type: 'error'
+        }, { root: true });
+        return Promise.reject(error);
+      }
+    },
+
+  async updateSupplier({ dispatch }, {id, formData}) {
+      try {
+        console.log('formDataRecu : ', formData)
+        await api.patch(`PPH/suppliers/${id}/`, formData);
+        dispatch('loadSuppliers');
+        dispatch('notifications/showNotification', {
+          message: 'Fournisseur modifié',
+          type: 'success'
+        }, { root: true });
+        return Promise.resolve();
+      } catch (error) {
+        dispatch('notifications/showNotification', {
+          message: 'Erreur lors de la modification du fournisseur',
           type: 'error'
         }, { root: true });
         return Promise.reject(error);

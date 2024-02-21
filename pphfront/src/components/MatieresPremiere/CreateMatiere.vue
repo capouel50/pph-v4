@@ -546,7 +546,6 @@ export default {
       cde: false,
       liste: this.liste.id,
       attente_livraison: false
-
       };
       this.addMatiere(formData);
     },

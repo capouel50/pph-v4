@@ -19,6 +19,11 @@ const getters = {
 
   info: (state) => state.info,
 
+  lastFicheId: (state) => {
+    const lastFiche = state.fiches.length ? state.fiches[state.fiches.length - 1] : null;
+    return lastFiche ? lastFiche.id : null;
+  },
+
   allParametresFiches: state => state.parametresFiches,
 
   fichesControlCount: (state) => {
@@ -73,9 +78,10 @@ const actions = {
     }
   },
 
-  async addFiche({dispatch}, ficheData) {
+  async addFiche({commit, dispatch}, ficheData) {
     try {
       await api.post('PPH/fiches/', ficheData);
+      commit('SET_FICHES');
       dispatch('notifications/showNotification', {
         message: 'Fiche enregistrée avec succès',
         type: 'success'

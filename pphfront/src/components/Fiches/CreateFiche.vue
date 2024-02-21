@@ -228,7 +228,7 @@ export default {
                   'allParametres', 'allCompositions']),
     ...mapGetters('voiesAdministration', ['allVoies']),
     ...mapGetters('services', ['allServices']),
-    ...mapGetters('fiches', ['allFiches']),
+    ...mapGetters('fiches', ['allFiches', 'lastFicheId']),
 
   },
 
@@ -301,6 +301,10 @@ export default {
       }
     },
 
+    redirectToLink(id) {
+      this.$router.push(`/fiche/${id}`);
+    },
+
     async validFiche() {
       const allFiches = this.allFiches;
 
@@ -342,8 +346,9 @@ export default {
       this.service = '';
       this.patient = '';
       this.age = '';
-      this.prescipteur = '';
+      this.prescripteur = '';
       this.step = 1;
+      this.redirectToLink(this.lastFicheId)
     },
   },
 };

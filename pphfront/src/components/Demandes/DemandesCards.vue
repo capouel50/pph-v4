@@ -59,11 +59,53 @@
                         <q-item v-if="demande.recurence" clickable v-close-popup @click.stop="stopRepeat({ demandeId: demande.id })">
                           <q-item-section class="hover-effect-warning">Stopper répétition</q-item-section>
                         </q-item>
+                        <q-item v-if="!demande.recurence" clickable v-close-popup @click.stop="toggleRepeat(demande.id)">
+                          <q-item-section class="hover-effect-info">Ajouter répétition</q-item-section>
+                        </q-item>
                         <q-item clickable v-close-popup @click.stop="deleteDemande(demande.id)">
                           <q-item-section class="hover-effect-warning">Supprimer</q-item-section>
                         </q-item>
                       </q-list>
                     </q-menu>
+                    <q-form>
+                      <q-dialog v-model="repeatDialog[demande.id]">
+                        <q-card>
+                          <q-card-section>
+                            <div class="row justify-center text-h6 text-cyan-4">
+                              Répétition pour la demande n°{{ demande.id }}
+                            </div>
+                            <div class="row justify-center text-subtitle1 text-orange-4">
+                              {{ demande.prep.nom }}
+                            </div>
+                          </q-card-section>
+                          <q-separator/>
+                          <q-card-section>
+                            <div class="row">
+                              <div class="col-4">
+                                <q-input v-model="repeat" label="Répétition" color="cyan-4">
+                                  <template v-slot:append>
+                                    <div class="text-subtitle2 text-cyan-4 q-mb-none q-pa-none">jours</div>
+                                  </template>
+                                </q-input>
+                              </div>
+                            </div>
+                          </q-card-section>
+                          <q-separator/>
+                          <q-card-section>
+                            <div class="row justify-center">
+                              <q-btn-group>
+                                <q-btn flat label="Valider"
+                                       @click.stop="addRepeat({ demandeId: demande.id, repeatTime: this.repeat }); toggleRepeat(demande.id)"
+                                       color="green-4"/>
+                                <q-btn flat label="Annuler"
+                                       @click.stop="toggleRepeat(demande.id)"
+                                       color="red-4"/>
+                              </q-btn-group>
+                            </div>
+                          </q-card-section>
+                        </q-card>
+                      </q-dialog>
+                    </q-form>
                     <div v-if="demande.recurence" class="absolute-top-left row q-ml-xs q-mt-xs">
                       <q-icon name="update" color="cyan-4" size="xs" />
                       <div class="text-cyan-4">{{ demande.recurence }}j</div>
@@ -213,11 +255,13 @@ export default {
   data() {
     return {
       searchQuery: '',
+      repeat: '',
     };
   },
 
   computed: {
-    ...mapGetters('demandes', ['allDemandes', 'allParametresDemandes', 'settings', 'showMenu', 'expanded', 'compo']),
+    ...mapGetters('demandes', ['allDemandes', 'allParametresDemandes', 'settings',
+                               'showMenu', 'expanded', 'compo', 'repeatDialog']),
     ...mapGetters('dateFormatter', ['getFormattedDate']),
     ...mapGetters('formules', ['allCompositions']),
 
@@ -249,7 +293,8 @@ export default {
 
   methods: {
     ...mapActions('demandes', ['loadDemandes', 'loadParametresDemandes', 'deleteDemande', 'toggleInfo',
-                               'toggleMenu', 'toggleProduction', 'toggleSettings', 'toggleCompo', 'stopRepeat']),
+                               'toggleMenu', 'toggleProduction', 'toggleSettings', 'toggleCompo',
+                               'stopRepeat', 'toggleRepeat', 'addRepeat']),
     ...mapActions('dateFormatter', ['formatDate']),
     ...mapActions('formules', ['loadCompositions', 'loadFormules']),
 

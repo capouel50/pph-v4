@@ -3,6 +3,7 @@ import api from '../../../api';
 const state = {
   demandes: [],
   parametresDemandes: [],
+  repeatDialog: {},
   showMenu: {},
   expanded: {},
   settings: {},
@@ -10,6 +11,8 @@ const state = {
 };
 
 const getters = {
+  repeatDialog: (state) => state.repeatDialog,
+
   compo: (state) => state.compo,
 
   settings: (state) => state.settings,
@@ -190,23 +193,48 @@ const actions = {
   },
 
   async stopRepeat({ dispatch }, payload) {
+    const { demandeId } = payload;
+    try {
+      await api.patch(`/PPH/demandes/${demandeId}/`, { recurence: null });
+      dispatch('notifications/showNotification', {
+        message: 'Répétition annulée',
+        type: 'success'
+      }, { root: true });
+      dispatch('loadDemandes');
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors du changement d\'état',
+        type: 'error'
+      }, { root: true });
+      dispatch('ApiError', error);
+    }
+  },
 
-  const { demandeId } = payload;
-  try {
-    await api.patch(`/PPH/demandes/${demandeId}/`, { recurence: null, delai: null });
-    dispatch('notifications/showNotification', {
-      message: 'Demande mise en attente',
-      type: 'success'
-    }, { root: true });
-    dispatch('loadDemandes');
-  } catch (error) {
-    dispatch('notifications/showNotification', {
-      message: 'Erreur lors du changement d\'état',
-      type: 'error'
-    }, { root: true });
-    dispatch('ApiError', error);
-  }
-},
+  async addRepeat({ dispatch }, payload) {
+    const { demandeId, repeatTime } = payload;
+    try {
+      await api.patch(`/PPH/demandes/${demandeId}/`, { recurence: repeatTime });
+      dispatch('notifications/showNotification', {
+        message: `Répétition ajoutée`,
+        type: 'success'
+      }, { root: true });
+      dispatch('notifications/showNotification', {
+        message: `Une demande prévue ${repeatTime} jours après chaque fiche de fabrication sera générer automatiquement`,
+        type: 'info'
+      }, { root: true });
+      dispatch('loadDemandes');
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors de l\'ajout de la répétition',
+        type: 'error'
+      }, { root: true });
+      dispatch('ApiError', error);
+    }
+  },
+
+  toggleRepeat({ commit }, id) {
+    commit('TOGGLE_REPEAT', id);
+  },
 
   toggleMenu({ commit }, id) {
     commit('TOGGLE_MENU', id);
@@ -230,6 +258,9 @@ const mutations = {
 
   SET_PARAMETRES_DEMANDES: (state, parametresDemandes) => {
     state.parametresDemandes = parametresDemandes;
+  },
+  TOGGLE_REPEAT(state, id) {
+    state.repeatDialog[id] = !state.repeatDialog[id];
   },
 
   TOGGLE_MENU(state, id) {

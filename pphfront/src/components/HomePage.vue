@@ -645,17 +645,10 @@ export default {
   },
 
   async mounted() {
-    try {
-      await this.loadAllData();
-    } catch (e) {
-      console.error('Erreur lors du chargement des données :', e);
-    } finally {
-        setTimeout(() => {
-        this.$nextTick(() => {
-          this.loadedPage = true;
-        });
-      }, 1000);
-    }
+      await Promise.all([
+      this.loadAllData(),
+    ]);
+    this.loadedPage= true;
   },
 
   watch: {

@@ -81,10 +81,51 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.username
 
+class FabricantsBalances(models.Model):
+
+    name = models.CharField(max_length=100, unique=True)
+    address = models.CharField(max_length=100, blank=True)
+    postal = models.CharField(max_length=100, blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    country = models.CharField(max_length=100, blank=True)
+    phone = models.CharField(max_length=100, blank=True)
+    email = models.EmailField(max_length=254, blank=True)
+    site = models.URLField(max_length=200, blank=True)
+    user_code = models.CharField(max_length=100, blank=True)
+    password = models.CharField(max_length=100, blank=True)
+    is_activate = models.BooleanField(default=True)
+
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
+class Balances(models.Model):
+    modele = models.CharField(max_length=100, unique=True)
+    fabricant = models.ForeignKey(FabricantsBalances, on_delete=models.CASCADE)
+    class Meta:
+        ordering = ['modele']
+
+    def __str__(self):
+        return self.modele
+
+class InstructionsBalances(models.Model):
+    modele_balance = models.ForeignKey(Balances, on_delete=models.CASCADE)
+    nom = models.CharField(max_length=100, unique=True)
+    nom_instruction = models.CharField(max_length=100, unique=True)
+    valeur_instruction = models.TextField(null=True, blank=True)
+    reponse_instruction = models.TextField(null=True, blank=True)
+    class Meta:
+        ordering = ['nom']
+
+    def __str__(self):
+        return self.nom
+
+
 class Supplier(models.Model):
-    """
-    Cet objet représente un fournisseur.
-    """
 
     name = models.CharField(max_length=100, unique=True)
     address = models.CharField(max_length=100, blank=True)
@@ -205,6 +246,18 @@ class ParametresFormules(models.Model):
     def __str__(self):
         return f"{self.num_formule} - {self.parametre}"
 
+class Epi(models.Model):
+    nom = models.IntegerField()
+    def __str__(self):
+        return f"{self.nom}"
+class EpiFormules(models.Model):
+    num_formule = models.IntegerField()
+    epi = models.ForeignKey(Epi, on_delete=models.CASCADE)
+    resettable = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.num_formule} - {self.epi}"
+
 class MatierePremiere(models.Model):
     nom = models.CharField(max_length=200, null=True)
     type = models.ForeignKey(TypeMatiere, on_delete=models.CASCADE, default=1, null=False)
@@ -230,6 +283,7 @@ class MatierePremiere(models.Model):
     tva = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     prix_ttc = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     prix_unit_ttc = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    densite = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     resettable = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):

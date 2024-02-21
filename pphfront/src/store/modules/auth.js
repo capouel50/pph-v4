@@ -34,6 +34,7 @@ const mutations = {
 };
 
 const actions = {
+
   async login({ commit, dispatch }, user) {
     try {
       this.intentionalLogout = false;

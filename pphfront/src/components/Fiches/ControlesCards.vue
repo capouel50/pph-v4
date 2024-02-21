@@ -8,7 +8,7 @@
             {{ controlCount }} fiches en attente de contrôle
             </div>
           </div>
-          <div class="col-2 offset-2">
+          <div class="col-2 offset-2 q-mt-sm">
             <q-input
                 ref="searchInput"
                 v-model="searchQuery"
@@ -30,7 +30,10 @@
           <div class="col col-12 justify-center">
             <div class="row justify-start">
               <div class="col-2 q-pa-sm" v-for="fiche in filteredFiches" :key="fiche.id">
-                <q-card bordered class="card-maxi justify-center items-center text-center relative">
+                <q-card bordered
+                        class="card-maxi justify-center items-center text-center relative"
+                        @click.stop="redirectToLink(fiche.id)"
+                >
                   <div class="card-content">
                     <q-img
                         class="logo-card-mini"
@@ -283,7 +286,7 @@ export default {
     },
 
     redirectToLink(id) {
-      this.$router.push(`/supplier/${id}`);
+      this.$router.push(`/fiche/${id}`);
     }
   }
 };

@@ -15,6 +15,7 @@ import MatieresCards from "@/components/MatieresPremiere/MatieresCards.vue";
 import MatieresCatalogueCards from "@/components/MatieresPremiere/MatieresCatalogueCards.vue";
 import CreateFormula from "@/components/Formules/CreateFormula.vue";
 import CreateFiche from "@/components/Fiches/CreateFiche.vue";
+import InfosFiche from "@/components/Fiches/InfosFiche.vue";
 import ControlesCards from "@/components/Fiches/ControlesCards.vue";
 import FichesArchivesCards from "@/components/Fiches/FichesArchivesCards.vue";
 import CreateDemande from "@/components/Demandes/CreateDemande.vue";
@@ -38,7 +39,20 @@ const routes = [
   {
     path: '/home/',
     name: 'Home',
-    component: HomePage
+    component: HomePage,
+    beforeEnter: async (to, from, next) => {
+    await store.dispatch('auth/checkAuthentication');
+
+    if (!store.state.auth.isLoggedIn) {
+      await store.dispatch('notifications/showNotification', {
+        message: 'Vous devez vous connecter pour accéder à cette page !',
+        type: 'info'
+      }, { root: true });
+      next('/login');
+      } else {
+        next();
+      }
+    }
   },
   {
     path: '/register',
@@ -159,6 +173,12 @@ const routes = [
     path: '/fiches',
     name: 'CreateFiche',
     component: CreateFiche
+  },
+  {
+    path: '/fiche/:id',
+    name: 'details-fiche',
+    component: InfosFiche,
+    props: true
   },
   {
     path: '/controles',

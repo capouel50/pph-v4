@@ -13,7 +13,19 @@
         :options="allMatieresLabel"
         option-label="label"
         option-value="id"
-      />
+      >
+        <template v-slot:option="scope">
+          <q-item
+            v-bind="scope.itemProps"
+            v-on="scope.itemEvents"
+          >
+            <q-item-section>{{ scope.opt.label }}</q-item-section>
+            <q-item-section side>
+              <q-img v-if="scope.opt.cmr" class="q-ml-xs fade-blink" src="@/assets/img/health_hazard.png" :style="{ width: '20px', height: '20px' }"/>
+            </q-item-section>
+          </q-item>
+        </template>
+      </q-select>
       <q-input
         v-model="row.qté"
         color="cyan-4"
@@ -173,6 +185,7 @@ export default {
         label: `${matiere.nom} ${matiere.qté_cdt}${matiere.unite_cdt} - ${matiere.forme.nom} - ${matiere.fournisseur.name}`,
         id: `${matiere.id}`,
         unite: `${matiere.unite_mesure.nom}`,
+        cmr: matiere.cmr,
       }));
     },
   },

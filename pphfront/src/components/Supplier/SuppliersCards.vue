@@ -2,13 +2,13 @@
   <q-page>
     <div class="row justify-center">
       <div class="col-md-12">
-        <div class="row">
-          <div class="col-1 q-ml-sm q-mt-sm">
+        <div class="row q-mx-sm">
+          <div class="col-1 q-mt-md">
             <router-link to="/supplier/">
               <q-btn round class="glossy btn-grey-primary-pph" icon="add"/>
             </router-link>
           </div>
-          <div class="col-2 q-ml-lg offset-8">
+          <div class="col-2 offset-9 q-mt-sm">
             <q-input
                 ref="searchInput"
                 v-model="searchQuery"
@@ -20,7 +20,7 @@
                 @focus="onFocus('searchQuery', '#4dd0e1')"
                 @blur="onBlur('searchQuery')"
             >
-              <template v-slot:before>
+              <template v-slot:append>
                 <q-icon name="search" color="cyan-4"/>
               </template>
             </q-input>
@@ -72,6 +72,7 @@
                     flat
                     dense
                     icon="info"
+                    size="xs"
                     @click.stop="toggleInfo(supplier.id)"
                   />
                   <q-menu fit anchor="bottom right" self="top middle" v-model="expanded[supplier.id]">
