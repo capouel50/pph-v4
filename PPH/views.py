@@ -2,6 +2,8 @@ import logging
 import time
 from datetime import date
 import jwt
+import serial
+from django.shortcuts import get_object_or_404
 from django.db.models.functions import ExtractMonth, ExtractYear, ExtractWeek
 from django.db.models import Count, Sum
 from dj_rest_auth.registration.views import RegisterView
@@ -40,13 +42,16 @@ from PPH.serializers import (
     DemandesReadSerializer, DemandesWriteSerializer, FichesReadSerializer, FichesWriteSerializer, ServiceSerializer, ParametresFormulesReadSerializer,
     ConditionnementSerializer, CategorieMatiereSerializer, CatalogueImportSerializer, ReceptionReadSerializer,
     ReceptionWriteSerializer, EtablissementSerializer, ParametresDemandesReadSerializer, ParametresDemandesWriteSerializer,
-    ParametresFichesReadSerializer, ParametresFichesWriteSerializer,
+    ParametresFichesReadSerializer, ParametresFichesWriteSerializer, EpiSerializer, EpiFormulesReadSerializer, EpiFormulesWriteSerializer,
+    BalancesSerializer, InstructionsBalancesSerializer
 )
 from .models import CustomUser, Supplier, UserFunction, Contact, \
     TypeMatiere, UniteMesure, Forme, MatierePremiere, TypePrep, \
     Formule, Composition, Catalogue, Liste, Voie, ParametresPrep, \
     ParametresFormules, Demandes, Fiches, Service, Conditionnement, \
-    CategorieMatiere, CatalogueImport, Reception, Etablissement, ParametresDemandes, ParametresFiches
+    CategorieMatiere, CatalogueImport, Reception, Etablissement, \
+    ParametresDemandes, ParametresFiches, Epi, EpiFormules, Balances, InstructionsBalances, FabricantsBalances
+
 from django.http import JsonResponse
 from .utils import extract_data_from_pdf
 from django.apps import apps
@@ -402,12 +407,119 @@ class CategorieMatiereViewSet(viewsets.ModelViewSet):
     queryset = CategorieMatiere.objects.all()
     serializer_class = CategorieMatiereSerializer
 
+class BalancesViewSet(viewsets.ModelViewSet):
+    queryset = Balances.objects.all()
+    serializer_class = BalancesSerializer
+
+class InstructionsBalancesViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint pour les instructions de balances.
+    Permet d'envoyer une instruction à une balance et de recevoir la réponse.
+
+    Methods:
+    - envoyer_instruction(request, pk): Envoie une instruction à une balance spécifiée par son ID et renvoie la réponse.
+    - list(request): Récupère la liste de toutes les instructions de balances disponibles.
+    """
+
+    queryset = InstructionsBalances.objects.all()
+    serializer_class = InstructionsBalancesSerializer
+
+    def recuperer_liste_commandes(self, request):
+        """
+        Récupère la liste de toutes les commandes disponibles sur la balance.
+
+        Args:
+        - request: Objet de requête HTTP.
+
+        Returns:
+        - Response avec la liste des commandes disponibles sur la balance.
+        """
+        ser = serial.Serial('COM1', 9600)  # Remplacez 'COM1' par le port série approprié
+        ser.timeout = 2  # Temps d'attente pour la réponse de la balance
+
+        ser.write(b'I0\r\n')  # Envoyer la commande "I0"
+
+        reponse = ser.read_until(b'\r\n')  # Lire la réponse jusqu'à la fin de ligne
+        ser.close()  # Fermer la connexion série
+
+        liste_commandes = reponse.decode().splitlines()  # Séparer la réponse en lignes
+
+        return Response(liste_commandes)
+
+    def envoyer_et_recevoir(self, instruction):
+        """
+        Envoie une instruction à une balance et renvoie le poids et l'unité de la réponse.
+
+        Args:
+        - instruction: Instruction à envoyer à la balance.
+
+        Returns:
+        - poids: Poids retourné par la balance.
+        - unite: Unité de mesure du poids retourné par la balance.
+        """
+        ser = serial.Serial('COM1', 9600)  # Remplacez 'COM1' par le port série approprié
+        ser.write(instruction.encode())
+        reponse = ser.readline().decode().strip()
+
+        # Obtenir le format de réponse à partir de l'objet d'instruction
+        format_reponse = instruction.format_reponse.strip('"')  # Supprime les guillemets
+
+        # Vérifier si la réponse correspond au format attendu
+        if reponse.startswith(format_reponse):
+            # Extraire le poids et l'unité de la réponse en fonction de la séparation par un espace
+            poids, unite = reponse[len(format_reponse):].split(' ', 1)  # Séparation en deux parties au premier espace
+        else:
+            poids = None
+            unite = None
+
+        return poids, unite
+
+    def envoyer_instruction(self, request, pk=None):
+        """
+        Envoie une instruction à une balance spécifiée par son ID et renvoie la réponse.
+
+        Args:
+        - request: Objet de requête HTTP.
+        - pk: Clé primaire de l'instruction de balance à envoyer.
+
+        Returns:
+        - Response avec la réponse de la balance à l'instruction.
+        """
+        instruction = get_object_or_404(InstructionsBalances, pk=pk)
+        reponse = self.envoyer_et_recevoir(instruction.nom_instruction)
+        return Response({'reponse': reponse})
+
+    def list(self, request):
+        """
+        Récupère la liste de toutes les instructions de balances disponibles.
+
+        Args:
+        - request: Objet de requête HTTP.
+
+        Returns:
+        - Response avec la liste des instructions de balances et leurs détails.
+        """
+        queryset = InstructionsBalances.objects.all()
+        serializer = InstructionsBalancesSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+
 class FormeViewSet(viewsets.ModelViewSet):
     queryset = Forme.objects.all()
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
             return FormeReadSerializer
         return FormeWriteSerializer
+
+class EpiViewSet(viewsets.ModelViewSet):
+    queryset = Epi.objects.all()
+    serializer_class = EpiSerializer
+class EpiFormulesViewSet(viewsets.ModelViewSet):
+    queryset = EpiFormules.objects.all()
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve']:
+            return EpiFormulesReadSerializer
+        return EpiFormulesWriteSerializer
 
 class FichesViewSet(viewsets.ModelViewSet):
     queryset = Fiches.objects.all()

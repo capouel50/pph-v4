@@ -6,7 +6,8 @@ from .models import CustomUser, Supplier, UserFunction, Contact, \
     TypeMatiere, UniteMesure, Forme, MatierePremiere, TypePrep, Formule, \
     Composition, Catalogue, Voie, Liste, ParametresPrep, ParametresFormules, \
     Demandes, Fiches, Service, Conditionnement, CategorieMatiere, CatalogueImport, \
-    Reception, Etablissement, ParametresDemandes, ParametresFiches
+    Reception, Etablissement, ParametresDemandes, ParametresFiches, Epi, EpiFormules, \
+    Balances, FabricantsBalances, InstructionsBalances
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -329,7 +330,31 @@ class FichesWriteSerializer(serializers.ModelSerializer):
         model = Fiches
         fields = '__all__'
 
+class BalancesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Balances
+        fields = '__all__'
 
+class InstructionsBalancesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InstructionsBalances
+        fields = '__all__'
+
+class EpiSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Epi
+        fields = '__all__'
+class EpiFormulesReadSerializer(serializers.ModelSerializer):
+    epi = EpiSerializer()
+    class Meta:
+        model = EpiFormules
+        fields = '__all__'
+
+class EpiFormulesWriteSerializer(serializers.ModelSerializer):
+    epi = EpiSerializer
+    class Meta:
+        model = EpiFormules
+        fields = '__all__'
 class ReceptionWriteSerializer(serializers.ModelSerializer):
     matiere = MatierePremiereReadSerializer
     class Meta:

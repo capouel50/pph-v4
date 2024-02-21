@@ -34,18 +34,18 @@
         </q-input>
 
           <q-select
-        v-model="typePrep"
-        color="cyan-4"
-        class="col-3 hover-effect"
-        label="Type de préparation"
-        :options="allTypePrepLabel"
-        option-label="label"
-        option-value="id"
-      >
-        <template v-slot:before>
-          <q-icon name="local_pharmacy" color="cyan-4"/>
-        </template>
-      </q-select>
+            v-model="typePrep"
+            color="cyan-4"
+            class="col-3 hover-effect"
+            label="Type de préparation"
+            :options="allTypePrepLabel"
+            option-label="label"
+            option-value="id"
+          >
+            <template v-slot:before>
+              <q-icon name="local_pharmacy" color="cyan-4"/>
+            </template>
+          </q-select>
 
           <div class="col-3 q-ml-md q-mt-md">
             <q-toggle
@@ -216,7 +216,7 @@
       >
         <div class="row">
           <div class="col-8">
-            <ParametresForm v-if="step === 6" />
+            <EpiForm v-if="step === 6" />
           </div>
         </div>
 
@@ -356,12 +356,14 @@
 <script>
 import CompositionForm from './CompositionForm.vue';
 import ParametresForm from './ParametresForm.vue';
+import EpiForm from './EpiForm.vue';
 import {mapActions, mapGetters} from "vuex";
 
 export default {
   components: {
     CompositionForm,
-    ParametresForm
+    ParametresForm,
+    EpiForm
   },
   data() {
     return {

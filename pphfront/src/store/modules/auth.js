@@ -35,6 +35,23 @@ const mutations = {
 
 const actions = {
 
+  requireAuth({ dispatch, state }, routeToRedirectTo) {
+      return async (to, from, next) => {
+        await dispatch('checkAuthentication');
+
+        if (!state.isLoggedIn) {
+          await dispatch('notifications/showNotification', {
+            message: 'Vous devez vous connecter pour accéder à cette page !',
+            type: 'info',
+          }, { root: true });
+
+          next(routeToRedirectTo);
+        } else {
+          next();
+        }
+      };
+    },
+
   async login({ commit, dispatch }, user) {
     try {
       this.intentionalLogout = false;

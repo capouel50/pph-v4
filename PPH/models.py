@@ -104,8 +104,11 @@ class FabricantsBalances(models.Model):
 
 
 class Balances(models.Model):
+    nom = models.CharField(max_length=100, unique=True, null=True)
     modele = models.CharField(max_length=100, unique=True)
     fabricant = models.ForeignKey(FabricantsBalances, on_delete=models.CASCADE)
+    calibration = models.DateField(default=date.today, blank=True)
+    bloque_calibration = models.BooleanField(default=True)
     class Meta:
         ordering = ['modele']
 
@@ -115,9 +118,9 @@ class Balances(models.Model):
 class InstructionsBalances(models.Model):
     modele_balance = models.ForeignKey(Balances, on_delete=models.CASCADE)
     nom = models.CharField(max_length=100, unique=True)
-    nom_instruction = models.CharField(max_length=100, unique=True)
-    valeur_instruction = models.TextField(null=True, blank=True)
-    reponse_instruction = models.TextField(null=True, blank=True)
+    instruction = models.CharField(max_length=100, unique=True)
+    description = models.CharField(max_length=100,null=True, blank=True)
+    format_reponse = models.CharField(max_length=100, null=True)
     class Meta:
         ordering = ['nom']
 
@@ -247,7 +250,7 @@ class ParametresFormules(models.Model):
         return f"{self.num_formule} - {self.parametre}"
 
 class Epi(models.Model):
-    nom = models.IntegerField()
+    nom = models.CharField(max_length=200, null=True)
     def __str__(self):
         return f"{self.nom}"
 class EpiFormules(models.Model):

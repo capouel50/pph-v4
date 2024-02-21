@@ -24,6 +24,7 @@
               <div class="col-1">
                 <q-btn
                   color="grey"
+                  class="hover-effect"
                   round
                   flat
                   dense
@@ -59,6 +60,7 @@
               <div class="col-1">
                 <q-btn
                   color="grey"
+                  class="hover-effect"
                   round
                   flat
                   dense
@@ -83,17 +85,21 @@
         </q-card>
           </div>
         </div>
-        <div>
+        <div v-if="this.epis.length">
           <q-card class="q-mb-md bg-op-8">
           <q-card-section>
 
             <div class="row">
-              <div class="col-10 offset-1 text-subtitle1 text-cyan-4 text-center">
-                EPI
+              <div>
+                <q-icon class="col-1 fade-blink" name="warning" color="red-4" size="sm"/>
+              </div>
+              <div class="col-10 text-subtitle1 text-cyan-4 text-center">
+                {{ this.epis.length }} EPI
               </div>
               <div class="col-1">
                 <q-btn
                   color="grey"
+                  class="hover-effect"
                   round
                   flat
                   dense
@@ -108,9 +114,14 @@
           <q-slide-transition>
             <div v-show="expanded">
               <q-separator />
-              <q-card-section class="text-subtitle2">
-                <div>Masque FFP2</div>
-                <div>Gants vynil</div>
+              <q-card-section>
+                <q-list v-for="epi in epis" :key="epi.id">
+                  <q-item class="row">
+                    <q-item-section>
+                      {{ epi.epi.nom}}
+                    </q-item-section>
+                  </q-item>
+                </q-list>
               </q-card-section>
             </div>
           </q-slide-transition>
@@ -128,6 +139,7 @@
               <div class="col-1">
                 <q-btn
                   color="grey"
+                  class="hover-effect"
                   round
                   flat
                   dense
@@ -168,18 +180,22 @@
 
           <q-card-section>
             <q-list v-for="compo in composition" :key="compo.id">
-              <q-item class="row">
+              <q-item class="row justify-evenly">
                 <q-item-section class="col-4 text-cyan-4">
                   {{ compo.matiere.nom}}
                 </q-item-section>
-                <q-item-section class="col-2 text-orange-4">
+                <q-item-section class="col-1 text-orange-4">
                   {{ compo.result }}{{ compo.matiere.unite_mesure.nom}}
+                </q-item-section>
+                <q-item-section class="col-1 text-orange-4">
+                  <q-img v-if="compo.matiere.cmr" class="q-ml-xs fade-blink" src="@/assets/img/health_hazard.png" :style="{ width: '20px', height: '20px' }"/>
                 </q-item-section>
                 <q-item-section class="col-2">
                   <q-input
                       v-model="num_reception"
                       label="N° réception"
                       color="cyan-4"
+                      @focus="updateQteTheory(compo)"
                   />
                 </q-item-section>
                 <q-item-section class="col-2 offset-1">
@@ -227,24 +243,29 @@
           <q-card class="bg-op-8">
           <q-card-section>
 
-            <div class="text-subtitle1 text-cyan-4 text-center">
-              Pesée
-            </div>
+            <q-select
+              class="q-my-none q-py-none"
+              v-model="balance"
+              color="cyan-4"
+              label="Balance"
+              :options="allBalancesLabel"
+              option-label="label"
+              @change="handleInput"
+            />
 
           </q-card-section>
 
           <q-separator/>
 
           <q-card-section>
-            <div class="text-center text-orange-4 text-h6">
-              {{ this.selectedCompoPesee }}{{ qteTheory.unite }} / {{ qteTheory.value }}{{ qteTheory.unite }}
-            </div>
-            <div class=" row justify-center">
-              <div class="text-subtiltle1 text-cyan-4">
-                Ecart :
+            <div class="row justify-center" :class="getDeviationPercentageColor()">
+              <div class="text-center text-h6 text-cyan-1" >
+                {{ this.selectedCompoPesee }}{{ qteTheory.unite }} / {{ qteTheory.value }}{{ qteTheory.unite }}
               </div>
-              <div class="text-subtiltle1" :class="getDeviationPercentageColor()">
-                {{ calculateDeviationPercentage() }}%
+            </div>
+            <div class="row justify-center text-cyan-1" :class="getDeviationPercentageColor()">
+              <div class="text-subtiltle1">
+                Ecart : {{ calculateDeviationPercentage() }}%
               </div>
             </div>
           </q-card-section>
@@ -345,6 +366,7 @@ export default {
       fiche: [],
       composition: [],
       parametres: [],
+      epis: [],
       result: [],
       expanded: false,
       modeOp: false,
@@ -355,12 +377,25 @@ export default {
         unite: null,
       },
       selectedCompoPesee: null,
+      balances: [],
+      balance: null,
     };
   },
 
   computed: {
     ...mapGetters('fiches', ['allFiches', 'allParametresFiches']),
     ...mapGetters('formules', ['allCompositions', 'allParametresFormules']),
+    ...mapGetters('epi', ['allEpis', 'allEpisFormules']),
+    ...mapGetters('balances', ['allBalances', 'allInstructionsBalances']),
+
+    allBalancesLabel() {
+      // Calculer le libellé complet avec le nom et le fournisseur
+      return this.allBalances.map(balance => ({
+        ...balance,
+        label: `${balance.nom}`,
+        id: balance.id,
+      }));
+    },
   },
 
   async created() {
@@ -370,12 +405,16 @@ export default {
       this.loadFiches(),
       this.loadCompositions(),
       this.loadParametresFormules(),
-      this.loadParametresFiches()
+      this.loadParametresFiches(),
+      this.loadEpisFormules(),
+      this.loadBalances(),
     ]);
-
+    console.log('balances', this.allBalances);
     this.fiche = this.allFiches.find(fiche => fiche.id === this.id);
+
     this.parametres = this.allParametresFiches.filter(param => param.num_fiche === this.fiche.id);
-    console.log('parametres : ', this.allParametresFiches);
+    this.epis = this.allEpisFormules.filter(epi => epi.num_formule === this.fiche.prep.id);
+    this.balances = this.allBalances;
     this.composition = this.allCompositions
     .filter(compo => compo.num_formule === this.fiche.prep.id)
     .map(compo => {
@@ -404,6 +443,17 @@ export default {
   methods: {
     ...mapActions('fiches', ['loadFiches', 'loadParametresFiches']),
     ...mapActions('formules', ['loadCompositions', 'loadParametresFormules']),
+    ...mapActions('epi', ['loadEpis', 'loadEpisFormules']),
+    ...mapActions('balances', ['loadBalances', 'loadInstructionsBalances', 'getCalibration']),
+
+    handleInput() {
+        console.log('Input event triggered. Selected balance ID:', this.balance.id);
+        if (this.balance && this.balance.id) {
+            this.getCalibration(this.balance.id);
+        } else {
+            console.error('Invalid balance object or ID');
+        }
+    },
 
     updateQteTheory(compo) {
       this.selectedCompoPesee = compo.pesee;
@@ -432,7 +482,7 @@ export default {
       const deviationPercentage = this.calculateDeviationPercentage();
 
       // return the color class depending on the percetage
-      return deviationPercentage < 5 ? 'text-green-4' : 'text-red-4';
+      return deviationPercentage < 5 ? 'bg-green-4' : 'bg-red-4';
     },
 
   },

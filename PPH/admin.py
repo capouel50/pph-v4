@@ -2,7 +2,8 @@ from django.contrib import admin
 from .models import CustomUser, UserFunction, Supplier, TypeMatiere, \
     UniteMesure, Forme, MatierePremiere, Liste, TypePrep, Formule, Composition, \
     Catalogue, Voie, ParametresPrep, ParametresFormules, Demandes, Fiches, Service, \
-    Conditionnement, CategorieMatiere, CatalogueImport, Reception, Etablissement, ParametresDemandes, ParametresFiches
+    Conditionnement, CategorieMatiere, CatalogueImport, Reception, Etablissement, \
+    ParametresDemandes, ParametresFiches, Balances, FabricantsBalances, InstructionsBalances, Epi, EpiFormules
 
 class CustomUserAdmin(admin.ModelAdmin):
     list_display = ('username', 'email', 'first_name', 'last_name', 'function', 'is_active', 'is_staff')
@@ -33,6 +34,25 @@ class UniteMesureAdmin(admin.ModelAdmin):
 class FormeAdmin(admin.ModelAdmin):
     list_display = ['nom', 'unite_mesure', 'unite_stock']
 
+@admin.register(Epi)
+class EpiAdmin(admin.ModelAdmin):
+    list_display = ['nom']
+
+@admin.register(EpiFormules)
+class EpiFormulesAdmin(admin.ModelAdmin):
+    list_display = ['num_formule', 'epi', 'resettable']
+
+@admin.register(Balances)
+class BalancesAdmin(admin.ModelAdmin):
+    list_display = ['nom', 'modele', 'fabricant']
+
+@admin.register(InstructionsBalances)
+class InstructionsBalancesAdmin(admin.ModelAdmin):
+    list_display = ['nom', 'modele_balance', 'instruction', 'description']
+
+@admin.register(FabricantsBalances)
+class FabricantsBalancesAdmin(admin.ModelAdmin):
+    list_display = ['name', 'address', 'postal', 'city', 'country', 'email', 'phone', 'site', 'is_activate', 'user_code', 'password']
 @admin.register(Liste)
 class ListeAdmin(admin.ModelAdmin):
     list_display = ['nom']

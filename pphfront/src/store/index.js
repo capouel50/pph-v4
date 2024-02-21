@@ -17,11 +17,15 @@ import spinner from './modules/spinner';
 import websocket from './modules/websocket';
 import dateFormatter from './modules/dateFormatter';
 import services from './modules/services';
+import epi from './modules/epi';
+import balances from './modules/balances';
 import resetData from './modules/resetData';
 import apiError from './modules/apiError';
 
 const store = createStore({
   modules: {
+    balances,
+    epi,
     apiError,
     resetData,
     services,

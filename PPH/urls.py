@@ -7,6 +7,7 @@ from .views import (
     VoieViewSet, TypePrepViewSet, ParametresPrepViewSet, ParametresFormulesViewSet, CompositionFilterView,
     DemandesViewSet, FichesViewSet, FichesSemaine, FichesMois, ConditionnementViewSet, CategorieMatiereViewSet,
     CatalogueImportViewSet, ReceptionViewSet, EtablissementViewSet, ParametresDemandesViewSet, ParametresFichesViewSet,
+    EpiViewSet, EpiFormulesViewSet, BalancesViewSet, InstructionsBalancesViewSet
 )
 from PPH import views
 from django.conf import settings
@@ -38,6 +39,10 @@ router.register(r'parametres-prep', ParametresPrepViewSet)
 router.register(r'parametres-formules', ParametresFormulesViewSet)
 router.register(r'parametres-demandes', ParametresDemandesViewSet)
 router.register(r'parametres-fiches', ParametresFichesViewSet)
+router.register(r'epi', EpiViewSet)
+router.register(r'epi-formules', EpiFormulesViewSet)
+router.register(r'balances', BalancesViewSet)
+router.register(r'instructions-balances', InstructionsBalancesViewSet)
 
 urlpatterns = [
     path('reset-data/', views.reset_data, name='reset_data'),
