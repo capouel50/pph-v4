@@ -2,12 +2,14 @@ import api from '../../../api';
 
 const state = () => ({
   users: [],
+  functions: [],
   showMenu: {},
   expanded: {},
   currentUser: null,
 });
 
 const getters = {
+  allFunctions: (state) => state.functions,
   allUsers: (state) => state.users,
   showMenu: (state) => state.showMenu,
   expanded: (state) => state.expanded,
@@ -19,21 +21,43 @@ const getters = {
 const actions = {
 
     async addUser({ dispatch }, formData) {
-  try {
-    await api.post('PPH/users/', formData);
-    dispatch('notifications/showNotification', {
-      message: 'Utilisateur ajouté avec succès',
-      type: 'success'
-    }, { root: true });
-    return Promise.resolve();
-  } catch (error) {
-    dispatch('notifications/showNotification', {
-      message: 'Erreur lors de l\'ajout de l\'utilisateur.',
-      type: 'error'
-    }, { root: true });
-    return Promise.reject(error);
-  }
-},
+      try {
+        await api.post('PPH/users/', formData);
+        dispatch('notifications/showNotification', {
+          message: 'Utilisateur ajouté avec succès',
+          type: 'success'
+        }, { root: true });
+        return Promise.resolve();
+      } catch (error) {
+        dispatch('notifications/showNotification', {
+          message: 'Erreur lors de l\'ajout de l\'utilisateur.',
+          type: 'error'
+        }, { root: true });
+        return Promise.reject(error);
+      }
+    },
+
+  async updateUser({ dispatch }, {id, formData}) {
+      try {
+        console.log('formDataRecu', formData);
+        await api.patch(`PPH/users/${id}/`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        dispatch('notifications/showNotification', {
+          message: 'Utilisateur modifié',
+          type: 'success'
+        }, { root: true });
+        return Promise.resolve();
+      } catch (error) {
+        dispatch('notifications/showNotification', {
+          message: 'Erreur lors de la modification de l\'utilisateur.',
+          type: 'error'
+        }, { root: true });
+        return Promise.reject(error);
+      }
+    },
 
   async fetchUserById(id) {
     try {
@@ -60,6 +84,20 @@ const actions = {
       commit('SET_USERS', users);
       commit('INIT_MENU', showMenu);
       commit('INIT_INFO', expanded);
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors du chargement des utilisateurs',
+        type: 'error'
+      }, { root: true });
+      console.error(error);
+    }
+  },
+
+  async loadFunctions({ commit, dispatch }) {
+    try {
+      const response = await api.get('/PPH/user-functions');
+      const functions = response.data;
+      commit('SET_FUNCTIONS', functions);
     } catch (error) {
       dispatch('notifications/showNotification', {
         message: 'Erreur lors du chargement des utilisateurs',
@@ -140,6 +178,9 @@ const mutations = {
     state.showMenu = { ...state.showMenu, [user.id]: false };
     state.expanded = { ...state.expanded, [user.id]: false };
   });
+  },
+  SET_FUNCTIONS(state, functions) {
+  state.functions = functions;
   },
   TOGGLE_MENU(state, id) {
     state.showMenu[id] = !state.showMenu[id];

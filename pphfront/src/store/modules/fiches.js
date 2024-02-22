@@ -99,6 +99,22 @@ const actions = {
   async loadFiches({ commit }) {
     try {
       const response = await api.get('/fiches');
+      const fiches = response.data;
+      const showMenu = {};
+      const settings = {};
+      const compo = {};
+      const info = {};
+
+      fiches.forEach(fiche => {
+        showMenu[fiche.id] = false;
+        settings[fiche.id] = false;
+        compo[fiche.id] = false;
+        info[fiche.id] = false;
+      });
+      commit('INIT_MENU', showMenu);
+      commit('INIT_INFO', info);
+      commit('INIT_COMPO', compo);
+      commit('INIT_SETTINGS', settings);
       commit('SET_FICHES', response.data);
     } catch (error) {
       console.error('Erreur lors du chargement des fiches :', error);
@@ -183,6 +199,18 @@ const mutations = {
   },
   TOGGLE_COMPO(state, id) {
     state.compo[id] = !state.compo[id];
+  },
+  INIT_INFO(state, info) {
+    state.info = info;
+  },
+  INIT_MENU(state, showMenu) {
+    state.showMenu = showMenu;
+  },
+  INIT_COMPO(state, compo) {
+    state.compo = compo;
+  },
+  INIT_SETTINGS(state, settings) {
+    state.settings = settings;
   },
 };
 export default {

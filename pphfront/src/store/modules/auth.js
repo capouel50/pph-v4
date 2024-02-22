@@ -4,6 +4,7 @@ import api from '../../../api';
 const state = {
   isLoggedIn: false,
   user: {
+    id: null,
     firstName: null,
     lastName: null,
     email: null,

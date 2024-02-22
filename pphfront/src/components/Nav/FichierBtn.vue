@@ -5,7 +5,7 @@
     <q-list class="bg-blue-grey-4" dense style="min-width: 100px">
 
       <q-item clickable class="hover-effect" v-close-popup>
-        <router-link class="pph-link" to="/user-account/">
+        <router-link class="pph-link" :to="`/user/${userId}`">
           <q-item-section class="text-cyan-1 hover-effect">Mon compte</q-item-section>
         </router-link>
       </q-item>
@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import {mapActions} from "vuex";
+import {mapActions, mapState} from "vuex";
 
 export default {
   name: 'FichierBtn',
@@ -72,6 +72,12 @@ export default {
       submenuOpen: false,
     };
   },
+  computed: {
+    ...mapState('auth',{
+      userId: state => state.user.id
+    })
+  },
+
   methods: {
     ...mapActions('resetData', ['resetData']),
     resetMenu() {

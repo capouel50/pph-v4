@@ -6,7 +6,6 @@ import PasswordReset from "@/components/User/PasswordReset.vue"
 import CreateSupplier from "@/components/Supplier/CreateSupplier.vue"
 import SuppliersCards from "@/components/Supplier/SuppliersCards.vue";
 import UserProfil from "@/components/User/UserProfil.vue";
-import UserAccount from "@/components/User/UserAccount.vue";
 import UsersCards from "@/components/User/UsersCards.vue";
 import MentionsLegales from "@/components/FooterLinks/MentionsLegales.vue";
 import CdtGalUtl from "@/components/FooterLinks/CdtGalUtl.vue";
@@ -109,14 +108,20 @@ const routes = [
     }
   },
   {
-    path: '/user-account',
+    path: '/user/:id',
     name: 'UserAccount',
-    component: UserAccount
+    component: UserProfil,
   },
   {
     path: '/user',
     name: 'User',
     component: UserProfil
+  },
+  {
+    path: '/user/:id',
+    name: 'User',
+    component: UserProfil,
+    props: true
   },
   {
     path: '/users',

@@ -9,7 +9,7 @@
       header-nav
       animated
     >
-      <div class="text-cyan-4 q-mb-lg text-h5 text-center">Fiche fournisseur</div>
+      <div class="text-cyan-4 q-mb-lg text-h5 text-center">Parametres de l'établissement</div>
       <q-step
         :name="1"
         title="Identification"
@@ -20,7 +20,7 @@
             <q-input
               class="col-2"
               ref="nameInput"
-              v-model="name"
+              v-model="nom_long"
               label="Nom"
               color ='cyan-4'
               @mouseover="changeLabelColor('nameInput','#ffb74d')"

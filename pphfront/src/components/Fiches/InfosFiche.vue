@@ -1,24 +1,20 @@
 <template>
   <q-page v-if="loading">
-    <div class="q-mt-sm ">
-      <div class="row text-h6 text-cyan-4 justify-center">
-        Fiche n°{{ fiche.id }}
-      </div>
-      <div class="row text-subtitle1 text-orange-4 justify-center">
-        {{ fiche.prep.nom }}
+    <div class="row q-mt-sm justify-center">
+      <div class="text-h6 text-cyan-4">
+        Fiche n°{{ fiche.id }} - {{ fiche.prep.nom }}
       </div>
     </div>
 
     <div class="row justify-evenly q-mt-md">
 
       <div class="col-3">
-        <div class="row justify-between">
-          <div class="col-5">
-            <q-card class="q-mb-md bg-op-8">
+        <div>
+          <q-card class="q-mb-md bg-op-8">
           <q-card-section>
 
             <div class="row">
-              <div class="col-10  text-subtitle1 text-cyan-4 text-center">
+              <div class="col-10 offset-1  text-subtitle1 text-cyan-4 text-center">
                 Matériel
               </div>
               <div class="col-1">
@@ -47,44 +43,8 @@
           </q-slide-transition>
 
         </q-card>
-          </div>
-
-          <div class="col-5">
-            <q-card class="q-mb-md bg-op-8">
-          <q-card-section>
-
-            <div class="row">
-              <div class="col-10 text-subtitle1 text-cyan-4 text-center">
-                Habillage
-              </div>
-              <div class="col-1">
-                <q-btn
-                  color="grey"
-                  class="hover-effect"
-                  round
-                  flat
-                  dense
-                  :icon="habillage ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
-                  @click="habillage = !habillage"
-                />
-              </div>
-            </div>
-
-          </q-card-section>
-
-          <q-slide-transition>
-            <div v-show="habillage">
-              <q-separator />
-              <q-card-section class="text-subtitle2">
-                <div>Surblouse</div>
-                <div>Charlotte</div>
-              </q-card-section>
-            </div>
-          </q-slide-transition>
-
-        </q-card>
-          </div>
         </div>
+
         <div v-if="this.epis.length">
           <q-card class="q-mb-md bg-op-8">
           <q-card-section>
@@ -128,6 +88,7 @@
 
         </q-card>
         </div>
+
         <div>
           <q-card class="bg-op-8">
           <q-card-section>
@@ -162,10 +123,9 @@
             </div>
           </q-slide-transition>
 
-        </q-card>
+          </q-card>
         </div>
       </div>
-
       <div class="col-6">
         <q-card class="bg-op-8">
           <q-card-section>
@@ -180,7 +140,9 @@
 
           <q-card-section>
             <q-list v-for="compo in composition" :key="compo.id">
-              <q-item class="row justify-evenly">
+              <q-item clickable class="row justify-evenly"
+                      @mouseover="updateQteTheory(compo)"
+              >
                 <q-item-section class="col-4 text-cyan-4">
                   {{ compo.matiere.nom}}
                 </q-item-section>
@@ -241,7 +203,7 @@
       <div class="col-2">
         <div>
           <q-card class="bg-op-8">
-          <q-card-section>
+          <q-card-section class="q-pt-none q-pb-xs">
 
             <q-select
               class="q-my-none q-py-none"
@@ -324,7 +286,7 @@
                     color="cyan-4"
                     class="hover-effect"
                     @click="imprimerEtiquette"
-                ><q-tooltip class="bg-blue-grey-4">Imprimer lees étiquettes</q-tooltip>
+                ><q-tooltip class="bg-blue-grey-4">Imprimer les étiquettes</q-tooltip>
                 </q-btn>
               </q-btn-group>
             </q-card-actions>
@@ -333,9 +295,7 @@
         </q-card>
         </div>
       </div>
-
     </div>
-
   </q-page>
   <q-page v-else class="row items-center justify-center">
   <div class=" row justify-center">
@@ -379,6 +339,7 @@ export default {
       selectedCompoPesee: null,
       balances: [],
       balance: null,
+      colorClass: '',
     };
   },
 

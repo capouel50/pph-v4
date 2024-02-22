@@ -71,6 +71,7 @@ setup(
         'pyOpenSSL==24.0.0',
         'PyPDF2==3.0.1',
         'pypdfium2==4.26.0',
+        'pyserial==3.5',
         'python-dateutil==2.8.2',
         'python-decouple==3.8',
         'python-dotenv==1.0.1',
@@ -95,6 +96,7 @@ setup(
         'uvicorn==0.27.0.post1',
         'vine==5.1.0',
         'waitress==2.1.2',
+        'watchdog==4.0.0',
         'watchfiles==0.21.0',
         'wcwidth==0.2.13',
         'websockets==12.0',
@@ -107,4 +109,3 @@ setup(
         ],
     },
 )
-
