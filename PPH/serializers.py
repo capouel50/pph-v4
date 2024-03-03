@@ -7,7 +7,7 @@ from .models import CustomUser, Supplier, UserFunction, Contact, \
     Composition, Catalogue, Voie, Liste, ParametresPrep, ParametresFormules, \
     Demandes, Fiches, Service, Conditionnement, CategorieMatiere, CatalogueImport, \
     Reception, Etablissement, ParametresDemandes, ParametresFiches, Epi, EpiFormules, \
-    Balances, FabricantsBalances, InstructionsBalances
+    Balances, FabricantsBalances, InstructionsBalances, ArticlesFormules
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -99,6 +99,11 @@ class EtablissementSerializer(serializers.ModelSerializer):
             return self.context['request'].build_absolute_uri(settings.MEDIA_URL + obj.logo.name)
         else:
             return None
+
+class FabricantsBalancesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FabricantsBalances
+        fields = '__all__'
 
 class SupplierSerializer(serializers.ModelSerializer):
     class Meta:
@@ -246,6 +251,7 @@ class MatierePremiereReadSerializer(serializers.ModelSerializer):
     cdt = ConditionnementSerializer()
     liste = ListeSerializer()
     unite_mesure = UniteMesureSerializer()
+    categorie = CategorieMatiereSerializer()
 
     class Meta:
         model = MatierePremiere
@@ -258,11 +264,29 @@ class MatierePremiereWriteSerializer(serializers.ModelSerializer):
     cdt = ConditionnementSerializer
     liste = ListeSerializer
     unite_mesure = UniteMesureSerializer
+    categorie = CategorieMatiereSerializer
 
     class Meta:
         model = MatierePremiere
         fields = '__all__'
 
+class ArticlesFormulesWriteSerializer(serializers.ModelSerializer):
+    article = serializers.PrimaryKeyRelatedField(queryset=MatierePremiere.objects.all())
+
+    class Meta:
+        model = ArticlesFormules
+        fields = '__all__'
+class ArticlesFormulesListSerializer(serializers.ListSerializer):
+    child = ArticlesFormulesWriteSerializer()
+
+    def create(self, validated_data):
+        articles_formules = [ArticlesFormules(**item) for item in validated_data]
+        return ArticlesFormules.objects.bulk_create(articles_formules)
+class ArticlesFormulesReadSerializer(serializers.ModelSerializer):
+    article = MatierePremiereReadSerializer()
+    class Meta:
+        model = ArticlesFormules
+        fields = '__all__'
 class FormuleSerializer(serializers.ModelSerializer):
     type = TypePrepSerializer(read_only=True)
     liste = ListeSerializer(read_only=True)
@@ -304,6 +328,7 @@ class CatalogueSerializer(serializers.ModelSerializer):
 
 class DemandesReadSerializer(serializers.ModelSerializer):
     prep = FormuleSerializer()
+    typePrep = TypePrepSerializer()
     service = ServiceSerializer()
     class Meta:
         model = Demandes
@@ -331,6 +356,7 @@ class FichesWriteSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class BalancesSerializer(serializers.ModelSerializer):
+    fabricant = FabricantsBalancesSerializer()
     class Meta:
         model = Balances
         fields = '__all__'

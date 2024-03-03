@@ -1,7 +1,7 @@
 <template>
-  <q-fab glossy class="btn-grey-primary-pph" icon="help" direction="left">
-    <q-fab-action glossy class="btn-grey-primary-pph" @click="toggleForm" icon="contact_support" />
-    <q-fab-action glossy class="btn-grey-primary-pph" @click="onClick" icon="play_lesson" />
+  <q-fab glossy class="btn-cyan-pph" icon="help" direction="left">
+    <q-fab-action flat external-label label-position="top" label="Contact" color="cyan-4" @click="toggleForm" icon="contact_support" />
+    <q-fab-action flat external-label label-position="top" label="Tutoriel" color="cyan-4" @click="onClick" icon="play_lesson" />
   </q-fab>
 </template>
 

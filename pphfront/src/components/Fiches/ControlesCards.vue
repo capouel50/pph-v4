@@ -30,9 +30,10 @@
           <div class="col col-12 justify-center">
             <div class="row justify-start">
               <div class="col-2 q-pa-sm" v-for="fiche in filteredFiches" :key="fiche.id">
-                <q-card bordered
-                        class="card-maxi justify-center items-center text-center relative"
-                        @click.stop="redirectToLink(fiche.id)"
+                <q-card v-if="!fiche.destruction"
+                    bordered
+                    class="card-maxi justify-center items-center text-center relative"
+                    @click.stop="redirectToLink(fiche.id)"
                 >
                   <div class="card-content">
                     <q-img
@@ -59,7 +60,7 @@
                             Valider contrôle
                           </q-item-section>
                         </q-item>
-                        <q-item clickable v-close-popup @click.stop="toggleDestruction(fiche.id)">
+                        <q-item clickable v-close-popup @click.stop="toggleDestruction({ ficheId: fiche.id, isDestroy: fiche.destruction })">
                           <q-item-section class="hover-effect-warning">Destruction</q-item-section>
                         </q-item>
                       </q-list>
@@ -237,7 +238,8 @@ export default {
   },
 
   methods: {
-    ...mapActions('fiches', ['loadFiches', 'loadParametresFiches', 'toggleInfo', 'toggleSettings', 'toggleCompo', 'toggleControle', 'toggleMenu']),
+    ...mapActions('fiches', ['loadFiches', 'loadParametresFiches', 'toggleInfo', 'toggleSettings', 'toggleCompo',
+                             'toggleControle', 'toggleMenu', 'toggleDestruction']),
     ...mapActions('formules', ['loadCompositions', 'loadFormules']),
 
     getCalculatedQty(formula, params, qte, unitMeasureString) {

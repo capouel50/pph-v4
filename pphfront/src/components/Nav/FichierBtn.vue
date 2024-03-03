@@ -39,9 +39,6 @@
                 <q-item-section class="text-cyan-1 hover-effect">Utilisateurs</q-item-section>
               </router-link>
             </q-item>
-            <q-item clickable class="hover-effect" v-close-popup>
-                <q-item-section class="text-cyan-1 hover-effect">Balances électroniques</q-item-section>
-            </q-item>
           </q-list>
         </q-menu>
 

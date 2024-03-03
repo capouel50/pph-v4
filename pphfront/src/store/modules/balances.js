@@ -3,11 +3,15 @@ import api from '../../../api';
 const state = () => ({
   balances: [],
   instructionsBalances: [],
+  showMenu: {},
+  expanded: {},
 });
 
 const getters = {
   allBalances: (state) => state.balances,
   allInstructionsBalances: (state) => state.instructionsBalances,
+  showMenu: (state) => state.showMenu,
+  expanded: (state) => state.expanded,
 };
 
 const actions = {
@@ -80,9 +84,48 @@ const actions = {
       return Promise.reject(error);
     }
   },
+
+  async toggleActivation({ dispatch }, payload) {
+    const { balanceId, isActive, balanceName } = payload;
+    try {
+      if (isActive) {
+        await api.patch(`/PPH/balances/${balanceId}/`, { is_activate: false });
+        dispatch('notifications/showNotification', {
+          message: `${balanceName} désactivée`,
+          type: 'success'
+        }, { root: true });
+      } else {
+        await api.patch(`/PPH/balances/${balanceId}/`, { is_activate: true });
+        dispatch('notifications/showNotification', {
+          message: `${balanceName} activée`,
+          type: 'success'
+        }, { root: true });
+      }
+      dispatch('loadSuppliers');
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors du changement d\'état',
+        type: 'error'
+      }, { root: true });
+      console.error(error);
+    }
+  },
+
+  toggleMenu({ commit }, id) {
+    commit('TOGGLE_MENU', id);
+  },
+  toggleInfo({ commit }, id) {
+    commit('TOGGLE_INFO', id);
+  },
 };
 
 const mutations = {
+  TOGGLE_MENU(state, id) {
+    state.showMenu[id] = !state.showMenu[id];
+  },
+  TOGGLE_INFO(state, id) {
+    state.expanded[id] = !state.expanded[id];
+  },
   ADD_BALANCE(state, balance) {
     state.balances.push(balance);
   },

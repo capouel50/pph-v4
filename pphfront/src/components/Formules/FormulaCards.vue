@@ -2,13 +2,23 @@
   <q-page>
     <div class="row justify-center">
       <div class="col-md-12">
-        <div class="row q-mx-sm">
-          <div class="col-1 q-mt-sm">
-            <router-link to="/nouvelle-formule/">
-              <q-btn round class="glossy btn-grey-primary-pph" icon="add"/>
-            </router-link>
+        <div class="row q-mx-sm q-mt-sm">
+          <div class="col-3 q-mt-sm">
+            <q-fab glossy class="glossy btn-cyan-pph" icon="add_box" direction="right">
+              <router-link to="/nouvelle-formule/">
+                <q-fab-action flat external-label label-position="bottom" label="Créer" color="cyan-4" icon="add"/>
+              </router-link>
+              <router-link to="/cloud">
+                <q-fab-action flat external-label label-position="bottom" label="Cloud" color="cyan-4" icon="cloud"/>
+              </router-link>
+            </q-fab>
           </div>
-          <div class="col-2 offset-9">
+          <div class="col-6 q-mt-md text-cyan-4 text-h6">
+            <div class="row justify-center">
+            {{ countFormules }} formules référencées
+            </div>
+          </div>
+          <div class="col-2 offset-1">
             <q-input
                 ref="searchInput"
                 v-model="searchQuery"
@@ -29,7 +39,9 @@
         <div class="row q-mt-sm">
           <div class="col col-12 justify-center">
             <div class="row justify-start">
-              <div class="col-2 q-pa-sm" v-for="formule in filteredFormules" :key="formule.id" @click="redirectToLink(formule.id)">
+              <div class="col-2 q-pa-sm" v-for="formule in filteredFormules" :key="formule.id"
+                   @click="redirectToLink(formule.id)"
+              >
                 <q-card bordered class="card-maxi justify-center items-center text-center relative" :class="{ 'bd-red-4': !formule.is_activate}">
                   <div @click="redirectToLink(formule.id)" class="card-content">
                     <q-img class="logo-card-mini"
@@ -203,11 +215,19 @@ export default {
   data() {
     return {
       searchQuery: '',
+      id: null,
+      epis: [],
+      articles: [],
     };
   },
 
   computed: {
-    ...mapGetters('formules', ['allFormules', 'allCompositions', 'allParametresFormules', 'compo', 'settings', 'showMenu', 'expanded']),
+    ...mapGetters('formules', ['allFormules', 'allCompositions', 'allParametresFormules', 'allArticlesFormules', 'compo', 'settings', 'showMenu', 'expanded']),
+    ...mapGetters('epi', ['allEpis', 'allEpisFormules']),
+
+    countFormules() {
+      return Array.isArray(this.filteredFormules) ? this.filteredFormules.length : 0;
+    },
 
     filteredFormules() {
       if (this.searchQuery) {
@@ -228,6 +248,7 @@ export default {
   methods: {
     ...mapActions('formules', ['loadFormules', 'loadParametresFormules', 'loadCompositions',  'toggleActivation', 'validFormule',
                                'toggleInfo', 'toggleCompo', 'toggleSettings', 'toggleMenu', 'toggleCloud']),
+
 
     filteredParametres(formuleId) {
       return this.allParametresFormules.filter(parametre => parametre.num_formule === formuleId);
@@ -263,7 +284,7 @@ export default {
     },
 
     redirectToLink(id) {
-      this.$router.push(`/supplier/${id}`);
+      this.$router.push(`/nouvelle-formule/${id}`);
     }
   }
 };

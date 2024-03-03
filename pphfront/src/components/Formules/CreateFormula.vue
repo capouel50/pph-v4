@@ -9,7 +9,8 @@
       header-nav
       animated
     >
-      <div class="text-h5 text-center text-cyan-4">Formule</div>
+      <div v-if="formuleId" class="text-h5 text-center text-cyan-4">{{ formule.nom }}</div>
+      <div v-else class="text-h5 text-center text-cyan-4">Nouvelle Formule</div>
        <q-step
         :name="1"
         title="Identification"
@@ -46,16 +47,6 @@
               <q-icon name="local_pharmacy" color="cyan-4"/>
             </template>
           </q-select>
-
-          <div class="col-3 q-ml-md q-mt-md">
-            <q-toggle
-                v-model="specialite"
-                label="Utilisation d'une spécialité"
-                size="md"
-                color="blue-4"
-                icon="medication"
-            />
-          </div>
         </div>
         <div class="row">
           <q-select
@@ -71,17 +62,14 @@
               <q-icon name="gavel" color="cyan-4"/>
             </template>
           </q-select>
-        </div>
-        <div class="row q-mt-md">
-          <div class="col-2">
             <q-toggle
+                class="col-2 offset-1 q-ml-lg q-mt-sm"
                 v-model="pediatric"
                 label="Formule pédiatrique"
                 size="md"
                 color="red-4"
                 icon="account_child"
             />
-          </div>
         </div>
         <q-stepper-navigation>
           <q-btn flat @click="step = 2" color="cyan-4" label="Suivant" class="hover-effect" />
@@ -174,13 +162,13 @@
 
       <q-step
         :name="4"
-        title="Paramètres"
-        icon="settings"
+        title="Matériel"
+        icon="biotech"
         :done="step > 4"
       >
         <div class="row">
           <div class="col-8">
-            <ParametresForm v-if="step === 4" />
+            <ArticlesForm v-if="step === 4" :newId="newId" :formuleId="formuleId"/>
           </div>
         </div>
 
@@ -192,13 +180,13 @@
 
       <q-step
         :name="5"
-        title="Composition"
-        icon="science"
+        title="Paramètres"
+        icon="settings"
         :done="step > 5"
       >
         <div class="row">
-          <div class="col-12">
-            <CompositionForm/>
+          <div class="col-8">
+            <ParametresForm v-if="step === 5" :newId="newId" :formuleId="formuleId"/>
           </div>
         </div>
 
@@ -210,13 +198,13 @@
 
       <q-step
         :name="6"
-        title="EPI"
-        icon="masks"
+        title="Composition"
+        icon="science"
         :done="step > 6"
       >
         <div class="row">
-          <div class="col-8">
-            <EpiForm v-if="step === 6" />
+          <div class="col-12">
+            <CompositionForm/>
           </div>
         </div>
 
@@ -228,9 +216,27 @@
 
       <q-step
         :name="7"
+        title="EPI"
+        icon="masks"
+        :done="step > 7"
+      >
+        <div class="row">
+          <div class="col-8">
+            <EpiForm v-if="step === 7" />
+          </div>
+        </div>
+
+        <q-stepper-navigation>
+          <q-btn flat @click="step = 6" color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
+          <q-btn flat @click="step = 8" color="cyan-4" label="Suivant" class="hover-effect"/>
+        </q-stepper-navigation>
+      </q-step>
+
+      <q-step
+        :name="8"
         title="Mode opératoire"
         icon="list_alt"
-        :done="step > 7"
+        :done="step > 8"
       >
 
         <div class="row">
@@ -253,16 +259,16 @@
       </div>
 
         <q-stepper-navigation>
-          <q-btn flat @click="step = 6" color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
-          <q-btn flat @click="step = 8" color="cyan-4" label="Suivant" class="hover-effect"/>
+          <q-btn flat @click="step = 7" color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
+          <q-btn flat @click="step = 9" color="cyan-4" label="Suivant" class="hover-effect"/>
         </q-stepper-navigation>
       </q-step>
 
       <q-step
-        :name="7"
+        :name="9"
         title="Contre-indications et précautions d'emploi"
         icon="warning"
-        :done="step > 7"
+        :done="step > 9"
       >
       <div class="row">
       <q-input
@@ -284,16 +290,16 @@
       </div>
 
         <q-stepper-navigation>
-          <q-btn flat @click="step = 6"  color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
-          <q-btn flat @click="step = 8" color="cyan-4" label="Suivant" class="hover-effect"/>
+          <q-btn flat @click="step = 8"  color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
+          <q-btn flat @click="step = 10" color="cyan-4" label="Suivant" class="hover-effect"/>
         </q-stepper-navigation>
       </q-step>
 
       <q-step
-        :name="9"
+        :name="10"
         title="Publications"
         icon="article"
-        :done="step > 9"
+        :done="step > 10"
       >
       <div class="row">
         <q-input
@@ -314,16 +320,16 @@
       </q-input>
       </div>
         <q-stepper-navigation>
-          <q-btn flat @click="step = 8" color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
-          <q-btn flat @click="step = 10" color="cyan-4" label="Suivant" class="hover-effect q-ml-sm" />
+          <q-btn flat @click="step = 9" color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
+          <q-btn flat @click="step = 11" color="cyan-4" label="Suivant" class="hover-effect q-ml-sm" />
         </q-stepper-navigation>
       </q-step>
 
       <q-step
-          :name="10"
+          :name="11"
           title="PPH cloud"
           icon="cloud"
-          :done="step > 10"
+          :done="step > 11"
         >
         <div class="row">
           <div class="col-2">
@@ -338,8 +344,8 @@
         </div>
 
         <q-stepper-navigation>
-          <q-btn flat @click="step = 9" color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
-          <q-btn flat @click="step = 11" color="cyan-4" label="Terminer" class="hover-effect"/>
+          <q-btn flat @click="step = 10" color="cyan-4" label="Précédent" class="hover-effect q-ml-sm" />
+          <q-btn flat @click="step = 12" color="cyan-4" label="Terminer" class="hover-effect"/>
         </q-stepper-navigation>
       </q-step>
 
@@ -357,13 +363,16 @@
 import CompositionForm from './CompositionForm.vue';
 import ParametresForm from './ParametresForm.vue';
 import EpiForm from './EpiForm.vue';
-import {mapActions, mapGetters} from "vuex";
+import ArticlesForm from './ArticlesForm.vue';
+import {mapActions, mapGetters, mapMutations } from "vuex";
+import api from "../../../api";
 
 export default {
   components: {
     CompositionForm,
     ParametresForm,
-    EpiForm
+    EpiForm,
+    ArticlesForm
   },
   data() {
     return {
@@ -382,11 +391,14 @@ export default {
       cloud: false,
       pediatric: false,
       specialite: false,
+      newId: null,
+      formuleId: null,
+      formule:[],
     };
   },
 
   computed: {
-    ...mapGetters('formules', ['allTypes', 'allListes']),
+    ...mapGetters('formules', ['allFormules', 'allTypes', 'allListes', 'allArticlesFormules', "allParametresFormules"]),
     ...mapGetters('voiesAdministration', ['allVoies']),
 
     allTypePrepLabel() {
@@ -413,17 +425,76 @@ export default {
     },
   },
 
-  created() {
-    this.loadVoies();
-    this.loadTypes();
-    this.loadListes();
+  async created() {
+    if(this.$route.params.id) {
+      this.formuleId = Number(this.$route.params.id);
+    }else{
+      this.loadLastId();
+    }
+
+    await Promise.all([
+      this.loadVoies(),
+      this.loadTypes(),
+      this.loadListes(),
+      this.loadArticlesFormules(),
+      this.loadParametresFormules(),
+    ]);
+
+    if(this.formuleId) {
+      this.formule = this.allFormules.find(formule => formule.id === this.formuleId);
+      this.name = this.formule.nom;
+      this.typePrep = this.formule.type.nom;
+      this.liste = this.formule.liste.nom;
+      this.voie = this.formule.voie.nom;
+      this.duree = this.formule.duree;
+      this.froid = this.formule.froid;
+      this.lumiere = this.formule.lumiere;
+      this.agiter = this.formule.agiter;
+      this.modeOperatoire = this.formule.mode_operatoire;
+      this.emploi = this.formule.contre_indications;
+      this.publications = this.formule.publications,
+      this.cloud = this.formule.cloud;
+      this.pediatric = this.formule.pediatric;
+      this.specialite = this.formule.specialite;
+    }
   },
 
   methods: {
-    ...mapActions('formules', ['loadTypes','loadListes', 'addFormule']),
+    ...mapActions('formules', ['loadTypes','loadListes', 'addFormule', 'loadArticlesFormules',
+                               'addArticles', 'loadParametresFormules', 'addParametres', 'updateParametres', 'updateArticles', 'updateFormule']),
     ...mapActions('voiesAdministration', ['loadVoies']),
+    ...mapMutations('formules', ['RESET_ARTICLES_FORMULES', 'RESET_PARAMETRES_FORMULES']),
+
+    async loadLastId() {
+      try {
+        // Utilisez une API Django ou Axios pour récupérer le dernier ID + 1
+        const response = await api.get('/PPH/nouvelle-formule/dernier_id');
+        const dernierId = response.data.dernierId;
+
+        // Incrémentez l'ID de 1 pour obtenir la nouvelle valeur de num_formule
+        this.newId = dernierId + 1;
+        console.log('lastId', this.newId);
+      } catch (error) {
+        console.error('Erreur lors de la récupération du dernier ID de la formule', error);
+      }
+    },
 
     async submitForm() {
+      const stateData = this.allArticlesFormules
+          .filter(article => this.formuleId ?
+              article.num_formule === this.formuleId : article.num_formule === this.newId)
+          .map(article => ({
+          num_formule: article.num_formule,
+          article: article.articleId,
+      }));
+      const paramData = this.allParametresFormules
+          .filter(parametre => this.formuleId ?
+              parametre.num_formule === this.formuleId : parametre.num_formule === this.newId)
+          .map(parametre => ({
+          num_formule: parametre.num_formule,
+          parametre: parametre.parametreId,
+          unite: parametre.unite,
+      }));
       const formData = {
         nom: this.name,
         type: this.typePrep,
@@ -440,7 +511,17 @@ export default {
         pediatric: this.pediatric,
         specialite: this.specialite,
       };
-      this.addFormule(formData);
+      if(!this.formuleId){
+        await this.addArticles(stateData);
+        await this.addParametres(paramData);
+        await this.addFormule(formData);
+      }else{
+        await this.updateArticles(stateData);
+        await this.updateParametres(paramData);
+        await this.updateFormule(formData);
+      }
+      this.RESET_ARTICLES_FORMULES(this.newId);
+      this.RESET_PARAMETRES_FORMULES(this.newId);
       this.name= '';
       this.typePrep= null;
       this.liste= null;
@@ -456,6 +537,7 @@ export default {
       this.pediatric= false;
       this.specialite= false;
       this.step= 1;
+
     },
   },
 };

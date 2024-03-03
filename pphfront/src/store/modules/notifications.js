@@ -30,8 +30,8 @@ const actions = {
     Notify.create({
       message: payload.message,
       ...config,
-      timeout: 5000,
-      position: 'top-right',
+      timeout: payload.time ? payload.time : 5000,
+      position: payload.position ? payload.position : 'top-right',
       ...payload.options // Pour les options supplémentaires si nécessaire
     });
   },

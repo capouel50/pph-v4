@@ -14,18 +14,21 @@
       <div class="col-md-12">
         <div class="row q-mx-sm">
           <div class="col-1 q-mt-md">
-            <q-fab size="sm" glossy class="btn-grey-primary-pph" icon="add_box" direction="right">
-              <q-fab-action glossy external-label label-position="bottom"
+            <q-fab size="sm" glossy class="btn-cyan-pph" icon="add_box" direction="right">
+              <q-fab-action flat external-label label-position="bottom"
                             label="Excel"
-                            class="btn-grey-primary-pph"
+                            color="cyan-4"
+                            class="hover-effect"
                             @click="importCatalogueExcel=true" icon="playlist_add" />
-              <q-fab-action glossy external-label label-position="bottom"
+              <q-fab-action flat external-label label-position="bottom"
                             label="PDF"
-                            class="btn-grey-primary-pph"
+                            color="cyan-4"
+                            class="hover-effect"
                             @click="importCatalogue=true" icon="post_add" />
-              <q-fab-action glossy external-label label-position="bottom"
+              <q-fab-action flat external-label label-position="bottom"
                             label="Site"
-                            class="btn-grey-primary-pph"
+                            color="cyan-4"
+                            class="hover-effect"
                             @click="selectColumns=true" icon="add_business" />
 
               <q-form enctype="multipart/form-data">

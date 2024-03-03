@@ -2,8 +2,15 @@
   <q-page>
     <div class="row justify-center">
       <div class="col-md-12">
-        <div class="row q-mx-sm">
-          <div class="col-4 offset-4 q-mt-md text-cyan-4 text-h6">
+        <div class="row q-mx-sm q-mt-sm">
+          <div class="col-3 q-mt-sm">
+            <div class="row">
+              <router-link to="/demande/">
+                <q-btn round class="glossy btn-cyan-pph" icon="add_box"/>
+              </router-link>
+            </div>
+           </div>
+          <div class="col-4 offset-1 q-mt-md text-cyan-4 text-h6">
             <div class="row justify-center">
             {{ controlCount }} demandes en attente
             </div>
@@ -30,7 +37,7 @@
           <div class="col col-12 justify-center">
             <div class="row justify-start">
               <div class="col-2 q-pa-sm" v-for="demande in filteredDemandes" :key="demande.id">
-                <q-card bordered class="card-maxi justify-center items-center text-center relative">
+                <q-card v-if="!demande.production" bordered class="card-maxi justify-center items-center text-center relative">
                   <div class="card-content">
                     <q-img
                         class="logo-card-mini"
@@ -51,10 +58,12 @@
                     <q-btn flat color="white" class="absolute-top-right hover-effect q-pa-none q-ma-none" icon="more_vert" @click.stop="toggleMenu(demande.id)" />
                     <q-menu fit anchor="top right" self="bottom middle" v-model="showMenu[demande.id]">
                       <q-list style="min-width: 100px">
-                        <q-item clickable v-close-popup @click.stop="toggleProduction({ demandeId: demande.id })">
-                          <q-item-section class="hover-effect-success">
-                            Générer fiche de fabrication
+                        <q-item clickable v-close-popup>
+                          <router-link :to="{ name: 'GenerateFiche', params: { demandeId: demande.id}}" class="pph-link">
+                          <q-item-section class="hover-effect-success text-black">
+                            Mise en production
                           </q-item-section>
+                            </router-link>
                         </q-item>
                         <q-item v-if="demande.recurence" clickable v-close-popup @click.stop="stopRepeat({ demandeId: demande.id })">
                           <q-item-section class="hover-effect-warning">Stopper répétition</q-item-section>

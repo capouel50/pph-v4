@@ -17,3 +17,23 @@ export function getCalculatedQty(formula, params, qte, unitMeasureString) {
     return "Erreur";
   }
 }
+
+export function toInteger(decimalNumber) {
+    // Si la partie fractionnaire du nombre est égale à zéro
+    if(decimalNumber % 1 === 0) {
+
+        // Convertir en entier en utilisant le convertisseur Number entier
+        return Number.parseInt(decimalNumber, 10);
+    }
+
+    // Sinon, retourner le nombre tel quel
+    return decimalNumber;
+}
+
+export function formatDate(date) {
+  var dd = String(date.getDate()).padStart(2, '0');
+  var mm = String(date.getMonth() + 1).padStart(2, '0'); // Les mois de l'objet Date commencent à 0, donc ajoutez 1.
+  var yyyy = date.getFullYear();
+
+  return dd + '/' + mm + '/' + yyyy;
+}

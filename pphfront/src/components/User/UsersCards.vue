@@ -5,7 +5,7 @@
         <div class="row">
           <div class="col-1 q-mx-sm q-mt-sm">
             <router-link to="/user/">
-              <q-btn round class="glossy btn-grey-primary-pph" icon="add"/>
+              <q-btn round class="btn-cyan-pph" icon="add"/>
             </router-link>
           </div>
         </div>

@@ -170,26 +170,51 @@
                               class="hover-effect"
                               color="cyan-4"
                               v-model="lot"
+                              @blur="checkCertif(lot)"
                             />
                           </div>
                           <div class="col-5 offset-1">
                             <q-input
                               label="Peremption"
                               type="date"
-                              hint="Native date"
                               class="hover-effect"
                               color="cyan-4"
                               v-model="peremption"
                             />
                           </div>
                         </div>
-                        <div class="row">
-                          <div class="col-12">
+                        <div class="row justify-center">
+                          <div class="col-12" v-if="!certif">
                             <q-file
-                              label="Sélectionner un certificat(pdf)"
+                              label="Sélectionner un certificat(.pdf)"
                               accept=".pdf"
                               v-model="certificat"
                             />
+                          </div>
+                          <div v-else class="col-8 q-mt-sm text-green-4 text-center">
+                              Un certificat d'analyse correspondant à ce lot a été trouvé.
+                          </div>
+                        </div>
+                        <div class="row" v-if="!certif">
+                          <div class="col-5 q-mt-md">
+                            <q-toggle
+                              label="Echantillon"
+                              color="green-4"
+                              v-model="echantillon"
+                            />
+                          </div>
+                          <div class="col-3 offset-1" v-show="echantillon">
+                            <q-input
+                              label="Quantité"
+                              color="cyan-4"
+                              v-model="qte_echantillon"
+                            >
+                              <template v-slot:append>
+                                <div class="text-cyan-4 text-subtitle2 q-pt-md">
+                                  {{ selectedMatiere.unite_mesure.nom }}
+                                </div>
+                              </template>
+                            </q-input>
                           </div>
                         </div>
                       </q-card-section>
@@ -316,11 +341,15 @@ export default {
       lot: '',
       peremption: '',
       certificat:'',
+      echantillon: false,
+      qte_echantillon: '',
+      reception: [],
+      certif: false,
     };
   },
 
   computed: {
-    ...mapGetters('matieresPremieres', ['allMatieres', 'expanded', 'showMenu']),
+    ...mapGetters('matieresPremieres', ['allMatieres', 'allReceptions', 'expanded', 'showMenu']),
 
     countMatieres() {
       return this.filteredMatieresLivraison.length;
@@ -343,27 +372,49 @@ export default {
 
   async created() {
     await this.loadMatieresPremieres();
-
   },
 
   methods: {
-    ...mapActions('matieresPremieres', ['loadMatieresPremieres', 'addReception', 'toggleLivraison', 'toggleInfo', 'toggleMenu']),
+    ...mapActions('matieresPremieres', ['loadMatieresPremieres', 'loadReceptions', 'addReception', 'toggleLivraison', 'toggleInfo', 'toggleMenu']),
 
     selectMatiere(matiere) {
       this.selectedMatiere = { ...matiere };
       this.addMatiereStock=true;
     },
 
+    async checkCertif(lot) {
+      await this.loadReceptions;
+      let certif = this.allReceptions.find(reception => reception.lot === lot);
+      this.reception = certif;
+      if(certif && !this.certificat){
+        this.certificat = this.reception.certificat;
+        fetch(this.certificat)
+        .then(response => response.blob())
+        .then(blob => {
+          this.certificat = blob;
+        });
+        this.certif = true;
+      }else{
+        this.certificat = '';
+        this.certif = false;
+      }
+    },
+
+
     async receptionner() {
-      const formData = {
-        matiere: this.selectedMatiere.id,
-        qte: this.qte,
-        lot: this.lot,
-        peremption: this.peremption,
-        certificat: this.certificat,
-      };
-      console.log('formData', formData);
-      // Appelez votre action Vuex pour ajouter les compositions
+      const formData = new FormData();
+      formData.append('matiere', this.selectedMatiere.id);
+      formData.append('qte', this.qte);
+      formData.append('lot', this.lot);
+      formData.append('peremption', this.peremption);
+      if(this.certificat) {
+        formData.append('certificat', this.certificat, `${this.lot}.pdf`);
+      }else{
+        formData.append('certificat', this.certificat);
+      }
+      formData.append('echantillon', this.echantillon);
+      formData.append('qte_echantillon', this.qte_echantillon);
+
       await this.addReception(formData);
       await this.loadMatieresPremieres();
       this.selectedMatiere = null;
@@ -371,6 +422,8 @@ export default {
       this.lot = '';
       this.peremption = '';
       this.certificat = '';
+      this.echantillon = false;
+      this.qte_echantillon = '';
       this.addMatiereStock=false;
     },
 

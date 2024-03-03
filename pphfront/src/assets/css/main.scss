@@ -123,6 +123,12 @@
   border-color: #a1d19b !important;
   box-shadow: 0 0 20px #a1d19b;
 }
+.btn-flat-success-pph:hover {
+  color: white !important;
+  background-color: #a1d19b;
+  border-color: #a1d19b !important;
+  box-shadow: 0 0 20px #a1d19b;
+}
 
 .btn-flat-success-pph:hover {
   color: white !important;
@@ -151,6 +157,21 @@
   background-color: #9bd1d1;
   border-color: #9bd1d1 !important;
   box-shadow: 0 0 20px #9bd1d1;
+}
+
+.btn-cyan-pph {
+  color: white !important;
+  border-color: white !important;
+  background-color: #4dd0e1;
+  cursor: pointer;
+  transition: background-color 0.3s ease-out, box-shadow 0.3s ease-out;
+}
+
+.btn-cyan-pph:hover {
+  color: white !important;
+  background-color: #4dd0e1;
+  border-color: #4dd0e1 !important;
+  box-shadow: 0 0 20px #4dd0e1;
 }
 
 .btn-grey-warning-pph {

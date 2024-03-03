@@ -265,7 +265,9 @@ export default {
   },
 
   async mounted() {
-    this.supplierId = Number(this.$route.params.id);
+    if(this.$route.params.id) {
+      this.supplierId = Number(this.$route.params.id);
+    }
 
     await Promise.all([
       this.loadSuppliers(),
@@ -321,7 +323,13 @@ export default {
 
     async onSubmit(formData) {
       try {
-        await this.addSupplier(formData);
+        if(this.$route.name === 'CreateBalancesSupplier') {
+          const url = '/PPH/balances-supplier/';
+          await this.addSupplier({formData, url});
+        }else{
+          const url = '/PPH/suppliers/';
+          await this.addSupplier({formData, url});
+        }
         this.resetForm();
       } catch (error) {
         console.error("Error adding supplier:", error);

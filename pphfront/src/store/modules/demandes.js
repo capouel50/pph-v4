@@ -139,6 +139,16 @@ const actions = {
     }
   },
 
+  async loadLastDemandeId() {
+      try {
+        // Utilisez une API Django ou Axios pour récupérer le dernier ID + 1
+        await api.get('/PPH/demandes/dernier_id');
+
+      } catch (error) {
+        console.error('Erreur lors de la récupération du dernier ID de la formule', error);
+      }
+    },
+
   async loadDemandes({ commit, dispatch }) {
     try {
       const response = await api.get('/demandes');
@@ -172,13 +182,13 @@ const actions = {
       if (isProduction) {
         await api.patch(`/PPH/demandes/${demandeId}/`, { production: false });
         dispatch('notifications/showNotification', {
-          message: 'Demande mise en attente',
+          message: `Demande n°${demandeId} mise en attente`,
           type: 'success'
         }, { root: true });
       } else {
         await api.patch(`/PPH/demandes/${demandeId}/`, { production: true });
         dispatch('notifications/showNotification', {
-          message: 'Demande mise en production',
+          message: `Demande n°${demandeId} mise en production`,
           type: 'success'
         }, { root: true });
       }

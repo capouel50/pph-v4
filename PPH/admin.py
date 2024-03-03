@@ -3,7 +3,7 @@ from .models import CustomUser, UserFunction, Supplier, TypeMatiere, \
     UniteMesure, Forme, MatierePremiere, Liste, TypePrep, Formule, Composition, \
     Catalogue, Voie, ParametresPrep, ParametresFormules, Demandes, Fiches, Service, \
     Conditionnement, CategorieMatiere, CatalogueImport, Reception, Etablissement, \
-    ParametresDemandes, ParametresFiches, Balances, FabricantsBalances, InstructionsBalances, Epi, EpiFormules
+    ParametresDemandes, ParametresFiches, Balances, FabricantsBalances, InstructionsBalances, Epi, EpiFormules, ArticlesFormules
 
 class CustomUserAdmin(admin.ModelAdmin):
     list_display = ('username', 'email', 'first_name', 'last_name', 'function', 'is_active', 'is_staff')
@@ -75,6 +75,10 @@ class ParametresPrepAdmin(admin.ModelAdmin):
 @admin.register(ParametresFormules)
 class ParametresFormulesAdmin(admin.ModelAdmin):
     list_display = ['num_formule', 'parametre']
+
+@admin.register(ArticlesFormules)
+class ArticlesFormulesAdmin(admin.ModelAdmin):
+    list_display = ['num_formule', 'article']
 
 @admin.register(ParametresDemandes)
 class ParametresDemandesAdmin(admin.ModelAdmin):

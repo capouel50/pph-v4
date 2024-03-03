@@ -121,6 +121,16 @@ const actions = {
     }
   },
 
+  async loadLastFicheId() {
+      try {
+        // Utilisez une API Django ou Axios pour récupérer le dernier ID + 1
+        await api.get('/PPH/fiches/dernier_id');
+
+      } catch (error) {
+        console.error('Erreur lors de la récupération du dernier ID de la formule', error);
+      }
+    },
+
   async loadFichesSemaine({ commit }) {
     try {
       const response = await api.get('/PPH/fiches-semaine');
@@ -162,6 +172,38 @@ const actions = {
     }
   },
 
+  async toggleDestruction({ dispatch }, payload) {
+    const { ficheId, isDestroy } = payload;
+    try {
+      if (isDestroy) {
+        await api.patch(`/PPH/fiches/${ficheId}/`, {
+          attente_controle: true,
+          destruction: false,
+        });
+        dispatch('notifications/showNotification', {
+          message: 'Fiche en attente de contrôle',
+          type: 'success'
+        }, { root: true });
+      } else {
+        await api.patch(`/PPH/fiches/${ficheId}/`, {
+          destruction: true,
+          attente_controle: false,
+        });
+        dispatch('notifications/showNotification', {
+          message: 'Contrôle non validé',
+          type: 'success'
+        }, { root: true });
+      }
+      dispatch('loadFiches');
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors du changement d\'état',
+        type: 'error'
+      }, { root: true });
+      console.error(error);
+    }
+  },
+
   toggleInfo({ commit }, id) {
     commit('TOGGLE_INFO', id);
   },
@@ -179,6 +221,12 @@ const actions = {
 };
 
 const mutations = {
+  ADD_FICHE: (state, fiche) => {
+    state.fiches.push(fiche);
+  },
+  ADD_PARAMETRES_FICHES: (state, parametres) => {
+    state.parametresFiches.push(parametres);
+  },
   SET_FICHES: (state, fiches) => {
     state.fiches = fiches;
   },

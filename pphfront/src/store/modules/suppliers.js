@@ -18,9 +18,9 @@ const getters = {
 
 const actions = {
 
-  async addSupplier({ dispatch }, formData) {
+  async addSupplier({ dispatch }, { formData, url }) {
       try {
-        await api.post('PPH/suppliers/', formData);
+        await api.post(url, formData);
         dispatch('notifications/showNotification', {
           message: 'Fournisseur ajouté avec succès',
           type: 'success'
@@ -34,6 +34,20 @@ const actions = {
         return Promise.reject(error);
       }
     },
+
+  async loadSuppliersBalances({commit, dispatch}) {
+    try {
+      const response = await api.get('/PPH/balances-suppliers');
+      commit('SET_SUPPLIERS', response.data);
+      console.log(response.data);
+    } catch (error) {
+      dispatch('notifications/showNotification', {
+        message: 'Erreur lors du chargement des fournisseurs',
+        type: 'error'
+      }, {root: true});
+      console.error(error);
+    }
+  },
 
   async updateSupplier({ dispatch }, {id, formData}) {
       try {

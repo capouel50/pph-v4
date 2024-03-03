@@ -11,6 +11,7 @@ import MentionsLegales from "@/components/FooterLinks/MentionsLegales.vue";
 import CdtGalUtl from "@/components/FooterLinks/CdtGalUtl.vue";
 import HomePage from "@/components/HomePage.vue";
 import MatieresCards from "@/components/MatieresPremiere/MatieresCards.vue";
+import MaterielCards from "@/components/MatieresPremiere/MaterielCards.vue";
 import MatieresCatalogueCards from "@/components/MatieresPremiere/MatieresCatalogueCards.vue";
 import CreateFormula from "@/components/Formules/CreateFormula.vue";
 import CreateFiche from "@/components/Fiches/CreateFiche.vue";
@@ -23,6 +24,8 @@ import FormulaCards from "@/components/Formules/FormulaCards.vue";
 import CreateMatiere from "@/components/MatieresPremiere/CreateMatiere.vue";
 import MatieresCardsReception from "@/components/MatieresPremiere/MatieresCardsReception.vue";
 import MatieresCardsCommande from "@/components/MatieresPremiere/MatieresCardsCommande.vue";
+import BalancesCards from "@/components/Balances/BalancesCards.vue";
+import CreateBalance from "@/components/Balances/CreateBalance.vue";
 
 const routes = [
   {
@@ -150,6 +153,11 @@ const routes = [
     component: MatieresCards
   },
   {
+    path: '/materiel',
+    name: 'MaterielCards',
+    component: MaterielCards
+  },
+  {
     path: '/catalogue',
     name: 'MatieresCatalogueCards',
     component: MatieresCatalogueCards
@@ -158,6 +166,12 @@ const routes = [
     path: '/nouvelle-formule',
     name: 'CreateFormula',
     component: CreateFormula
+  },
+  {
+    path: '/nouvelle-formule/:id',
+    name: 'UpdateFormula',
+    component: CreateFormula,
+    props: true
   },
   {
     path: '/formules',
@@ -178,6 +192,18 @@ const routes = [
     path: '/fiches',
     name: 'CreateFiche',
     component: CreateFiche
+  },
+  {
+    path: '/fiches/:demandeId',
+    name: 'GenerateFiche',
+    component: InfosFiche,
+    props: true
+  },
+  {
+    path: '/fiche/:ficheId',
+    name: 'CompoFiche',
+    component: InfosFiche,
+    props: true
   },
   {
     path: '/fiche/:id',
@@ -209,6 +235,28 @@ const routes = [
     path: '/commande',
     name: 'MatieresCardsCommande',
     component: MatieresCardsCommande
+  },
+  {
+    path: '/balances',
+    name: 'BalancesCards',
+    component: BalancesCards
+  },
+  {
+    path: '/suppliers/balances',
+    name: 'CreateBalancesSupplier',
+    component: CreateSupplier
+  },
+  {
+    path: '/creer-balances',
+    name: 'CreateBalances',
+    component: CreateBalance,
+    props: true,
+  },
+  {
+    path: '/modifier-balances/:id',
+    name: 'updateBalances',
+    component: CreateBalance,
+    props: true,
   },
 ]
 

@@ -31,7 +31,7 @@
 
           <div class="row">
             <q-input
-                v-model="nom_long"
+                v-model="prenom"
                 color="cyan-4"
                 label="Prenom"
                 class="col-2"
@@ -133,6 +133,7 @@ export default {
       prenom: '',
       username:'',
       user_function: '',
+      user_function_id: '',
       email: '',
       user: [],
       id: '',
@@ -145,11 +146,13 @@ export default {
     this.loadFunctions();
     this.user = this.allUsers.find(user => user.id === this.userId);
     console.log('allFunctions', this.allFunctions);
+    console.log('User', this.user);
     if(this.userId){
       this.nom = this.user.last_name;
       this.prenom = this.user.first_name;
       this.username = this.user.username;
       this.user_function = this.user.function.title;
+      this.user_function_id = this.user.function.id;
       this.email = this.user.email;
     }
   },
@@ -170,11 +173,12 @@ export default {
   ...mapActions('users', ['loadUsers', 'updateUser', 'addUser', 'loadFunctions']),
 
     async callSubmit() {
+    console.log('User', this.user);
       const formData = {
         last_name: this.nom,
         first_name: this.prenom,
         username: this.username,
-        function: this.user_function,
+        function: this.user_function_id,
         email: this.email,
       }
       console.log('formDataEnvoyé', formData);

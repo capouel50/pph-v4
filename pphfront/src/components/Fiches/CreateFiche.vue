@@ -148,6 +148,7 @@
           icon="settings"
           :done="step > 4"
         >
+
           <div v-if="parametres.length > 0" class="row">
           <div class="col-1">
               <div v-for="(parametre, index) in parametres" :key="index">
@@ -192,8 +193,11 @@
 
       <div class="row justify-center">
         <q-btn-group>
-          <q-btn flat @click="validFiche" color="green-4" label="Enregistrer" class="btn-flat-success-pph"/>
-          <q-btn flat color="red-4" label="Supprimer" class="btn-flat-danger-pph"/>
+            <q-btn flat @click="validFiche" color="green-4" label="Enregistrer" class="btn-flat-success-pph"/>
+            <router-link v-if="demandeId" to="/demandes/">
+              <q-btn flat color="red-4" label="Annuler" class="btn-flat-danger-pph"
+                     @click="toggleProduction({ demandeId: demande.id, isProduction: demande.production })"/>
+            </router-link>
         </q-btn-group>
     </div>
     </q-stepper>
@@ -202,7 +206,7 @@
 
 <script>
 
-import {mapActions, mapGetters} from "vuex";
+import {mapActions, mapGetters, mapMutations} from "vuex";
 
 export default {
   data() {
@@ -220,27 +224,32 @@ export default {
       parametres: [],
       valeurParametre: null,
       compositions: [],
+      isLoading :true,
+      ficheId: null,
     };
   },
 
   computed: {
     ...mapGetters('formules', ['allTypes', 'allListes', 'allFormules', 'allParametresFormules',
-                  'allParametres', 'allCompositions']),
+                  'allParametres', 'allCompositions',]),
     ...mapGetters('voiesAdministration', ['allVoies']),
     ...mapGetters('services', ['allServices']),
     ...mapGetters('fiches', ['allFiches', 'lastFicheId']),
+    ...mapGetters('demandes', ['allDemandes']),
 
   },
 
 
-  created() {
-    this.loadTypes();
-    this.loadFormules();
-    this.loadParametres();
-    this.loadParametresFormules();
-    this.loadCompositions();
-    this.loadServices();
-    this.loadFiches();
+  async created() {
+    await Promise.all([
+        this.loadTypes(),
+        this.loadFormules(),
+        this.loadParametres(),
+        this.loadParametresFormules(),
+        this.loadCompositions(),
+        this.loadServices(),
+        this.loadFiches(),
+    ]);
     this.allTypePrepLabel = this.allTypes
       .map(type => ({
       label: type.nom,
@@ -251,8 +260,6 @@ export default {
       label: service.nom,
       value: service.id,
     }));
-    console.log('allservices: ', this.allServices);
-    console.log('Service: ', this.service.nom)
   },
 
   watch: {
@@ -265,6 +272,9 @@ export default {
                               'loadParametres', 'loadCompositions']),
     ...mapActions('fiches', ['addFiche', 'addParametresValues', 'loadFiches']),
     ...mapActions('services', ['addService', 'loadServices']),
+    ...mapActions('demandes', ['loadDemandes', 'toggleProduction']),
+    ...mapActions('notifications', ['showNotification']),
+    ...mapMutations('fiches', ['ADD_FICHE', 'ADD_PARAMETRES_FICHES']),
 
     onFormuleChange() {
       if (this.formule) {
@@ -272,6 +282,7 @@ export default {
           this.parametres = this.allParametresFormules.filter(parametre =>
               parametre.num_formule === this.formule.value
           );
+          console.log('params', this.parametres);
           this.compositions = this.allCompositions.filter(composition =>
               composition.num_formule === this.formule.value
           );
@@ -315,32 +326,25 @@ export default {
         }
         // Trouvez le dernier ID de demande
         const lastFicheId = Math.max(...allFiches.map(fiche => fiche.id));
-        // Créez un tableau pour stocker les données formatées
-        const formData = [];
+        this.ficheId = lastFicheId + 1
         // Parcourez chaque paramètre et préparez les données formatées
         this.parametres.forEach(parametre => {
-          const formattedParametre = {
-            num_fiche: lastFicheId + 1, // Incrémentation du dernier ID de demande
-            parametre: parametre.parametre.id,
+          this.ADD_PARAMETRES_FICHES ({
+            num_fiche: lastFicheId + 1,
+            parametre: parametre.parametre,
             valeur_parametre: parametre.valeur_parametre
-          };
-          formData.push(formattedParametre);
+          });
         });
-        console.log(formData);
-        const jsonData = JSON.stringify(formData);
-        console.log(jsonData)
-      this.addParametresValues(jsonData);
+        this.ADD_FICHE ({
+          id: lastFicheId + 1,
+          prep: this.allFormules.find(formule => formule.id === this.formule.value),
+          typePrep: this.allTypes.find(type => type.id === this.typePrep.value),
+          service: this.allServices.find(service => service.id === this.service.value),
+          patient: this.patient,
+          age: this.age,
+          prescripteur: this.prescripteur,
+        });
 
-      const ficheData = {
-        prep: this.formule.value,
-        typePrep: this.typePrep.value,
-        service: this.service.value,
-        patient: this.patient,
-        age: this.age,
-        prescripteur: this.prescripteur,
-      };
-      this.addFiche(ficheData);
-      this.date_prevu = '';
       this.formule = null;
       this.typePrep = null;
       this.service = '';
@@ -348,7 +352,7 @@ export default {
       this.age = '';
       this.prescripteur = '';
       this.step = 1;
-      this.redirectToLink(this.lastFicheId)
+      this.$router.push({ name: 'CompoFiche', params: { ficheId: this.ficheId }});
     },
   },
 };

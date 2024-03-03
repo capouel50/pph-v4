@@ -7,7 +7,7 @@ from .views import (
     VoieViewSet, TypePrepViewSet, ParametresPrepViewSet, ParametresFormulesViewSet, CompositionFilterView,
     DemandesViewSet, FichesViewSet, FichesSemaine, FichesMois, ConditionnementViewSet, CategorieMatiereViewSet,
     CatalogueImportViewSet, ReceptionViewSet, EtablissementViewSet, ParametresDemandesViewSet, ParametresFichesViewSet,
-    EpiViewSet, EpiFormulesViewSet, BalancesViewSet, InstructionsBalancesViewSet
+    EpiViewSet, EpiFormulesViewSet, BalancesViewSet, InstructionsBalancesViewSet, ArticlesFormulesViewSet
 )
 from PPH import views
 from django.conf import settings
@@ -16,7 +16,8 @@ from django.conf.urls.static import static
 router = DefaultRouter()
 router.register(r'etablissement', EtablissementViewSet)
 router.register(r'formules', FormuleViewSet)
-router.register(r'suppliers', SupplierViewSet)
+router.register(r'suppliers', SupplierViewSet, basename='suppliers')
+router.register(r'balances-suppliers', SupplierViewSet, basename='balances-supplier')
 router.register(r'types-matieres', TypeMatiereViewSet)
 router.register(r'unites-mesure', UniteMesureViewSet)
 router.register(r'formes', FormeViewSet)
@@ -43,6 +44,7 @@ router.register(r'epi', EpiViewSet)
 router.register(r'epi-formules', EpiFormulesViewSet)
 router.register(r'balances', BalancesViewSet)
 router.register(r'instructions-balances', InstructionsBalancesViewSet)
+router.register(r'articles-formules', ArticlesFormulesViewSet)
 
 urlpatterns = [
     path('reset-data/', views.reset_data, name='reset_data'),

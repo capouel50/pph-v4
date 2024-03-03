@@ -92,7 +92,28 @@ const actions = {
     }
   },
 
+  async addCertificat({ dispatch }, { formData, id }) {
+    try {
+    await api.patch(`PPH/reception/${id}/`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      }
+    });
 
+    dispatch('notifications/showNotification', {
+      message: 'Modifications ajoutée avec succès',
+      type: 'success'
+    }, { root: true });
+
+    return Promise.resolve();
+  } catch (error) {
+    dispatch('notifications/showNotification', {
+      message: 'Erreur lors de la modification',
+      type: 'error'
+    }, { root: true });
+    return Promise.reject(error);
+    }
+  },
 
   async addType({ dispatch }, formData) {
       try {
@@ -349,18 +370,18 @@ const actions = {
   },
 
   async toggleCde({ dispatch }, payload) {
-    const { matiereId, isCde } = payload;
+    const { matiereId, matiereName, isCde } = payload;
     try {
       if (isCde) {
         await api.patch(`/PPH/matieres-premieres/${matiereId}/`, { cde: false });
         dispatch('notifications/showNotification', {
-          message: 'Matière première retirée de la liste de commande',
+          message: `${matiereName} retirée de la liste de commande`,
           type: 'success'
         }, { root: true });
       } else {
         await api.patch(`/PPH/matieres-premieres/${matiereId}/`, { cde: true });
         dispatch('notifications/showNotification', {
-          message: 'Matière première ajoutée à la liste de commande',
+          message: `${matiereName} ajoutée à la liste de commande`,
           type: 'success'
         }, { root: true });
       }

@@ -3,7 +3,8 @@ from django.db import models
 from django.urls import reverse
 from datetime import date
 from .utils import convert_quantity
-
+from django.db import transaction
+from datetime import timedelta
 class Etablissement(models.Model):
 
     nom_long = models.CharField(max_length=100, unique=True)
@@ -108,7 +109,18 @@ class Balances(models.Model):
     modele = models.CharField(max_length=100, unique=True)
     fabricant = models.ForeignKey(FabricantsBalances, on_delete=models.CASCADE)
     calibration = models.DateField(default=date.today, blank=True)
+    duree_calibration = models.IntegerField(null=True)
+    prochaine = models.DateField(blank=True, null=True)
     bloque_calibration = models.BooleanField(default=True)
+    is_activate = models.BooleanField(default=True)
+
+    def save(self, *args, **kwargs):
+        # Calculate `prochaine` by adding `duree_calibration` to `calibration`
+        if self.calibration and self.duree_calibration:
+            # Multiply duree_calibration by 30 to get an approximate number of days in these months
+            self.prochaine = self.calibration + timedelta(days=self.duree_calibration * 30)
+
+        super().save(*args, **kwargs)
     class Meta:
         ordering = ['modele']
 
@@ -116,6 +128,7 @@ class Balances(models.Model):
         return self.modele
 
 class InstructionsBalances(models.Model):
+    action = models.CharField(max_length=100,null=True, blank=True)
     modele_balance = models.ForeignKey(Balances, on_delete=models.CASCADE)
     nom = models.CharField(max_length=100, unique=True)
     instruction = models.CharField(max_length=100, unique=True)
@@ -244,7 +257,11 @@ class ParametresFiches(models.Model):
 class ParametresFormules(models.Model):
     num_formule = models.IntegerField()
     parametre = models.ForeignKey(ParametresPrep, on_delete=models.CASCADE)
+    unite = models.CharField(max_length=200, null=True)
     resettable = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.num_formule} - {self.parametre}"
 
     def __str__(self):
         return f"{self.num_formule} - {self.parametre}"
@@ -263,6 +280,7 @@ class EpiFormules(models.Model):
 
 class MatierePremiere(models.Model):
     nom = models.CharField(max_length=200, null=True)
+    categorie = models.ForeignKey(CategorieMatiere, on_delete=models.CASCADE, default=1, null=False)
     type = models.ForeignKey(TypeMatiere, on_delete=models.CASCADE, default=1, null=False)
     forme = models.ForeignKey(Forme, on_delete=models.CASCADE, null=True)
     cdt = models.ForeignKey(Conditionnement, on_delete=models.CASCADE, null=True)
@@ -324,6 +342,11 @@ class MatierePremiere(models.Model):
     def __str__(self):
         return self.nom
 
+class ArticlesFormules(models.Model):
+    num_formule = models.IntegerField()
+    article = models.ForeignKey(MatierePremiere, on_delete=models.CASCADE)
+    resettable = models.BooleanField(default=True)
+
 class Formule(models.Model):
     nom = models.CharField(max_length=200, null=False)
     type = models.ForeignKey(TypePrep, on_delete=models.CASCADE, default=1, null=False)
@@ -361,6 +384,16 @@ class Composition(models.Model):
     matiere = models.ForeignKey(MatierePremiere, on_delete=models.CASCADE, null=True)
     qté = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     calcul = models.CharField(max_length=200, null=True)
+    resettable = models.BooleanField(default=True)
+
+    def __str__(self):
+        return str(self.num_formule)
+
+class CompositionFiche(models.Model):
+    num_fiche = models.IntegerField(null=True)
+    matiere = models.ForeignKey(MatierePremiere, on_delete=models.CASCADE, null=True)
+    qté = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    ecart = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     resettable = models.BooleanField(default=True)
 
     def __str__(self):
@@ -461,28 +494,44 @@ class Reception(models.Model):
     peremption = models.DateField(blank=True)
     certificat = models.FileField(upload_to='certificats/', null=True)
     qte = models.PositiveIntegerField(null=True, blank=True)
-    stock_reception = models.DecimalField(max_digits=10, decimal_places=2, default=0, editable=False)
+    stock_reception = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    echantillon = models.BooleanField(default=False)
+    qte_echantillon = models.DecimalField(max_digits=10, decimal_places=2, null=True)
     resettable = models.BooleanField(default=True)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if not self.pk:
-            self.stock_reception = self.get_default_stock()
 
     def save(self, *args, **kwargs):
         created = not self.pk
-        super().save(*args, **kwargs)
+        old = Reception.objects.get(pk=self.pk) if self.pk else None
+
         if created:
-            self.update_matiere_stock()
+            self.stock_reception = self.get_default_stock()
+            if self.qte_echantillon:
+                self.stock_reception -= self.qte_echantillon
+
+        super().save(*args, **kwargs)
+
+        if created:
+            self.update_matiere_stock(created=True)
+
+        elif old and old.qte_echantillon != self.qte_echantillon:
+            with transaction.atomic():
+                self.stock_reception -= self.qte_echantillon
+                self.save()
+                self.update_matiere_stock(created=False)
 
     def get_default_stock(self):
         if self.qte and self.matiere:
             converted_quantity = convert_quantity(self.qte, self.matiere.unite_cdt, self.matiere.unite_mesure.nom)
-            return converted_quantity * self.qte
+            return converted_quantity*self.matiere.qté_cdt
         return 0
 
-    def update_matiere_stock(self):
-        if self.matiere and self.qte:
-            self.matiere.qté_stock += self.stock_reception
-            self.matiere.attente_livraison = False
-            self.matiere.save()
+    def update_matiere_stock(self, created):
+        if self.matiere:
+            with transaction.atomic():
+                matiere = MatierePremiere.objects.select_for_update().get(pk=self.matiere.pk)
+                if created:
+                    matiere.qté_stock += self.stock_reception
+                else:
+                    matiere.qté_stock -= self.qte_echantillon
+                matiere.attente_livraison = False
+                matiere.save()

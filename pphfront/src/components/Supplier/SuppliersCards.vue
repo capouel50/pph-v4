@@ -3,12 +3,17 @@
     <div class="row justify-center">
       <div class="col-md-12">
         <div class="row q-mx-sm">
-          <div class="col-1 q-mt-md">
+          <div class="col-3 q-mt-md">
             <router-link to="/supplier/">
-              <q-btn round class="glossy btn-grey-primary-pph" icon="add"/>
+              <q-btn round class="glossy btn-cyan-pph" icon="add_box"/>
             </router-link>
           </div>
-          <div class="col-2 offset-9 q-mt-sm">
+          <div class="col-6 q-mt-md text-cyan-4 text-h6">
+            <div class="row justify-center">
+            {{ countSuppliers }} fournisseurs référencées
+            </div>
+          </div>
+          <div class="col-2 offset-1 q-mt-sm">
             <q-input
                 ref="searchInput"
                 v-model="searchQuery"
@@ -145,6 +150,10 @@ export default {
 
   computed: {
     ...mapGetters('suppliers', ['allSuppliers', 'showMenu', 'expanded']),
+
+    countSuppliers() {
+      return Array.isArray(this.filteredSuppliers) ? this.filteredSuppliers.length : 0;
+    },
 
     filteredSuppliers() {
       if (this.searchQuery) {

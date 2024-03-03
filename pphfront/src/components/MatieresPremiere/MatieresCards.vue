@@ -3,13 +3,10 @@
     <div class="row justify-center">
       <div class="col-md-12">
         <div class="row q-mx-sm q-mt-sm">
-          <div class="col-3">
+          <div class="col-3 q-mt-sm">
             <div class="row">
-            <router-link to="/creation-matiere-premiere/">
-              <q-btn round class="q-mt-sm glossy btn-grey-primary-pph" icon="add"/>
-            </router-link>
+
            <q-input
-              class="q-ml-md"
               ref="searchCatalogueInput"
               v-model="searchCatalogueQuery"
               label="Importer..."
@@ -20,6 +17,11 @@
               @focus="onFocus('searchCatalogueQuery', '#4dd0e1')"
               @blur="onBlur('searchCatalogueQuery')"
             >
+              <template v-slot:before>
+                <router-link to="/creation-matiere-premiere/">
+                  <q-btn round icon="add_box" class="glossy btn-cyan-pph"/>
+                </router-link>
+              </template>
               <template v-slot:append>
                 <q-icon v-if="searchCatalogueQuery.length < 1"
                                    name="search"
@@ -430,16 +432,23 @@ export default {
     ...mapGetters('formules', ['allListes']),
 
     countMatieres() {
-      return this.allMatieres.length;
+      return Array.isArray(this.filteredMatieres) ? this.filteredMatieres.length : 0;
     },
 
     filteredMatieres() {
+      if (!Array.isArray(this.allMatieres)) {
+        return [];
+      }
+
+      const categories = ["Chimiques & Excipients", "Alcools & Alcoolats", "Gélules", "Flaconnage", "Pots"];
+
       if (this.searchQuery) {
         return this.allMatieres.filter(matiere =>
-            matiere.nom.toLowerCase().startsWith(this.searchQuery.toLowerCase())
+          matiere.nom.toLowerCase().startsWith(this.searchQuery.toLowerCase()) &&
+          categories.includes(matiere.categorie.nom)
         );
       }
-      return this.allMatieres;
+      return this.allMatieres.filter(matiere => categories.includes(matiere.categorie.nom));
     },
 
     filteredMatieresCatalogue() {
@@ -467,7 +476,7 @@ export default {
     await this.loadUnites();
     await this.loadListes();
     await this.loadFormes();
-
+    console.log('allMatieres', this.allMatieres);
     this.unitesOptions = this.allUnites
       .map(unite => ({
       label: unite.nom,

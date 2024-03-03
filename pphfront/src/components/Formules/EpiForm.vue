@@ -15,11 +15,42 @@
         :options="allEpiLabel"
         option-label="label"
         option-value="value"
-      />
+      >
+        <template v-slot:append v-if="!row.epi">
+          <q-btn flat @click="epiDialog=true" icon="add_box" color="green-4" class="q-px-none hover-effect"/>
+        </template>
+      </q-select>
+      <q-dialog v-model="epiDialog">
+      <q-card>
+        <q-card-section>
+          <div class="row text-subtitle1 text-cyan-4 justify-center">
+            Créer un epi
+          </div>
+        </q-card-section>
+        <q-separator/>
+        <q-card-section>
+          <q-input
+            v-model="epi"
+            label="Type"
+            color ='cyan-4'
+            @mouseover="changeLabelColor('nameInput','#ffb74d')"
+            @mouseleave="changeLabelColor('nameInput','')"
+            @focus="onFocus('name','#4dd0e1')"
+            @blur="onBlur('name')"
+          />
+        </q-card-section>
+        <q-separator/>
+        <div class="row justify-center">
+        <q-btn flat @click="validerEpi" label="Ajouter" color="green-4"/>
+        <q-btn flat @click="epiDialog=false" label="Annuler" color="red-4"/>
+        </div>
+      </q-card>
+     </q-dialog>
       <q-btn-group flat class="q-ml-lg">
         <q-btn flat size="sm" @click="addRow" icon="add_box" color="green-4"/>
         <q-btn flat size="sm" @click="removeRow" icon="delete_forever" color="red-4"/>
       </q-btn-group>
+
     </div>
 
     <div class="row">
@@ -41,6 +72,7 @@ import api from "../../../api";
 export default {
   data() {
     return {
+      epiDialog: false,
       selectedRowIndex: null,
       formRows: [
         {

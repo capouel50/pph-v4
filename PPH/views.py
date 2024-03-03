@@ -43,14 +43,14 @@ from PPH.serializers import (
     ConditionnementSerializer, CategorieMatiereSerializer, CatalogueImportSerializer, ReceptionReadSerializer,
     ReceptionWriteSerializer, EtablissementSerializer, ParametresDemandesReadSerializer, ParametresDemandesWriteSerializer,
     ParametresFichesReadSerializer, ParametresFichesWriteSerializer, EpiSerializer, EpiFormulesReadSerializer, EpiFormulesWriteSerializer,
-    BalancesSerializer, InstructionsBalancesSerializer
+    BalancesSerializer, FabricantsBalancesSerializer, InstructionsBalancesSerializer, ArticlesFormulesListSerializer, ArticlesFormulesReadSerializer, ArticlesFormulesWriteSerializer
 )
 from .models import CustomUser, Supplier, UserFunction, Contact, \
     TypeMatiere, UniteMesure, Forme, MatierePremiere, TypePrep, \
     Formule, Composition, Catalogue, Liste, Voie, ParametresPrep, \
     ParametresFormules, Demandes, Fiches, Service, Conditionnement, \
     CategorieMatiere, CatalogueImport, Reception, Etablissement, \
-    ParametresDemandes, ParametresFiches, Epi, EpiFormules, Balances, InstructionsBalances, FabricantsBalances
+    ParametresDemandes, ParametresFiches, Epi, EpiFormules, Balances, InstructionsBalances, FabricantsBalances, ArticlesFormules
 
 from django.http import JsonResponse
 from .utils import extract_data_from_pdf
@@ -256,8 +256,21 @@ class CurrentUserView(APIView):
 
 
 class SupplierViewSet(viewsets.ModelViewSet):
-    queryset = Supplier.objects.all()
-    serializer_class = SupplierSerializer
+    def get_queryset(self):
+        if self.basename == 'suppliers':
+            return Supplier.objects.all()
+        elif self.basename == 'balances-supplier':
+            return FabricantsBalances.objects.all()
+        else:
+            return Supplier.objects.none()
+
+    def get_serializer_class(self):
+        if self.basename == 'suppliers':
+            return SupplierSerializer
+        elif self.basename == 'balances-supplier':
+            return FabricantsBalancesSerializer
+        else:
+            return SupplierSerializer
 
     def create(self, request, *args, **kwargs):
         # Créez une instance de serializer en utilisant les données soumises par le formulaire
@@ -386,6 +399,14 @@ class ParametresFormulesViewSet(viewsets.ModelViewSet):
         if self.request.method in ['POST', 'PUT']:
             return ParametresFormulesListSerializer
         return ParametresFormulesReadSerializer
+
+class ArticlesFormulesViewSet(viewsets.ModelViewSet):
+    queryset = ArticlesFormules.objects.all()
+
+    def get_serializer_class(self):
+        if self.request.method in ['POST', 'PUT']:
+            return ArticlesFormulesListSerializer
+        return ArticlesFormulesReadSerializer
 
 class UniteMesureViewSet(viewsets.ModelViewSet):
     queryset = UniteMesure.objects.all()
@@ -571,7 +592,7 @@ class FichesSemaine(APIView):
         fiches = Fiches.objects.annotate(
             week=ExtractWeek('date_fab'),
             year=ExtractYear('date_fab')
-        ).filter(year=current_year, controle_valid=True).values(
+        ).filter(year=current_year, controle_valide=True).values(
             'week'
         ).annotate(count=Count('id'), qte=Sum('qté')).order_by('week')
 
@@ -592,7 +613,7 @@ class FichesMois(APIView):
         fiches = Fiches.objects.annotate(
             month=ExtractMonth('date_fab'),
             year=ExtractYear('date_fab')
-        ).filter(year=current_year, controle_valid=True).values(
+        ).filter(year=current_year, controle_valide=True).values(
             'month'
         ).annotate(count=Count('id'), qte=Sum('qté')).order_by('month')
 
